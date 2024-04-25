@@ -1,5 +1,5 @@
-import { REACT_SIMPLE_UTIL } from "data";
-import { CultureInfo, NumberFormat } from "./cultureInfo";
+import { CultureInfoFormat, NumberFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
+import { stringReplaceChars } from "./string";
 import { CompareReturn, Nullable } from "./types";
 import { isEmpty, isNumber, isString } from "./typing";
 
@@ -10,11 +10,15 @@ export interface NumberFormatOptions {
 	maxDecimalDigits?: number; // fractional part will be cut over this part (note: there is no rounding!)
 }
 
+export const getResolvedNumberFormat = (format: Nullable<CultureInfoFormat<NumberFormat>>) => {
+	return getResolvedCultureInfoFormat(format, t => t.numberFormat);
+};
+
 export function compareNumbers(n1: number, n2: number): CompareReturn {
 	return n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
 }
 
-export function tryParseFloat(value: unknown): number | undefined {
+export function tryParseFloat(value: unknown): number | undefined {	
 	if (isEmpty(value)) {
 		return undefined;
 	}
@@ -24,6 +28,43 @@ export function tryParseFloat(value: unknown): number | undefined {
 	else if (isString(value)) {
 		try {
 			const number = parseFloat(value);
+			return isNumber(number) && !isNaN(number) ? number : undefined;
+		} catch {
+			return undefined;
+		}
+	}
+}
+
+export function tryParseFloatByCulture(
+	value: unknown,
+	format?: CultureInfoFormat<NumberFormat> // default: REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT
+): number | undefined {
+	if (isEmpty(value)) {
+		return undefined;
+	}
+	else if (isNumber(value)) {
+		return value;
+	}
+	else if (isString(value)) {
+		const numberFormat = getResolvedNumberFormat(format);
+
+		const str = stringReplaceChars(
+			value.toString(),
+			t => {
+				if (t === numberFormat.decimalSeparator) {
+					return ".";
+				}
+				else if (t === numberFormat.thousandSeparator) {
+					return "";
+				}
+				else {
+					return t;
+				}
+			}
+		);
+
+		try {
+			const number = parseFloat(str);
 			return isNumber(number) && !isNaN(number) ? number : undefined;
 		} catch {
 			return undefined;
@@ -83,17 +124,9 @@ const addThousandSeparatorsToFracPart = (s: string, thousandSeparator: string | 
 	return result;
 };
 
-export const getResolvedNumberFormat = (format: Nullable<Partial<NumberFormat | CultureInfo>>) => {
-	return (
-		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat :
-			(format as CultureInfo)?.cultureId ? (format as CultureInfo).numberFormat :
-				{ ...REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat, ...format as NumberFormat }
-	);
-};
-
 export function formatNumber(
 	value: number,
-	format?: Partial<NumberFormat | CultureInfo> & NumberFormatOptions
+	format?: NumberFormatOptions & CultureInfoFormat<NumberFormat>
 ): string {
 	const numberFormat = {
 		...getResolvedNumberFormat(format),

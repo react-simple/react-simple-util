@@ -7,6 +7,8 @@ export type ValueType = string | number | boolean | Date;
 export type ValueOrCallback<Value> = Value | (() => Value);
 export type ValueOrCallbackWithArgs<Args, Value> = Value | ((args: Args) => Value);
 
+export type ValueOrArray<Value> = Value | Value[];
+
 export interface StringCompareOptions {
 	ignoreCase?: boolean;
 	trim?: boolean;

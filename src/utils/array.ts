@@ -1,6 +1,6 @@
 import { compareNumbers } from "./number";
 import { compareValues } from "./value";
-import { CompareReturn, Nullable, StringCompareOptions, ValueOrCallbackWithArgs, ValueType } from "./types";
+import { CompareReturn, Nullable, StringCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
 import { isArray, isEmpty, isFunction } from "./typing";
 
 export const range = (start: number, count: number) => {
@@ -28,7 +28,7 @@ export const createArray = <T>(length: number, defaultValue?: ValueOrCallbackWit
 	return result;
 };
 
-export const getResolvedArray = <T>(valueOrArray: T | T[]) => {
+export const getResolvedArray = <T>(valueOrArray: ValueOrArray<T>) => {
 	return isArray(valueOrArray) ? valueOrArray : [valueOrArray];
 };
 
@@ -37,7 +37,7 @@ export const joinNonEmptyValues = <T>(items: Nullable<T>[], separator = ", ") =>
 	return items.filter(t => !isEmpty(t)).join(separator);
 };
 
-export const concatNonEmptyValues = <T>(items: Nullable<T>[], separator?: T | T[]) => {
+export const concatNonEmptyValues = <T>(items: Nullable<T>[], separator?: ValueOrArray<T>) => {
 	const result: T[] = [];
 
 	for (const item of items) {

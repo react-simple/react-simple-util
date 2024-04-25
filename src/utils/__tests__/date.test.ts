@@ -1,4 +1,4 @@
-import { sameDates, compareDates, tryParseISODate, tryParseDate, formatDate, formatDateTime } from "utils";
+import { sameDates, compareDates, tryParseDate, formatDate, formatDateTime } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
 
 const { CULTURE_INFO } = REACT_SIMPLE_UTIL;
@@ -19,12 +19,12 @@ it('sameDates.date', () => {
 	expect(sameDates(new Date(2000, 1, 1), new Date(2000, 1, 1))).toBe(true);
 });
 
-it('tryParseISODate.date', () => {
-	expect(sameDates(tryParseISODate("2000-01-02"), new Date(2000, 0, 2))).toBe(true);
+it('tryParseDate.isodate', () => {
+	expect(sameDates(tryParseDate("2000-01-02"), new Date(2000, 0, 2))).toBe(true);
 });
 
-it('tryParseISODate.dateTime	', () => {
-	expect(sameDates(tryParseISODate("2000-01-02T09:10:11.12345"), new Date(2000, 0, 2, 9, 10, 11, 123))).toBe(true);
+it('tryParseDate.isodateTime	', () => {
+	expect(sameDates(tryParseDate("2000-01-02T09:10:11.12345"), new Date(2000, 0, 2, 9, 10, 11, 123))).toBe(true);
 });
 
 it('tryParseDate.date', () => {
@@ -36,11 +36,11 @@ it('tryParseDate.dateTime', () => {
 });
 
 it('tryParseDate.cultureInfo.date', () => {
-	expect(sameDates(tryParseDate("2000.1.2.", { cultureInfo: CULTURE_INFO.HU }), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2.", CULTURE_INFO.HU), new Date(2000, 0, 2))).toBe(true);
 });
 
 it('tryParseDate.cultureInfo.dateTime', () => {
-	expect(sameDates(tryParseDate("2000.1.2. 3:4:5.6789", { cultureInfo: CULTURE_INFO.HU }), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2. 3:4:5.6789", CULTURE_INFO.HU), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
 });
 
 it('formatDate', () => {
@@ -60,11 +60,11 @@ it('formatDateTime.hourMinuteSecondMillisecond', () => {
 });
 
 it('formatDate.cultureInfo', () => {
-	expect(formatDate(new Date(2000, 0, 2, 3, 4, 5, 678), { cultureInfo: CULTURE_INFO.HU })).toBe("2000.01.02.");
+	expect(formatDate(new Date(2000, 0, 2, 3, 4, 5, 678), CULTURE_INFO.HU)).toBe("2000.01.02.");
 });
 
 it('formatDateTime.cultureInfo.hourMinute', () => {
-	expect(formatDateTime(new Date(2000, 0, 2, 3, 4, 5, 678), { cultureInfo: CULTURE_INFO.HU })).toBe("2000.01.02. 03:04");
+	expect(formatDateTime(new Date(2000, 0, 2, 3, 4, 5, 678), CULTURE_INFO.HU)).toBe("2000.01.02. 03:04");
 });
 
 it('formatDateTime.cultureInfo.hourMinuteSecond', () => {
@@ -73,4 +73,40 @@ it('formatDateTime.cultureInfo.hourMinuteSecond', () => {
 
 it('formatDateTime.cultureInfo.hourMinuteSecondMillisecond', () => {
 	expect(formatDateTime(new Date(2000, 0, 2, 3, 4, 5, 678), { cultureInfo: CULTURE_INFO.HU, milliseconds: true })).toBe("2000.01.02. 03:04:05.678");
+});
+
+it('tryParseDate.allCultureInfo.date', () => {
+	const format = CULTURE_INFO.ALL;
+
+	expect(sameDates(tryParseDate("1/2/2000", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000-01-02", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000-1-2", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2", format), new Date(2000, 0, 2))).toBe(true);
+});
+
+it('tryParseDate.allCultureInfo.dateTime', () => {
+	const format = CULTURE_INFO.ALL;
+
+	expect(sameDates(tryParseDate("1/2/2000 3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000-01-02T03:04:05.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000-1-2T3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2 3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+});
+
+it('tryParseDate.allDateFormats.date', () => {
+	const format = CULTURE_INFO.DATE_FORMATS.ALL;
+
+	expect(sameDates(tryParseDate("1/2/2000", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000-01-02", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000-1-2", format), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2", format), new Date(2000, 0, 2))).toBe(true);
+});
+
+it('tryParseDate.allDateFormats.dateTime', () => {
+	const format = CULTURE_INFO.DATE_FORMATS.ALL;
+
+	expect(sameDates(tryParseDate("1/2/2000 3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000-01-02T03:04:05.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000-1-2T3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("2000.1.2 3:4:5.6789", format), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
 });

@@ -2,21 +2,38 @@
 
 import { BooleanFormat } from "utils/cultureInfo";
 
+const DEFAULT_TRUE_SYNONYMS = ["yes", "y", "1", "true", "on", "checked", "enabled", "active"];
+
+const ISO: BooleanFormat = {
+	booleanFormatId: "ISO",
+	true_format: "true",
+	false_format: "false",
+	true_synonyms: DEFAULT_TRUE_SYNONYMS
+};
+
+const EN_US: BooleanFormat = {
+	booleanFormatId: "EN-US",
+	true_format: "True",
+	false_format: "False",
+	true_synonyms: DEFAULT_TRUE_SYNONYMS
+};
+
+const HU: BooleanFormat = {
+	booleanFormatId: "HU",
+	true_format: "Igen",
+	false_format: "Nem",
+	true_synonyms: [...DEFAULT_TRUE_SYNONYMS, "igen", "i", "be"]
+};
+
 export const BOOLEAN_FORMATS: {
+	readonly ISO: BooleanFormat;
 	readonly 'EN-US': BooleanFormat;
 	readonly HU: BooleanFormat;
-} = {
-	'EN-US': {
-		booleanFormatId: "EN-US",
-		true_format: "True",
-		false_format: "False",
-		true_synonyms: ["yes", "y", "1", "true", "on", "checked", "enabled", "active"]
-	},
 
-	HU: {
-		booleanFormatId: "HU",
-		true_format: "Igen",
-		false_format: "Nem",
-		true_synonyms: ["yes", "y", "1", "true", "on", "checked", "enabled", "active", "igen", "i", "be"]
-	}
+	readonly ALL: BooleanFormat[];
+} = {
+	ISO,
+	'EN-US': EN_US,
+	HU,
+	ALL: [ISO, EN_US, HU]
 };

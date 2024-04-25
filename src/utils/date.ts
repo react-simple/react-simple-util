@@ -1,8 +1,13 @@
-import { CompareReturn, DatePart, Nullable } from "./types";
+import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
 import { isDate, isEmpty, isNumber, isString } from "./typing";
 import { compareNumbers, formatNumber, roundDown, tryParseFloat } from "./number";
-import { CultureInfo, DateFormat } from "./cultureInfo";
-import { REACT_SIMPLE_UTIL } from "data";
+import { CultureInfoFormat, DateFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
+import { DATE_FORMATS } from "internal";
+import { getResolvedArray } from "./array";
+
+export const getResolvedDateFormat = (format: Nullable<CultureInfoFormat<DateFormat>>) => {
+	return getResolvedCultureInfoFormat(format, t => t.dateFormat);
+};
 
 export function compareDates(date1: Date, date2: Date): CompareReturn {
 	return compareNumbers(date1.getTime(), date2.getTime());
@@ -16,17 +21,10 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 	);
 }
 
-export const getResolvedDateFormat = (format: Nullable<Partial<DateFormat> | { cultureInfo: CultureInfo }>) => {
-	return (
-		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat :
-			(format as { cultureInfo: CultureInfo }).cultureInfo ? (format as { cultureInfo: CultureInfo }).cultureInfo.dateFormat :
-				{ ...REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat, ...format as Partial<DateFormat> }
-	);
-};
-
 export function tryParseDate(
 	value: Date | string | number,
-	format?: Partial<Pick<DateFormat, "dateFormatRegExp" | "dateTimeFormatRegExp">> | { cultureInfo: CultureInfo }
+	// supports multiple formats; DATE_FORMATS.ISO is always checked
+	formats?: ValueOrArray<CultureInfoFormat<Pick<DateFormat, "dateFormatRegExp" | "dateTimeFormatRegExp">>>
 ): Date | undefined {
 	if (!value) {
 		return undefined;
@@ -41,53 +39,55 @@ export function tryParseDate(
 		return undefined;
 	}
 	else {
-		const dateFormat = getResolvedDateFormat(format);
+		for (const format of [...getResolvedArray(formats), DATE_FORMATS.ISO]) {
+			const dateFormat = getResolvedDateFormat(format);
 
-		const dateMatch = (
-			(dateFormat.dateFormatRegExp && value.match(dateFormat.dateFormatRegExp)) ||
-			(dateFormat.dateTimeFormatRegExp && value.match(dateFormat.dateTimeFormatRegExp))
-		);
+			const dateMatch = (
+				(dateFormat.dateTimeFormatRegExp && value.match(dateFormat.dateTimeFormatRegExp)) ||
+				(dateFormat.dateFormatRegExp && value.match(dateFormat.dateFormatRegExp))
+			);
 
-		if (dateMatch?.groups) {
-			let year = tryParseFloat(dateMatch.groups["year"]);
-			const month = tryParseFloat(dateMatch.groups["month"]);
-			const day = tryParseFloat(dateMatch.groups["day"]);
-			const hour = tryParseFloat(dateMatch.groups["hour"]);
-			const minute = tryParseFloat(dateMatch.groups["minute"]);
-			const second = tryParseFloat(dateMatch.groups["second"]);
-			const millisecond = tryParseFloat(dateMatch.groups["millisecond"]);
-
-			if (
-				(year && year >= 0 && year <= 9999) &&
-				(month && month >= 1 && month <= 12) &&
-				(day && day >= 1 && day <= getDaysInMonth(month - 1))
-			) {
-				if (year < 100) {
-					year += roundDown(getToday().getFullYear(), 1000); // 2000 for a while
-				}
+			if (dateMatch?.groups) {
+				let year = tryParseFloat(dateMatch.groups["year"]);
+				const month = tryParseFloat(dateMatch.groups["month"]);
+				const day = tryParseFloat(dateMatch.groups["day"]);
+				const hour = tryParseFloat(dateMatch.groups["hour"]);
+				const minute = tryParseFloat(dateMatch.groups["minute"]);
+				const second = tryParseFloat(dateMatch.groups["second"]);
+				const millisecond = tryParseFloat(dateMatch.groups["millisecond"]);
 
 				if (
-					(!isEmpty(hour) && hour >= 0 && hour <= 23) &&
-					(!isEmpty(minute) && minute >= 0 && minute <= 59) &&
-					(!isEmpty(second) && second >= 0 && second <= 59)
+					(year && year >= 0 && year <= 9999) &&
+					(month && month >= 1 && month <= 12) &&
+					(day && day >= 1 && day <= getDaysInMonth(month - 1))
 				) {
-					// with time
-					try {
-						return new Date(
-							year, month - 1, day,
-							hour, minute, second,
-							millisecond && tryParseFloat(millisecond.toString().substring(0, 3)) || 0
-						);
+					if (year < 100) {
+						year += roundDown(getToday().getFullYear(), 1000); // 2000 for a while
 					}
-					catch {
+
+					if (
+						(!isEmpty(hour) && hour >= 0 && hour <= 23) &&
+						(!isEmpty(minute) && minute >= 0 && minute <= 59) &&
+						(!isEmpty(second) && second >= 0 && second <= 59)
+					) {
+						// with time
+						try {
+							return new Date(
+								year, month - 1, day,
+								hour, minute, second,
+								millisecond && tryParseFloat(millisecond.toString().substring(0, 3)) || 0
+							);
+						}
+						catch {
+						}
 					}
-				}
-				else {
-					// without time
-					try {
-						return new Date(year, month - 1, day);
-					}
-					catch {
+					else {
+						// without time
+						try {
+							return new Date(year, month - 1, day);
+						}
+						catch {
+						}
 					}
 				}
 			}
@@ -95,10 +95,6 @@ export function tryParseDate(
 	}
 
 	return undefined;
-}
-
-export function tryParseISODate(value: Date | string | number): Date | undefined {
-	return tryParseDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.DATE_FORMATS.ISO8601);
 }
 
 // removes time portion
@@ -170,7 +166,7 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 // Supports: yyyy, yy, MM, M, dd, d, H, HH, m, mm, s, ss, f
 export function formatDate(
 	value: Date,
-	format?: Partial<Pick<DateFormat, "dateFormat">> | { cultureInfo: CultureInfo }
+	format?: CultureInfoFormat<Pick<DateFormat, "dateFormat">>
 ): string {
 	return getResolvedDateFormat(format).dateFormat
 		.replaceAll("yyyy", value.getFullYear().toString())
@@ -188,7 +184,7 @@ export function formatDate(
 // Supports: yyyy, yy, MM, M, dd, d, H, HH, m, mm, s, ss
 export function formatDateTime(
 	value: Date,
-	format?: (Partial<Pick<DateFormat, "dateTimeFormat">> | { cultureInfo: CultureInfo }) & {
+	format?: CultureInfoFormat<Pick<DateFormat, "dateTimeFormat">> & {
 		seconds?: boolean;
 		milliseconds?: boolean;
 	}

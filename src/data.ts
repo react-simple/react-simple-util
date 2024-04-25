@@ -10,15 +10,13 @@ export const REACT_SIMPLE_UTIL: {
 		LOG_IMPLEMENTATION: LogImplementation;
 	};
 
-	readonly CULTURE_INFO: {
+	readonly CULTURE_INFO: typeof CULTURE_INFO & {
 		CURRENT: CultureInfo;
+		readonly DEFAULT: CultureInfo;
 
 		readonly DATE_FORMATS: typeof DATE_FORMATS;
 		readonly NUMBER_FORMATS: typeof NUMBER_FORMATS;
 		readonly BOOLEAN_FORMATS: typeof BOOLEAN_FORMATS;
-
-		readonly 'EN-US': CultureInfo;
-		readonly HU: CultureInfo;
 	};
 } = {
 	LOGGING: {
@@ -27,13 +25,13 @@ export const REACT_SIMPLE_UTIL: {
 	},
 
 	CULTURE_INFO: {
+		...CULTURE_INFO,
+
 		CURRENT: CULTURE_INFO["EN-US"],
+		DEFAULT: CULTURE_INFO["EN-US"],
 
 		DATE_FORMATS,
 		NUMBER_FORMATS,
-		BOOLEAN_FORMATS,
-
-		'EN-US': CULTURE_INFO["EN-US"],
-		HU: CULTURE_INFO.HU
+		BOOLEAN_FORMATS
 	}
 };

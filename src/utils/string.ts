@@ -1,4 +1,4 @@
-import { CompareReturn, StringCompareOptions } from "./types";
+import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { isArray } from "./typing";
 
 export const getComparableString = (s: string, options?: StringCompareOptions) => {
@@ -24,7 +24,7 @@ export const sameStrings = (s1: string, s2: string, options?: StringCompareOptio
 	return compareStrings(s1, s2, options) === 0;
 };
 
-export const startsWith = (s: string, prefix: string | string[], options?: StringCompareOptions) => {
+export const startsWith = (s: string, prefix: ValueOrArray<string>, options?: StringCompareOptions) => {
 	s = getComparableString(s, options);
 
 	return isArray(prefix)
@@ -32,7 +32,7 @@ export const startsWith = (s: string, prefix: string | string[], options?: Strin
 		: s.startsWith(getComparableString(prefix, options));
 };
 
-export const endsWith = (s: string, suffix: string | string[], options?: StringCompareOptions) => {
+export const endsWith = (s: string, suffix: ValueOrArray<string>, options?: StringCompareOptions) => {
 	s = getComparableString(s, options);
 
 	return isArray(suffix)
@@ -41,7 +41,7 @@ export const endsWith = (s: string, suffix: string | string[], options?: StringC
 };
 
 // removes all occurences from string
-export const trimStart = (s: string, remove: string | string[], options?: StringCompareOptions) => {
+export const trimStart = (s: string, remove: ValueOrArray<string>, options?: StringCompareOptions) => {
 	s = getComparableString(s, options);
 
 	if (!s) {
@@ -76,7 +76,7 @@ export const trimStart = (s: string, remove: string | string[], options?: String
 };
 
 // removes all occurences from string
-export const trimEnd = (s: string, remove: string | string[], options?: StringCompareOptions) => {
+export const trimEnd = (s: string, remove: ValueOrArray<string>, options?: StringCompareOptions) => {
 	s = getComparableString(s, options);
 
 	if (!s) {
@@ -110,7 +110,7 @@ export const trimEnd = (s: string, remove: string | string[], options?: StringCo
 	return i <= 0 ? "" : s.substring(0, i);
 };
 
-export function trim(s: string, removes: string | string[], options?: StringCompareOptions): string {
+export function trim(s: string, removes: ValueOrArray<string>, options?: StringCompareOptions): string {
 	return trimStart(trimEnd(s, removes, options), removes, options);
 }
 
@@ -140,4 +140,14 @@ export const stringRemoveFromTo = (s: string, from: number, to: number) => {
 // will remove the [start, start + length) range
 export const stringRemoveAt = (s: string, start: number, length: number) => {
 	return stringRemoveFromTo(s, start, start + length);
+};
+
+export const stringReplaceChars = (s: string, replace: (c: string, index: number) => string) => {
+	let result = "";
+	
+	for (let i = 0; i < s.length; i++) {
+		result+= replace(s.charAt(i), i);
+	}
+
+	return result;
 };

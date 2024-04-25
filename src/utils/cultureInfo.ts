@@ -1,3 +1,6 @@
+import { REACT_SIMPLE_UTIL } from "data";
+import { Nullable } from "./types";
+
 export interface DateFormat {
 	readonly dateFormatId: string;
 
@@ -34,5 +37,23 @@ export interface CultureInfo {
 	readonly booleanFormat: BooleanFormat;
 }
 
-//export function formatDate(d: Date, format?: DateFormat): string {
-//}
+export type CultureInfoFormat<Format> =
+	| Partial<Format>
+	| CultureInfo
+	| { cultureInfo: CultureInfo };
+
+export function getResolvedCultureInfoFormat<Format>(
+	format: Nullable<CultureInfoFormat<Format>>,
+	getFormat: (cultureInfo: CultureInfo) => Format
+): Format {
+	return (
+		!format ? getFormat(REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT) : // default format
+			(format as CultureInfo).cultureId ? getFormat(format as CultureInfo) :
+				(format as { cultureInfo: CultureInfo }).cultureInfo ? getFormat((format as { cultureInfo: CultureInfo }).cultureInfo) :
+					{
+						// override defaults
+						...getFormat(REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT),
+						...format as Partial<Format>
+					}
+	);
+}

@@ -56,11 +56,11 @@ it('tryParseBoolean.no', () => {
 });
 
 it('tryParseBoolean.cultureInfo.true', () => {
-	expect(tryParseBoolean("igen", { cultureInfo: CULTURE_INFO.HU })).toBe(true);
+	expect(tryParseBoolean("igen", CULTURE_INFO.HU)).toBe(true);
 });
 
 it('tryParseBoolean.cultureInfo.false', () => {
-	expect(tryParseBoolean("nem", { cultureInfo: CULTURE_INFO.HU })).toBe(false);
+	expect(tryParseBoolean("nem", CULTURE_INFO.HU)).toBe(false);
 });
 
 it('formatBoolean.true', () => {
@@ -80,9 +80,9 @@ it('formatBoolean.customFormat.false', () => {
 });
 
 it('formatBoolean.cultureInfo.true', () => {
-	expect(formatBoolean(true, { cultureInfo: CULTURE_INFO.HU })).toBe("Igen");
+	expect(formatBoolean(true, CULTURE_INFO.HU)).toBe("Igen");
 });
 
 it('formatBoolean.cultureInfo.false', () => {
-	expect(formatBoolean(false, { cultureInfo: CULTURE_INFO.HU })).toBe("Nem");
+	expect(formatBoolean(false, CULTURE_INFO.HU)).toBe("Nem");
 });
