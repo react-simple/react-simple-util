@@ -31,8 +31,18 @@ it('tryParseDate.date', () => {
 	expect(sameDates(tryParseDate("1/2/2000"), new Date(2000, 0, 2))).toBe(true);
 });
 
+it('tryParseDate.date.twodigityear', () => {
+	expect(sameDates(tryParseDate("1/2/00"), new Date(2000, 0, 2))).toBe(true);
+	expect(sameDates(tryParseDate("1/2/10"), new Date(2010, 0, 2))).toBe(true);
+});
+
 it('tryParseDate.dateTime', () => {
 	expect(sameDates(tryParseDate("1/2/2000 3:4:5.6789"), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+});
+
+it('tryParseDate.dateTime.twodigityear', () => {
+	expect(sameDates(tryParseDate("1/2/00 3:4:5.6789"), new Date(2000, 0, 2, 3, 4, 5, 678))).toBe(true);
+	expect(sameDates(tryParseDate("1/2/10 3:4:5.6789"), new Date(2010, 0, 2, 3, 4, 5, 678))).toBe(true);
 });
 
 it('tryParseDate.cultureInfo.date', () => {

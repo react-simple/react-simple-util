@@ -1,9 +1,8 @@
 import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
-import { isDate, isEmpty, isNumber, isString } from "./typing";
+import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
 import { compareNumbers, formatNumber, roundDown, tryParseFloat } from "./number";
 import { CultureInfoFormat, DateFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
 import { DATE_FORMATS } from "internal";
-import { getResolvedArray } from "./array";
 
 export const getResolvedDateFormat = (format: Nullable<CultureInfoFormat<DateFormat>>) => {
 	return getResolvedCultureInfoFormat(format, t => t.dateFormat);
@@ -57,7 +56,7 @@ export function tryParseDate(
 				const millisecond = tryParseFloat(dateMatch.groups["millisecond"]);
 
 				if (
-					(year && year >= 0 && year <= 9999) &&
+					(!isEmpty(year) && year >= 0 && year <= 9999) &&
 					(month && month >= 1 && month <= 12) &&
 					(day && day >= 1 && day <= getDaysInMonth(month - 1))
 				) {

@@ -20,7 +20,7 @@ const ISO: DateFormat = {
 const EN_US: DateFormat = {
 	dateFormatId: "EN-US",
 	dateFormat: "MM/dd/yyyy",
-	dateFormatRegExp: /^(?<month>\d{1,2})[.-/](?<day>\d{1,2})[.-/](?<year>(\d{2}|\d{4}))\.?$/,
+	dateFormatRegExp: /^(?<month>\d{1,2})[.-\/](?<day>\d{1,2})[.-\/](?<year>(\d{2}|\d{4}))\.?$/,
 
 	dateTimeFormat: {
 		hourMinute: "MM/dd/yyyy HH:mm",
@@ -28,13 +28,13 @@ const EN_US: DateFormat = {
 		hourMinuteSecondMillisecond: "MM/dd/yyyy HH:mm:ss.fff",
 	},
 
-	dateTimeFormatRegExp: /^(?<month>\d{1,2})[.-/](?<day>\d{1,2})[.-/](?<year>(\d{2}|\d{4}))\.? +(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?$/,
+	dateTimeFormatRegExp: /^(?<month>\d{1,2})[.-\/](?<day>\d{1,2})[.-\/](?<year>(\d{2}|\d{4}))\.? +(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?$/,
 };
 
 const HU: DateFormat = {
 	dateFormatId: "HU",
 	dateFormat: "yyyy.MM.dd.",
-	dateFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-/](?<month>\d{1,2})[.-/](?<day>\d{1,2})\.?$/,
+	dateFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-\/](?<month>\d{1,2})[.-\/](?<day>\d{1,2})\.?$/,
 
 	dateTimeFormat: {
 		hourMinute: "yyyy.MM.dd. HH:mm",
@@ -42,7 +42,7 @@ const HU: DateFormat = {
 		hourMinuteSecondMillisecond: "yyyy.MM.dd. HH:mm:ss.fff",
 	},
 
-	dateTimeFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-/](?<month>\d{1,2})[.-/](?<day>\d{1,2})\.? +(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?$/,
+	dateTimeFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-\/](?<month>\d{1,2})[.-\/](?<day>\d{1,2})\.? +(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?$/,
 };
 
 export const DATE_FORMATS: {

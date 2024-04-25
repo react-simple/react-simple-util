@@ -28,10 +28,6 @@ export const createArray = <T>(length: number, defaultValue?: ValueOrCallbackWit
 	return result;
 };
 
-export const getResolvedArray = <T>(valueOrArray: ValueOrArray<T>) => {
-	return isArray(valueOrArray) ? valueOrArray : [valueOrArray];
-};
-
 // the default separator is ", "
 export const joinNonEmptyValues = <T>(items: Nullable<T>[], separator = ", ") => {
 	return items.filter(t => !isEmpty(t)).join(separator);

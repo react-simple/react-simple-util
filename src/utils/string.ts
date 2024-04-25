@@ -1,5 +1,5 @@
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
-import { isArray } from "./typing";
+import { getResolvedArray, isArray } from "./typing";
 
 export const getComparableString = (s: string, options?: StringCompareOptions) => {
 	if (options?.trim) {
@@ -48,7 +48,7 @@ export const trimStart = (s: string, remove: ValueOrArray<string>, options?: Str
 		return "";
 	}
 
-	const rarr = (isArray(remove) ? remove : [remove]).filter(t => t).map(t => getComparableString(t, options));
+	const rarr = getResolvedArray(remove).filter(t => t).map(t => getComparableString(t, options));
 
 	if (!rarr.length) {
 		return s;
@@ -83,7 +83,7 @@ export const trimEnd = (s: string, remove: ValueOrArray<string>, options?: Strin
 		return "";
 	}
 
-	const rarr = (isArray(remove) ? remove : [remove]).filter(t => t).map(t => getComparableString(t, options));
+	const rarr = getResolvedArray(remove).filter(t => t).map(t => getComparableString(t, options));
 
 	if (!rarr.length) {
 		return s;

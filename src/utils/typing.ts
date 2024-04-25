@@ -1,12 +1,4 @@
-import { Nullable, ValueType, ValueOrCallback, ValueOrCallbackWithArgs } from "./types";
-
-export function getResolvedCallbackValue<Value>(valueOrFn: ValueOrCallback<Value>): Value {
-	return isFunction(valueOrFn) ? valueOrFn() : valueOrFn;
-}
-
-export function getResolvedCallbackValueWithArgs<Value, Args>(valueOrFn: ValueOrCallbackWithArgs<Value, Args>, args: Args): Value {
-	return (isFunction(valueOrFn) ? valueOrFn(args) : valueOrFn) as Value;
-}
+import { Nullable, ValueType, ValueOrCallback, ValueOrCallbackWithArgs, ValueOrArray } from "./types";
 
 // Does not consider falsy values empty (zero, empty string)
 export function isEmpty(value: unknown): value is undefined | null | '' {
@@ -66,3 +58,15 @@ export function isFile(value: unknown): value is File {
 		(value as File).type
 	);
 }
+
+export function getResolvedCallbackValue<Value>(valueOrFn: ValueOrCallback<Value>): Value {
+	return isFunction(valueOrFn) ? valueOrFn() : valueOrFn;
+}
+
+export function getResolvedCallbackValueWithArgs<Value, Args>(valueOrFn: ValueOrCallbackWithArgs<Value, Args>, args: Args): Value {
+	return (isFunction(valueOrFn) ? valueOrFn(args) : valueOrFn) as Value;
+}
+
+export const getResolvedArray = <T>(valueOrArray: ValueOrArray<T>) => {
+	return isArray(valueOrArray) ? valueOrArray : [valueOrArray];
+};
