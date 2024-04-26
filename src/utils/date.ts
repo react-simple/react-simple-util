@@ -3,6 +3,7 @@ import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing"
 import { compareNumbers, formatNumber, roundDown, tryParseFloat } from "./number";
 import { CultureInfoFormat, DateFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
 import { DATE_FORMATS } from "internal";
+import { REACT_SIMPLE_UTIL } from "../data";
 
 export const getResolvedDateFormat = (format: Nullable<CultureInfoFormat<DateFormat>>) => {
 	return getResolvedCultureInfoFormat(format, t => t.dateFormat);
@@ -20,6 +21,7 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 	);
 }
 
+// uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
 export function tryParseDate(
 	value: Date | string | number,
 	// supports multiple formats; DATE_FORMATS.ISO is always checked
@@ -38,7 +40,10 @@ export function tryParseDate(
 		return undefined;
 	}
 	else {
-		for (const format of [...getResolvedArray(formats), DATE_FORMATS.ISO]) {
+		for (const format of formats
+			? [...getResolvedArray(formats), DATE_FORMATS.ISO] // prefer specified formats first
+			: [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat] // prefer ISO first
+		) {
 			const dateFormat = getResolvedDateFormat(format);
 
 			const dateMatch = (

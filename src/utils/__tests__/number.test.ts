@@ -1,4 +1,4 @@
-import { NumberFormat, NumberFormatOptions, formatNumber, tryParseFloat, tryParseFloatByCulture } from "utils";
+import { NumberFormat, NumberFormatOptions, formatNumber, tryParseFloat, tryParseLocalFloat } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
 
 it('formatNumber.default', () => {
@@ -165,52 +165,52 @@ it('tryParseFloat.cultureIndependent', () => {
 	}
 });
 
-it('tryParseFloatByCulture.currentCulture.EN-US', () => {
+it('tryParseLocalFloat.currentCulture.EN-US', () => {
 	try {
 		REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT = REACT_SIMPLE_UTIL.CULTURE_INFO["EN-US"];
 
-		expect(tryParseFloatByCulture("1,000")).toBe(1000);
-		expect(tryParseFloatByCulture("1,000.1")).toBe(1000.1);
-		expect(tryParseFloatByCulture("1,000.000,1")).toBe(1000.0001);
-		expect(tryParseFloatByCulture("-1,000.2")).toBe(-1000.2);
-		expect(tryParseFloatByCulture("")).toBe(undefined);
+		expect(tryParseLocalFloat("1,000")).toBe(1000);
+		expect(tryParseLocalFloat("1,000.1")).toBe(1000.1);
+		expect(tryParseLocalFloat("1,000.000,1")).toBe(1000.0001);
+		expect(tryParseLocalFloat("-1,000.2")).toBe(-1000.2);
+		expect(tryParseLocalFloat("")).toBe(undefined);
 	}
 	finally {
 		REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT = REACT_SIMPLE_UTIL.CULTURE_INFO.DEFAULT
 	}
 });
 
-it('tryParseFloatByCulture.currentCulture.HU', () => {
+it('tryParseLocalFloat.currentCulture.HU', () => {
 	try {
 		REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT = REACT_SIMPLE_UTIL.CULTURE_INFO.HU;
 
-		expect(tryParseFloatByCulture("1.000")).toBe(1000);
-		expect(tryParseFloatByCulture("1.000,1")).toBe(1000.1);
-		expect(tryParseFloatByCulture("1.000,000.1")).toBe(1000.0001);
-		expect(tryParseFloatByCulture("-1.000,2")).toBe(-1000.2);
-		expect(tryParseFloatByCulture("")).toBe(undefined);
+		expect(tryParseLocalFloat("1.000")).toBe(1000);
+		expect(tryParseLocalFloat("1.000,1")).toBe(1000.1);
+		expect(tryParseLocalFloat("1.000,000.1")).toBe(1000.0001);
+		expect(tryParseLocalFloat("-1.000,2")).toBe(-1000.2);
+		expect(tryParseLocalFloat("")).toBe(undefined);
 	}
 	finally {
 		REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT = REACT_SIMPLE_UTIL.CULTURE_INFO.DEFAULT
 	}
 });
 
-it('tryParseFloatByCulture.cultureInfo.EN-US', () => {
+it('tryParseLocalFloat.cultureInfo.EN-US', () => {
 	const format = { cultureInfo: REACT_SIMPLE_UTIL.CULTURE_INFO["EN-US"] };
 
-	expect(tryParseFloatByCulture("1,000", format)).toBe(1000);
-	expect(tryParseFloatByCulture("1,000.1", format)).toBe(1000.1);
-	expect(tryParseFloatByCulture("1,000.000,1", format)).toBe(1000.0001);
-	expect(tryParseFloatByCulture("-1,000.2", format)).toBe(-1000.2);
-	expect(tryParseFloatByCulture("", format)).toBe(undefined);
+	expect(tryParseLocalFloat("1,000", format)).toBe(1000);
+	expect(tryParseLocalFloat("1,000.1", format)).toBe(1000.1);
+	expect(tryParseLocalFloat("1,000.000,1", format)).toBe(1000.0001);
+	expect(tryParseLocalFloat("-1,000.2", format)).toBe(-1000.2);
+	expect(tryParseLocalFloat("", format)).toBe(undefined);
 });
 
-it('tryParseFloatByCulture.cultureInfo.HU', () => {
+it('tryParseLocalFloat.cultureInfo.HU', () => {
 	const format = { cultureInfo: REACT_SIMPLE_UTIL.CULTURE_INFO.HU};
 
-	expect(tryParseFloatByCulture("1.000", format)).toBe(1000);
-	expect(tryParseFloatByCulture("1.000,1", format)).toBe(1000.1);
-	expect(tryParseFloatByCulture("1.000,000.1", format)).toBe(1000.0001);
-	expect(tryParseFloatByCulture("-1.000,2", format)).toBe(-1000.2);
-	expect(tryParseFloatByCulture("", format)).toBe(undefined);
+	expect(tryParseLocalFloat("1.000", format)).toBe(1000);
+	expect(tryParseLocalFloat("1.000,1", format)).toBe(1000.1);
+	expect(tryParseLocalFloat("1.000,000.1", format)).toBe(1000.0001);
+	expect(tryParseLocalFloat("-1.000,2", format)).toBe(-1000.2);
+	expect(tryParseLocalFloat("", format)).toBe(undefined);
 });

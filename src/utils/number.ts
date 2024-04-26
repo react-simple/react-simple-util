@@ -35,7 +35,8 @@ export function tryParseFloat(value: unknown): number | undefined {
 	}
 }
 
-export function tryParseFloatByCulture(
+// uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
+export function tryParseLocalFloat(
 	value: unknown,
 	format?: CultureInfoFormat<NumberFormat> // default: REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT
 ): number | undefined {
