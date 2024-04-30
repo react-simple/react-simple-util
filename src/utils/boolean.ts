@@ -1,9 +1,14 @@
 import { CompareReturn, Nullable, ValueOrCallback } from "./types";
 import { getResolvedCallbackValue, isString, resolveEmpty } from "./typing";
-import { BooleanFormat, CultureInfoFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
+import { BooleanFormat, CultureInfo } from "./cultureInfo";
+import { REACT_SIMPLE_UTIL } from "data";
 
-export const getResolvedBooleanFormat = (format: Nullable<CultureInfoFormat<BooleanFormat>>) => {
-	return getResolvedCultureInfoFormat(format, t => t.booleanFormat);
+const getResolvedBooleanFormat = <Format>(format: Nullable<CultureInfo | Format>) => {
+	return (
+		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.booleanFormat :
+			(format as CultureInfo).cultureId ? (format as CultureInfo).booleanFormat :
+				format as Format
+	);
 };
 
 // 'true' is considered to succeed 'false'
@@ -26,10 +31,7 @@ export function resolveBoolean<Result>(
 
 // understands true, 1, yes, y, on, checked, enabled in different casing, string/number/boolean as TRUE
 // see REACT_SIMPLE_UTIL.CULTURE_INFO.DEFAULT_CULTURE.booleanFormat
-export function tryParseBoolean(
-	value: unknown,
-	format?: CultureInfoFormat<Pick<BooleanFormat, "true_synonyms">>
-): boolean | undefined {
+export function tryParseBoolean(value: unknown, format?: CultureInfo | Pick<BooleanFormat, "true_synonyms">): boolean | undefined {
 	return (
 		!value ? false :
 			value === 1 || value === true ? true :
@@ -38,10 +40,7 @@ export function tryParseBoolean(
 	);
 }
 
-export const formatBoolean = (
-	value: boolean,
-	format?: CultureInfoFormat<Pick<BooleanFormat, "true_format" | "false_format">>
-) => {
+export const formatBoolean = (value: boolean, format?: CultureInfo | Pick<BooleanFormat, "true_format" | "false_format">) => {
 	return value
 		? getResolvedBooleanFormat(format).true_format
 		: getResolvedBooleanFormat(format).false_format;

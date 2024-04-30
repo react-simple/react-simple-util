@@ -61,41 +61,6 @@ export const mapNonEmptyValues = <In, Out>(array: Nullable<In>[], map: (value: I
 	return array.filter(t => !isEmpty(t)).map(t => map(t!));
 };
 
-export function convertArrayToDictionary<Item, Value>(
-	array: Item[],
-	getEntry: (item: Item) => [string, Value]
-): Record<string, Value> {
-	const result: Record<string, Value> = {};
-
-	for (const item of array) {
-		const [key, value] = getEntry(item);
-		result[key] = value;
-	}
-
-	return result;
-}
-
-export function convertArrayToDictionary2<Item, Value>(
-	array: Item[],
-	getEntry: (item: Item) => [string, string, Value]
-): Record<string, Record<string, Value>> {
-	const result: Record<string, Record<string, Value>> = {};
-
-	for (const item of array) {
-		const [key1, key2, value] = getEntry(item);
-		let dict = result[key1];
-
-		if (!dict) {
-			dict = {};
-			result[key1] = dict;
-		}
-
-		dict[key2] = value;
-	}
-
-	return result;
-}
-
 export const flatten = <T>(arrays: T[][]) => {
 	return ([] as T[]).concat(...arrays);
 };

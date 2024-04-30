@@ -1,12 +1,21 @@
 import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
 import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
-import { compareNumbers, formatNumber, roundDown, tryParseFloat } from "./number";
-import { CultureInfoFormat, DateFormat, getResolvedCultureInfoFormat } from "./cultureInfo";
+import { compareNumbers, formatNumberISO, formatNumberLocal, roundDown, tryParseFloatISO } from "./number";
+import { CultureInfo, DateFormat } from "./cultureInfo";
 import { DATE_FORMATS } from "internal";
-import { REACT_SIMPLE_UTIL } from "../data";
+import { REACT_SIMPLE_UTIL } from "data";
 
-export const getResolvedDateFormat = (format: Nullable<CultureInfoFormat<DateFormat>>) => {
-	return getResolvedCultureInfoFormat(format, t => t.dateFormat);
+export interface DateTimeFormatOptions {
+	seconds?: boolean;
+	milliseconds?: boolean;
+}
+
+const getResolvedDateFormat = <Format>(format: Nullable<CultureInfo | Format>) => {
+	return (
+		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat :
+			(format as CultureInfo).cultureId ? (format as CultureInfo).dateFormat :
+				format as Format
+	);
 };
 
 export function compareDates(date1: Date, date2: Date): CompareReturn {
@@ -22,11 +31,7 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-export function tryParseDate(
-	value: Date | string | number,
-	// supports multiple formats; DATE_FORMATS.ISO is always checked
-	formats?: ValueOrArray<CultureInfoFormat<Pick<DateFormat, "dateFormatRegExp" | "dateTimeFormatRegExp">>>
-): Date | undefined {
+export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfo | DateFormat>): Date | undefined {
 	if (!value) {
 		return undefined;
 	}
@@ -40,10 +45,7 @@ export function tryParseDate(
 		return undefined;
 	}
 	else {
-		for (const format of formats
-			? [...getResolvedArray(formats), DATE_FORMATS.ISO] // prefer specified formats first
-			: [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat] // prefer ISO first
-		) {
+		for (const format of getResolvedArray(formats)) {
 			const dateFormat = getResolvedDateFormat(format);
 
 			const dateMatch = (
@@ -52,13 +54,13 @@ export function tryParseDate(
 			);
 
 			if (dateMatch?.groups) {
-				let year = tryParseFloat(dateMatch.groups["year"]);
-				const month = tryParseFloat(dateMatch.groups["month"]);
-				const day = tryParseFloat(dateMatch.groups["day"]);
-				const hour = tryParseFloat(dateMatch.groups["hour"]);
-				const minute = tryParseFloat(dateMatch.groups["minute"]);
-				const second = tryParseFloat(dateMatch.groups["second"]);
-				const millisecond = tryParseFloat(dateMatch.groups["millisecond"]);
+				let year = tryParseFloatISO(dateMatch.groups["year"]);
+				const month = tryParseFloatISO(dateMatch.groups["month"]);
+				const day = tryParseFloatISO(dateMatch.groups["day"]);
+				const hour = tryParseFloatISO(dateMatch.groups["hour"]);
+				const minute = tryParseFloatISO(dateMatch.groups["minute"]);
+				const second = tryParseFloatISO(dateMatch.groups["second"]);
+				const millisecond = tryParseFloatISO(dateMatch.groups["millisecond"]);
 
 				if (
 					(!isEmpty(year) && year >= 0 && year <= 9999) &&
@@ -79,7 +81,7 @@ export function tryParseDate(
 							return new Date(
 								year, month - 1, day,
 								hour, minute, second,
-								millisecond && tryParseFloat(millisecond.toString().substring(0, 3)) || 0
+								millisecond && tryParseFloatISO(millisecond.toString().substring(0, 3)) || 0
 							);
 						}
 						catch {
@@ -99,6 +101,15 @@ export function tryParseDate(
 	}
 
 	return undefined;
+}
+
+// uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
+export function tryParseDateISO(value: Date | string | number): Date | undefined {
+	return tryParseDate(value, DATE_FORMATS.ISO);
+}
+
+export function tryParseDateLocal(value: Date | string | number): Date | undefined {
+	return tryParseDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT);
 }
 
 // removes time portion
@@ -167,17 +178,13 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 	);
 }
 
-// Supports: yyyy, yy, MM, M, dd, d, H, HH, m, mm, s, ss, f
-export function formatDate(
-	value: Date,
-	format?: CultureInfoFormat<Pick<DateFormat, "dateFormat">>
-): string {
+export function formatDate(value: Date, format: CultureInfo | Pick<DateFormat, "dateFormat">): string {
 	return getResolvedDateFormat(format).dateFormat
 		.replaceAll("yyyy", value.getFullYear().toString())
 		.replaceAll("yy", (value.getFullYear() % 100).toString())
-		.replaceAll("MM", formatNumber(value.getMonth() + 1, { minIntegerDigits: 2 }))
+		.replaceAll("MM", formatNumberLocal(value.getMonth() + 1, { minIntegerDigits: 2 }))
 		.replaceAll("M", (value.getMonth() + 1).toString())
-		.replaceAll("dd", formatNumber(value.getDate(), { minIntegerDigits: 2 }))
+		.replaceAll("dd", formatNumberLocal(value.getDate(), { minIntegerDigits: 2 }))
 		.replaceAll("d", value.getDate().toString())
 		.replaceAll("H", "")
 		.replaceAll("m", "")
@@ -185,36 +192,49 @@ export function formatDate(
 		.replaceAll("f", "");
 }
 
-// Supports: yyyy, yy, MM, M, dd, d, H, HH, m, mm, s, ss
+export function formatDateISO(value: Date): string {
+	return formatDate(value, DATE_FORMATS.ISO);
+}
+
+export function formatDateLocal(value: Date): string {
+	return formatDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT);
+}
+
 export function formatDateTime(
 	value: Date,
-	format?: CultureInfoFormat<Pick<DateFormat, "dateTimeFormat">> & {
-		seconds?: boolean;
-		milliseconds?: boolean;
-	}
+	format: CultureInfo | Pick<DateFormat, "dateTimeFormat">,
+	options?: DateTimeFormatOptions
 ): string {
 	const dateTimeFormat = getResolvedDateFormat(format).dateTimeFormat;
 
 	return (
-		format?.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
-			format?.seconds ? dateTimeFormat.hourMinuteSecond :
+		options?.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
+			options?.seconds ? dateTimeFormat.hourMinuteSecond :
 				dateTimeFormat.hourMinute
 	)
 		.replaceAll("yyyy", value.getFullYear().toString())
 		.replaceAll("yy", (value.getFullYear() % 100).toString())
-		.replaceAll("MM", formatNumber(value.getMonth() + 1, { minIntegerDigits: 2 }))
+		.replaceAll("MM", formatNumberISO(value.getMonth() + 1, { minIntegerDigits: 2 }))
 		.replaceAll("M", (value.getMonth() + 1).toString())
-		.replaceAll("dd", formatNumber(value.getDate(), { minIntegerDigits: 2 }))
+		.replaceAll("dd", formatNumberISO(value.getDate(), { minIntegerDigits: 2 }))
 		.replaceAll("d", value.getDate().toString())
-		.replaceAll("HH", formatNumber(value.getHours(), { minIntegerDigits: 2 }))
+		.replaceAll("HH", formatNumberISO(value.getHours(), { minIntegerDigits: 2 }))
 		.replaceAll("H", value.getHours().toString())
-		.replaceAll("mm", formatNumber(value.getMinutes(), { minIntegerDigits: 2 }))
+		.replaceAll("mm", formatNumberISO(value.getMinutes(), { minIntegerDigits: 2 }))
 		.replaceAll("m", value.getMinutes().toString())
-		.replaceAll("ss", formatNumber(value.getSeconds(), { minIntegerDigits: 2 }))
+		.replaceAll("ss", formatNumberISO(value.getSeconds(), { minIntegerDigits: 2 }))
 		.replaceAll("s", value.getSeconds().toString())
 		.replaceAll("fffff", value.getMilliseconds().toString())
 		.replaceAll("ffff", value.getMilliseconds().toString())
 		.replaceAll("fff", value.getMilliseconds().toString())
 		.replaceAll("ff", value.getMilliseconds().toString())
 		.replaceAll("f", value.getMilliseconds().toString());
+}
+
+export function formatDateTimeISO(value: Date, options?: DateTimeFormatOptions): string {
+	return formatDateTime(value, DATE_FORMATS.ISO, options);
+}
+
+export function formatDateTimeLocal(value: Date, options?: DateTimeFormatOptions): string {
+	return formatDateTime(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT, options);
 }

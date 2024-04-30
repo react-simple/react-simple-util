@@ -3,7 +3,7 @@
 import { DateFormat } from "utils/cultureInfo";
 
 const ISO: DateFormat = {
-	dateFormatId: "ISO",
+	formatId: "ISO",
 	dateFormat: "yyyy-MM-dd",
 	dateFormatRegExp: /^(?<year>\d{4})-(?<month>\d{1,2})-(?<day>\d{1,2})$/,
 
@@ -18,7 +18,7 @@ const ISO: DateFormat = {
 };
 
 const EN_US: DateFormat = {
-	dateFormatId: "EN-US",
+	formatId: "EN-US",
 	dateFormat: "MM/dd/yyyy",
 	dateFormatRegExp: /^(?<month>\d{1,2})[.-\/](?<day>\d{1,2})[.-\/](?<year>(\d{2}|\d{4}))\.?$/,
 
@@ -32,7 +32,7 @@ const EN_US: DateFormat = {
 };
 
 const HU: DateFormat = {
-	dateFormatId: "HU",
+	formatId: "HU",
 	dateFormat: "yyyy.MM.dd.",
 	dateFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-\/](?<month>\d{1,2})[.-\/](?<day>\d{1,2})\.?$/,
 

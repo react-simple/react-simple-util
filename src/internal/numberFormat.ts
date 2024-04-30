@@ -3,19 +3,19 @@
 import { NumberFormat } from "utils/cultureInfo";
 
 const ISO: NumberFormat = {
-	numberFormatId: "ISO",
+	formatId: "ISO",
 	decimalSeparator: ".",
 	thousandSeparator: ","
 };
 
 const EN_US: NumberFormat = {
-	numberFormatId: "EN-US",
+	formatId: "EN-US",
 	decimalSeparator: ".",
 	thousandSeparator: ","
 };
 
 const HU: NumberFormat = {
-	numberFormatId: "HU",
+	formatId: "HU",
 	decimalSeparator: ",",
 	thousandSeparator: "."
 };

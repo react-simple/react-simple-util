@@ -1,12 +1,15 @@
+import { REACT_SIMPLE_UTIL } from "data";
+import { DATE_FORMATS } from "internal";
 import { compareBooleans, tryParseBoolean } from "./boolean";
 import { compareDates, tryParseDate } from "./date";
-import { compareNumbers, tryParseFloat } from "./number";
+import { compareNumbers, tryParseFloatISO } from "./number";
 import { compareStrings } from "./string";
 import { CompareReturn, StringCompareOptions } from "./types";
 import { isBoolean, isDate, isNumber, isUndefinedOrNull } from "./typing";
 
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
+// understands DATE_FORMATS.ISO and REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat.
 export function compareValues(value1: unknown, value2: unknown, options?: StringCompareOptions): CompareReturn {
 	if (value1 === value2) {
 		return 0;
@@ -20,8 +23,8 @@ export function compareValues(value1: unknown, value2: unknown, options?: String
 	else {
 		// number
 		if (isNumber(value1) || isNumber(value2)) {
-			const num1 = tryParseFloat(value1);
-			const num2 = tryParseFloat(value2);
+			const num1 = tryParseFloatISO(value1);
+			const num2 = tryParseFloatISO(value2);
 
 			if (num1 !== undefined && num2 !== undefined) {
 				return compareNumbers(num1, num2);
@@ -30,8 +33,8 @@ export function compareValues(value1: unknown, value2: unknown, options?: String
 
 		// date
 		if (isDate(value1) || isDate(value2)) {
-			const date1 = tryParseDate(value1 as Date);
-			const date2 = tryParseDate(value2 as Date);
+			const date1 = tryParseDate(value1 as Date, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
+			const date2 = tryParseDate(value2 as Date, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
 
 			if (date1 !== undefined && date2 !== undefined) {
 				return compareDates(date1, date2);

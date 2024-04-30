@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { joinNonEmptyValues, newGuid } from 'utils';
 
 // Returns permanent unique id using state and guid
-export const useUniqueId = ({ prefix, suffix, separator = "_" }: {
+export const useUniqueId = (options?: {
 	prefix?: string;
 	suffix?: string;
 	separator?: string; // default is '_'
 }) => {
-	const [uniqueId] = useState(() => joinNonEmptyValues([prefix, newGuid(), suffix], separator));
+	const [uniqueId] = useState(() => options
+		? joinNonEmptyValues([options.prefix, newGuid(), options.suffix], options.separator)
+		: newGuid()
+	);
+
 	return uniqueId;
 };

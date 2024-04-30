@@ -5,21 +5,21 @@ import { BooleanFormat } from "utils/cultureInfo";
 const DEFAULT_TRUE_SYNONYMS = ["yes", "y", "1", "true", "on", "checked", "enabled", "active"];
 
 const ISO: BooleanFormat = {
-	booleanFormatId: "ISO",
+	formatId: "ISO",
 	true_format: "true",
 	false_format: "false",
 	true_synonyms: DEFAULT_TRUE_SYNONYMS
 };
 
 const EN_US: BooleanFormat = {
-	booleanFormatId: "EN-US",
+	formatId: "EN-US",
 	true_format: "True",
 	false_format: "False",
 	true_synonyms: DEFAULT_TRUE_SYNONYMS
 };
 
 const HU: BooleanFormat = {
-	booleanFormatId: "HU",
+	formatId: "HU",
 	true_format: "Igen",
 	false_format: "Nem",
 	true_synonyms: [...DEFAULT_TRUE_SYNONYMS, "igen", "i", "be"]
