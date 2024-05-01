@@ -1,5 +1,6 @@
 import { NumberFormatOptions, formatNumber, formatNumberLocal, tryParseFloat, tryParseFloatISO, tryParseFloatLocal } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
+import { NUMBER_FORMATS } from "internal";
 
 it('formatNumberLocal.default', () => {
 	expect(formatNumberLocal(0)).toBe("0");
@@ -40,7 +41,7 @@ it('formatNumber.customFormat.noThousandSeparator', () => {
 });
 
 it('formatNumber.cultureInfo.hu', () => {
-	const format = REACT_SIMPLE_UTIL.CULTURE_INFO.HU;
+	const format = NUMBER_FORMATS.HU;
 
 	expect(formatNumber(0, format)).toBe("0");
 	expect(formatNumber(1.1, format)).toBe("1,1");
@@ -196,7 +197,7 @@ it('tryParseFloatLocal.currentCulture.HU', () => {
 });
 
 it('tryParseFloat.cultureInfo.EN-US', () => {
-	const format = REACT_SIMPLE_UTIL.CULTURE_INFO["EN-US"];
+	const format = REACT_SIMPLE_UTIL.CULTURE_INFO["EN-US"].numberFormat;
 
 	expect(tryParseFloat("1,000", format)).toBe(1000);
 	expect(tryParseFloat("1,000.1", format)).toBe(1000.1);
@@ -206,7 +207,7 @@ it('tryParseFloat.cultureInfo.EN-US', () => {
 });
 
 it('tryParseFloatLocal.cultureInfo.HU', () => {
-	const format = REACT_SIMPLE_UTIL.CULTURE_INFO.HU;
+	const format = REACT_SIMPLE_UTIL.CULTURE_INFO.HU.numberFormat;
 
 	expect(tryParseFloat("1.000", format)).toBe(1000);
 	expect(tryParseFloat("1.000,1", format)).toBe(1000.1);

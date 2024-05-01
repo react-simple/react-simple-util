@@ -1,8 +1,8 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { NUMBER_FORMATS } from "internal";
-import { CultureInfo, NumberFormat } from "./cultureInfo";
+import { CultureInfoNumberFormat } from "./cultureInfo";
 import { stringReplaceChars } from "./string";
-import { CompareReturn, Nullable } from "./types";
+import { CompareReturn } from "./types";
 import { isEmpty, isNumber, isString } from "./typing";
 
 export interface NumberFormatOptions {
@@ -12,14 +12,6 @@ export interface NumberFormatOptions {
 	maxDecimalDigits?: number; // fractional part will be cut over this part (note: there is no rounding!)
 }
 
-const getResolvedNumberFormat = <Format>(format: Nullable<CultureInfo | Format>) => {
-	return (
-		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat :
-			(format as CultureInfo).cultureId ? (format as CultureInfo).numberFormat :
-				format as Format
-	);
-};
-
 export function compareNumbers(n1: number, n2: number): CompareReturn {
 	return n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
 }
@@ -27,7 +19,7 @@ export function compareNumbers(n1: number, n2: number): CompareReturn {
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
 export function tryParseFloat(
 	value: unknown,
-	format: CultureInfo | Pick<NumberFormat, "decimalSeparator" | "thousandSeparator">// default: REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT
+	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">
 ): number | undefined {
 	if (isEmpty(value)) {
 		return undefined;
@@ -36,7 +28,7 @@ export function tryParseFloat(
 		return value;
 	}
 	else if (isString(value)) {
-		const numberFormat = getResolvedNumberFormat(format);
+		const numberFormat = format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
 
 		const str = stringReplaceChars(
 			value.toString(),
@@ -65,7 +57,7 @@ export function tryParseFloat(
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
 export function tryParseFloatLocal(value: unknown
 ): number | undefined {
-	return tryParseFloat(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT);
+	return tryParseFloat(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat);
 }
 
 export function tryParseFloatISO(value: unknown): number | undefined {	
@@ -139,10 +131,10 @@ const addThousandSeparatorsToFracPart = (s: string, thousandSeparator: string | 
 
 export function formatNumber(
 	value: number,
-	format: CultureInfo | Pick<NumberFormat, "decimalSeparator" | "thousandSeparator">,
+	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
 	options?: NumberFormatOptions	
 ): string {
-	const { decimalSeparator, thousandSeparator } = getResolvedNumberFormat(format);
+	const { decimalSeparator, thousandSeparator } = format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
 	const { maxDecimalDigits, minDecimalDigits, minIntegerDigits, radix } = options || {};
 
 	const str = Math.abs(value).toString(radix);
@@ -206,5 +198,5 @@ export const formatNumberISO = (value: number, options?: NumberFormatOptions) =>
 };
 
 export const formatNumberLocal = (value: number, options?: NumberFormatOptions) => {
-	return formatNumber(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT, options);
+	return formatNumber(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat, options);
 };

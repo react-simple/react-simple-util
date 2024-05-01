@@ -1,7 +1,5 @@
-import { REACT_SIMPLE_UTIL } from "data";
-import { DATE_FORMATS } from "internal";
-import { compareBooleans, tryParseBoolean } from "./boolean";
-import { compareDates, tryParseDate } from "./date";
+import { compareBooleans, tryParseBooleanLocalOrISO } from "./boolean";
+import { compareDates, tryParseDateLocalOrISO } from "./date";
 import { compareNumbers, tryParseFloatISO } from "./number";
 import { compareStrings } from "./string";
 import { CompareReturn, StringCompareOptions } from "./types";
@@ -33,8 +31,8 @@ export function compareValues(value1: unknown, value2: unknown, options?: String
 
 		// date
 		if (isDate(value1) || isDate(value2)) {
-			const date1 = tryParseDate(value1 as Date, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
-			const date2 = tryParseDate(value2 as Date, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
+			const date1 = tryParseDateLocalOrISO(value1 as Date);
+			const date2 = tryParseDateLocalOrISO(value2 as Date);
 
 			if (date1 !== undefined && date2 !== undefined) {
 				return compareDates(date1, date2);
@@ -43,8 +41,8 @@ export function compareValues(value1: unknown, value2: unknown, options?: String
 
 		// boolean
 		if (isBoolean(value1) || isBoolean(value2)) {
-			const bool1 = tryParseBoolean(value1);
-			const bool2 = tryParseBoolean(value2);
+			const bool1 = tryParseBooleanLocalOrISO(value1);
+			const bool2 = tryParseBooleanLocalOrISO(value2);
 
 			if (bool1 !== undefined && bool2 !== undefined) {
 				return compareBooleans(bool1, bool2);

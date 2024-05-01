@@ -1,8 +1,7 @@
 import { LogImplementation, LogLevel } from "log/types";
 import { logDefaultImplementation } from "./log/logDefaultImplementation"; // avoid circular dependency
-import { CULTURE_INFO, DATE_FORMATS, NUMBER_FORMATS } from "internal";
+import { BOOLEAN_FORMATS, CULTURE_INFO, DATE_FORMATS, NUMBER_FORMATS } from "internal";
 import { CultureInfo } from "./utils";
-import { BOOLEAN_FORMATS } from "./internal/booleanFormat";
 
 export const REACT_SIMPLE_UTIL: {
 	readonly LOGGING: {

@@ -1,8 +1,8 @@
 // Internal artifacts are not exported
 
-import { DateFormat } from "utils/cultureInfo";
+import { CultureInfoDateFormat } from "utils/cultureInfo";
 
-const ISO: DateFormat = {
+const ISO: CultureInfoDateFormat = {
 	formatId: "ISO",
 	dateFormat: "yyyy-MM-dd",
 	dateFormatRegExp: /^(?<year>\d{4})-(?<month>\d{1,2})-(?<day>\d{1,2})$/,
@@ -17,7 +17,7 @@ const ISO: DateFormat = {
 	dateTimeFormatRegExp: /^(?<year>\d{4})-(?<month>\d{1,2})-(?<day>\d{1,2})T(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?Z?$/,
 };
 
-const EN_US: DateFormat = {
+const EN_US: CultureInfoDateFormat = {
 	formatId: "EN-US",
 	dateFormat: "MM/dd/yyyy",
 	dateFormatRegExp: /^(?<month>\d{1,2})[.-\/](?<day>\d{1,2})[.-\/](?<year>(\d{2}|\d{4}))\.?$/,
@@ -31,7 +31,7 @@ const EN_US: DateFormat = {
 	dateTimeFormatRegExp: /^(?<month>\d{1,2})[.-\/](?<day>\d{1,2})[.-\/](?<year>(\d{2}|\d{4}))\.? +(?<hour>\d{1,2}):(?<minute>\d{1,2})(:(?<second>\d{1,2})(.(?<millisecond>\d+))?)?$/,
 };
 
-const HU: DateFormat = {
+const HU: CultureInfoDateFormat = {
 	formatId: "HU",
 	dateFormat: "yyyy.MM.dd.",
 	dateFormatRegExp: /^(?<year>(\d{2}|\d{4}))[.-\/](?<month>\d{1,2})[.-\/](?<day>\d{1,2})\.?$/,
@@ -46,11 +46,11 @@ const HU: DateFormat = {
 };
 
 export const DATE_FORMATS: {
-	readonly ISO: DateFormat; // ISO8601
-	readonly 'EN-US': DateFormat;
-	readonly HU: DateFormat;
+	readonly ISO: CultureInfoDateFormat; // ISO8601
+	readonly 'EN-US': CultureInfoDateFormat;
+	readonly HU: CultureInfoDateFormat;
 
-	readonly ALL: DateFormat[];
+	readonly ALL: CultureInfoDateFormat[];
 } = {
 	ISO,
 	'EN-US': EN_US,

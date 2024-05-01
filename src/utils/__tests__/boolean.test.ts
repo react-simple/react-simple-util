@@ -1,4 +1,4 @@
-import { compareBooleans, formatBoolean, resolveBoolean, tryParseBoolean } from "utils";
+import { compareBooleans, formatBoolean, formatBooleanLocal, resolveBoolean, tryParseBoolean, tryParseBooleanLocal } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
 
 const { CULTURE_INFO } = REACT_SIMPLE_UTIL;
@@ -32,43 +32,43 @@ it('resolveBoolean.empty.2', () => {
 });
 
 it('tryParseBoolean.true', () => {
-	expect(tryParseBoolean("true")).toBe(true);
+	expect(tryParseBooleanLocal("true")).toBe(true);
 });
 
 it('tryParseBoolean.false', () => {
-	expect(tryParseBoolean("false")).toBe(false);
+	expect(tryParseBooleanLocal("false")).toBe(false);
 });
 
 it('tryParseBoolean.1', () => {
-	expect(tryParseBoolean(1)).toBe(true);
+	expect(tryParseBooleanLocal(1)).toBe(true);
 });
 
 it('tryParseBoolean.0', () => {
-	expect(tryParseBoolean(0)).toBe(false);
+	expect(tryParseBooleanLocal(0)).toBe(false);
 });
 
 it('tryParseBoolean.yes', () => {
-	expect(tryParseBoolean("yes")).toBe(true);
+	expect(tryParseBooleanLocal("yes")).toBe(true);
 });
 
 it('tryParseBoolean.no', () => {
-	expect(tryParseBoolean("no")).toBe(false);
+	expect(tryParseBooleanLocal("no")).toBe(false);
 });
 
 it('tryParseBoolean.cultureInfo.true', () => {
-	expect(tryParseBoolean("igen", CULTURE_INFO.HU)).toBe(true);
+	expect(tryParseBoolean("igen", CULTURE_INFO.BOOLEAN_FORMATS.HU)).toBe(true);
 });
 
 it('tryParseBoolean.cultureInfo.false', () => {
-	expect(tryParseBoolean("nem", CULTURE_INFO.HU)).toBe(false);
+	expect(tryParseBoolean("nem", CULTURE_INFO.BOOLEAN_FORMATS.HU)).toBe(false);
 });
 
 it('formatBoolean.true', () => {
-	expect(formatBoolean(true)).toBe("True");
+	expect(formatBooleanLocal(true)).toBe("True");
 });
 
 it('formatBoolean.false', () => {
-	expect(formatBoolean(false)).toBe("False");
+	expect(formatBooleanLocal(false)).toBe("False");
 });
 
 it('formatBoolean.customFormat.true', () => {
@@ -80,9 +80,9 @@ it('formatBoolean.customFormat.false', () => {
 });
 
 it('formatBoolean.cultureInfo.true', () => {
-	expect(formatBoolean(true, CULTURE_INFO.HU)).toBe("Igen");
+	expect(formatBoolean(true, CULTURE_INFO.BOOLEAN_FORMATS.HU)).toBe("Igen");
 });
 
 it('formatBoolean.cultureInfo.false', () => {
-	expect(formatBoolean(false, CULTURE_INFO.HU)).toBe("Nem");
+	expect(formatBoolean(false, CULTURE_INFO.BOOLEAN_FORMATS.HU)).toBe("Nem");
 });

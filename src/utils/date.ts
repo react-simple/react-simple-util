@@ -1,7 +1,7 @@
 import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
 import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
 import { compareNumbers, formatNumberISO, formatNumberLocal, roundDown, tryParseFloatISO } from "./number";
-import { CultureInfo, DateFormat } from "./cultureInfo";
+import { CultureInfoDateFormat } from "./cultureInfo";
 import { DATE_FORMATS } from "internal";
 import { REACT_SIMPLE_UTIL } from "data";
 
@@ -9,14 +9,6 @@ export interface DateTimeFormatOptions {
 	seconds?: boolean;
 	milliseconds?: boolean;
 }
-
-const getResolvedDateFormat = <Format>(format: Nullable<CultureInfo | Format>) => {
-	return (
-		!format ? REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat :
-			(format as CultureInfo).cultureId ? (format as CultureInfo).dateFormat :
-				format as Format
-	);
-};
 
 export function compareDates(date1: Date, date2: Date): CompareReturn {
 	return compareNumbers(date1.getTime(), date2.getTime());
@@ -31,7 +23,7 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfo | DateFormat>): Date | undefined {
+export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
 	if (!value) {
 		return undefined;
 	}
@@ -46,7 +38,7 @@ export function tryParseDate(value: Date | string | number, formats: ValueOrArra
 	}
 	else {
 		for (const format of getResolvedArray(formats)) {
-			const dateFormat = getResolvedDateFormat(format);
+			const dateFormat = format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat;
 
 			const dateMatch = (
 				(dateFormat.dateTimeFormatRegExp && value.match(dateFormat.dateTimeFormatRegExp)) ||
@@ -109,7 +101,11 @@ export function tryParseDateISO(value: Date | string | number): Date | undefined
 }
 
 export function tryParseDateLocal(value: Date | string | number): Date | undefined {
-	return tryParseDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT);
+	return tryParseDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat);
+}
+
+export function tryParseDateLocalOrISO(value: Date | string | number): Date | undefined {
+	return tryParseDate(value, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
 }
 
 // removes time portion
@@ -178,8 +174,8 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 	);
 }
 
-export function formatDate(value: Date, format: CultureInfo | Pick<DateFormat, "dateFormat">): string {
-	return getResolvedDateFormat(format).dateFormat
+export function formatDate(value: Date, format: Pick<CultureInfoDateFormat, "dateFormat">): string {
+	return (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat).dateFormat
 		.replaceAll("yyyy", value.getFullYear().toString())
 		.replaceAll("yy", (value.getFullYear() % 100).toString())
 		.replaceAll("MM", formatNumberLocal(value.getMonth() + 1, { minIntegerDigits: 2 }))
@@ -197,15 +193,15 @@ export function formatDateISO(value: Date): string {
 }
 
 export function formatDateLocal(value: Date): string {
-	return formatDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT);
+	return formatDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat);
 }
 
 export function formatDateTime(
 	value: Date,
-	format: CultureInfo | Pick<DateFormat, "dateTimeFormat">,
+	format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
 	options?: DateTimeFormatOptions
 ): string {
-	const dateTimeFormat = getResolvedDateFormat(format).dateTimeFormat;
+	const dateTimeFormat = (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat).dateTimeFormat;
 
 	return (
 		options?.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
@@ -236,5 +232,5 @@ export function formatDateTimeISO(value: Date, options?: DateTimeFormatOptions):
 }
 
 export function formatDateTimeLocal(value: Date, options?: DateTimeFormatOptions): string {
-	return formatDateTime(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT, options);
+	return formatDateTime(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat, options);
 }

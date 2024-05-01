@@ -1,6 +1,6 @@
 import type { Meta } from '@storybook/react';
 import { useForceUpdate, useUpdateTarget } from './useForceUpdate';
-import { StorybookComponent } from '../utils';
+import { StorybookComponent } from 'utils';
 
 const TITLE = "Hooks / useForceUpdate";
 
