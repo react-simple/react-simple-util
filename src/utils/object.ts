@@ -2,7 +2,6 @@ import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray, isEmpty, isUndefinedOrNull, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
-import { mapDictionary } from "./dictionary";
 import { tryParseFloatISO } from "./number";
 
 // accepts of keyof Obj keys
@@ -160,7 +159,13 @@ export function mapObject<T>(obj: T, map: (value: unknown, key: string | number)
 		return obj.map(map) as T;
 	}
 	else {
-		return mapDictionary(obj, map) as T;
+		const result: Record<string, unknown> = {};
+
+		for (const [key, value] of Object.entries(obj)) {
+			result[key] = map(value, key);
+		}
+
+		return result as T;
 	}
 }
 
