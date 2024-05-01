@@ -104,7 +104,7 @@ export const arrayRemoveFromTo = <T>(arr: T[], from: number, to: number) => {
 };
 
 // will remove the [start, start + length) range
-export const arrayRemoveAt = <T>(arr: T[], start: number, length: number) => {
+export const arrayRemoveAt = <T>(arr: T[], start: number, length: number = 1) => {
 	return arrayRemoveFromTo(arr, start, start + length);
 };
 

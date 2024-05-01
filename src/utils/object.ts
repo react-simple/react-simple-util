@@ -1,7 +1,9 @@
-import { CompareReturn, StringCompareOptions } from "./types";
-import { isArray, isEmpty, isUndefinedOrNull, isValueType } from "./typing";
+import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
+import { getResolvedArray, isArray, isEmpty, isUndefinedOrNull, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
-import { getDistinct, sortArray } from "./array";
+import { arrayRemoveAt, getDistinct, sortArray } from "./array";
+import { mapDictionary } from "./dictionary";
+import { tryParseFloatISO } from "./number";
 
 // accepts of keyof Obj keys
 export function removeKeys<Obj extends object>(
@@ -148,3 +150,275 @@ export function sameObjects(
 		}
 	}
 }
+
+// Be careful to not change value type in transform(). Shallow map, not a deep map of all children. Use deepCopyObject() to deep copy/transform.
+export function mapObject<T>(obj: T, map: (value: unknown, key: string | number) => unknown): T {
+	if (!obj || isValueType(obj)) {
+		return obj;
+	}
+	else if (isArray(obj)) {
+		return obj.map(map) as T;
+	}
+	else {
+		return mapDictionary(obj, map) as T;
+	}
+}
+
+// Be careful to not change value type in transform().
+// Transform is called for all children not value types (leaves) only, but not for the root.
+export function deepCopyObject<T>(
+	obj: T,
+	transform?: (value: unknown, key: string | number, obj: unknown) => unknown
+): T {
+	if (!obj || isValueType(obj)) {
+		return obj;
+	}
+	else {
+		transform ||= (value => value);
+
+		if (isArray(obj)) {
+			return obj.map((value, index) => transform!(
+				!value || isValueType(value) ? value : deepCopyObject(value, transform),
+				index, obj
+			)) as T;
+		}
+		else {
+			return mapObject(obj, (value, key) => transform!(
+				!value || isValueType(value) ? value : deepCopyObject(value, transform),
+				key,
+				obj
+			)) as T;
+		}
+	}
+}
+
+// Gets child member value by resolving the specified path of member names. Returns undefined if children are not found.
+// Understands array indexes, for example: memberName1.memberName2[index].memberName3
+// Also understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
+export const getObjectChildMemberValue = (
+	rootObj: unknown,
+	memberNamesPath: ValueOrArray<string>,
+	pathSeparator: string = "." // used only if memberNamesPath is string
+) => {
+	if (!rootObj) {
+		return undefined;
+	}
+
+	let obj: any = rootObj;
+	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
+
+	for (const memberName of path) {
+		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
+
+		if (i < 0) {
+			// name only
+			obj = obj[memberName];
+		}
+		else if (i === 0) {
+			// [index] only			
+			obj = obj[memberName.substring(1, memberName.length - 1)];
+		}
+		else if (memberName[i - 1] === ".") {
+			// name.[index]
+			obj = obj[memberName.substring(0, i - 1)]?.[memberName.substring(i + 1, memberName.length - 1)];
+		} else {
+			// name[index]
+			obj = obj[memberName.substring(0, i)]?.[memberName.substring(i + 1, memberName.length - 1)];
+		}
+
+		if (!obj) {
+			return undefined;
+		}
+	}
+
+	return obj as unknown;
+};
+
+// Sets child member value by resolving the specified path of member names. Create subobjects if children is not found.
+// Understands array indexes, for example: memberName1.memberName2[index].memberName3
+// Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
+// Returns the last object which has its member set.
+export const setObjectChildMemberValue = (
+	rootObj: unknown,
+	memberNamesPath: ValueOrArray<string>,
+	value: unknown,
+	pathSeparator: string = "." // used only if memberNamesPath is string
+) => {
+	let obj: any = rootObj;
+	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
+	const length_m1 = path.length - 1;
+
+	path.forEach((memberName, memberNameIndex) => {
+		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
+
+		if (memberNameIndex < length_m1) {
+			// iterate children
+			let child: any;
+
+			if (i < 0) {
+				// name only
+				child = obj[memberName];
+
+				if (child === undefined || child === null) {
+					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
+					obj[memberName] = child;
+				}
+			}
+			else if (i === 0) {
+				// [index] only
+				const index = memberName.substring(1, memberName.length - 1);
+
+				child = obj[index];
+
+				if (child === undefined || child === null) {
+					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
+					obj[index] = child;
+				}
+			}
+			else {
+				// name[index], name.[index]
+				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
+				const index = memberName.substring(i + 1, memberName.length - 1);
+
+				let array = obj[name];
+
+				if (array === undefined || array === null) {
+					array = [];
+					obj[name] = array;
+				}
+
+				child = array[index];
+
+				if (child === undefined || child === null) {
+					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
+					array[index] = child;
+				}
+			}
+
+			obj = child;
+		}
+		else {
+			// set value
+			if (i < 0) {
+				// name only
+				obj[memberName] = value;
+			}
+			else if (i > 0) {
+				// name[index], name.[index]
+				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
+				const index = memberName.substring(i + 1, memberName.length - 1);
+
+				let array = obj[name];
+
+				if (array === undefined || array === null) {
+					array = [];
+					obj[name] = array;
+				}
+
+				array[index] = value;
+			}
+			else {
+				// [index] only
+				const index = memberName.substring(1, memberName.length - 1);
+				obj[index] = value;
+			}
+		}
+	});
+
+	return obj;
+};
+
+// Sets child member value by resolving the specified path of member names. Create subobjects if children is not found.
+// Understands array indexes, for example: memberName1.memberName2[index].memberName3
+// Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
+// Returns the last object which has its member set.
+export const deleteObjectChildMember = (
+	rootObj: unknown,
+	memberNamesPath: ValueOrArray<string>,
+	pathSeparator: string = "." // used only if memberNamesPath is string
+) => {
+	let obj: any = rootObj;
+	let parentObj: any;
+	let parentKey: string;
+	let result: unknown = undefined;
+
+	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
+	const length_m1 = path.length - 1;
+
+	path.forEach((memberName, memberNameIndex) => {
+		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
+
+		if (memberNameIndex < length_m1) {
+			// iterate children
+			if (i < 0) {
+				// name only
+				parentObj = obj;
+				parentKey = memberName;
+			}
+			else if (i === 0) {
+				// [index] only
+				parentObj = obj;
+				parentKey = memberName.substring(1, memberName.length - 1);
+			}
+			else {
+				// name.[index]
+				parentObj = memberName[i - 1] === "." ? obj[memberName.substring(0, i - 1)] : obj[memberName.substring(0, i)];
+				parentKey = memberName.substring(i + 1, memberName.length - 1);
+			}
+
+			obj = parentObj?.[parentKey];
+
+			if (obj === undefined || obj === null) {
+				return undefined;
+			}
+		}
+		else {
+			// set value
+			if (i < 0) {
+				// name only
+				result = obj[memberName];
+				delete obj[memberName];
+			}
+			else if (i > 0) {
+				// name[index], name.[index]
+				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
+				let array = obj[name];
+
+				if (obj === undefined || obj === null) {
+					return undefined;
+				}
+
+				const index = memberName.substring(i + 1, memberName.length - 1);
+				const indexNum = tryParseFloatISO(index);
+
+				result = array[index];
+
+				if (indexNum !== undefined) {
+					array = arrayRemoveAt(array, indexNum);
+					obj[name] = array;
+				} else {
+					delete array[index];
+				}				
+			}
+			else {
+				// [index] only
+				const index = memberName.substring(1, memberName.length - 1);
+				const indexNum = tryParseFloatISO(index);
+
+				result = obj[index];
+
+				if (indexNum !== undefined) {
+					obj = arrayRemoveAt(obj, indexNum);
+
+					if (parentObj) {
+						parentObj[parentKey] = obj;
+					}
+				} else {
+					delete obj[index];
+				}
+			}
+		}
+	});
+
+	return result;
+};

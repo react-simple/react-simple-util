@@ -67,6 +67,10 @@ export function getResolvedCallbackValueWithArgs<Value, Args>(valueOrFn: ValueOr
 	return (isFunction(valueOrFn) ? valueOrFn(args) : valueOrFn) as Value;
 }
 
-export const getResolvedArray = <T>(valueOrArray: ValueOrArray<T>) => {
-	return isArray(valueOrArray) ? valueOrArray : [valueOrArray];
+export const getResolvedArray = <T>(valueOrArray: ValueOrArray<T>, splitValue?: (value: T) => T[]) => {
+	return (
+		isArray(valueOrArray) ? valueOrArray :
+			splitValue ? splitValue(valueOrArray) :
+				[valueOrArray]
+	);
 };

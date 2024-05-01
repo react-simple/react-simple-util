@@ -1,4 +1,13 @@
-import { compareObjects, removeKeys, sameObjects } from "utils";
+import { compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys, sameObjects, setObjectChildMemberValue } from "utils";
+
+const CHIILD_MEMBER_TESTOBJ = {
+	a: {
+		b: {
+			c: 1,
+			array: [11, 12]
+		}
+	}
+};
 
 it('compareObjects.less', () => {
 	expect(compareObjects(
@@ -57,4 +66,183 @@ it('removeKeys', () => {
 		removeKeys({ a: 1, b: 2, c: 3, d: undefined, e: undefined }, ["b", "d"]),
 		{ a: 1, c: 3, e: undefined }
 	)).toBe(true);
+});
+
+it('mapObject', () => {
+	expect(mapObject({ a: 1 }, t => (t as number) * 10).a).toBe(10);
+});
+
+it('deepCopyObject', () => {
+	const original = { a: { b: { c: 1 } } };
+	const copy = deepCopyObject(original);
+
+	expect(original.a.b.c).toBe(1);
+	expect(copy.a.b.c).toBe(1);
+	expect(copy).not.toBe(original);
+});
+
+it('deepCopyObject.transform', () => {
+	const original = { a: { b: { c: 1 } } };
+	const copy = deepCopyObject(original, t => isNumber(t) ? t * 10 : t);
+
+	expect(original.a.b.c).toBe(1);
+	expect(copy.a.b.c).toBe(10);
+	expect(copy).not.toBe(original);
+});
+
+it('getObjectChildMemberValue.arrayPath', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "c"])).toBe(1);
+});
+
+it('getObjectChildMemberValue.stringPath', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.c")).toBe(1);
+});
+
+it('getObjectChildMemberValue.stringPath.nonExistent', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.c2")).toBeUndefined();
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b2.c")).toBeUndefined();
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a2.b.c")).toBeUndefined();
+});
+
+it('getObjectChildMemberValue.array.arrayPath[]', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "array[0]"])).toBe(11);
+});
+
+it('getObjectChildMemberValue.array.arrayPath.[]', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "array.[0]"])).toBe(11);
+});
+
+it('getObjectChildMemberValue.array.arrayPath-[]', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "array", "[0]"])).toBe(11);
+});
+
+it('getObjectChildMemberValue.array.stringPath[]', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.array[0]")).toBe(11);
+});
+
+it('getObjectChildMemberValue.array.stringPath.[]', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.array.[0]")).toBe(11);
+});
+
+it('getObjectChildMemberValue.array.stringPath', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.c")).toBe(1);
+});
+
+it('getObjectChildMemberValue.arrayPath', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "c"])).toBe(1);
+});
+
+it('getObjectChildMemberValue.stringPath', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.c")).toBe(1);
+});
+
+it('setObjectChildMemberValue.arrayPath', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, ["a", "b", "c"], 2);
+
+	expect(copy.a.b.c).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.stringPath', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, "a.b.c", 2);
+
+	expect(copy.a.b.c).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.nonExistingMember.stringPath', () => {
+	const obj: any = {};
+	const leafObj = setObjectChildMemberValue(obj, "a.b.c", 2);
+
+	expect(obj["a"]?.["b"]?.["c"]).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(obj["a"]?.["b"]);
+});
+
+it('setObjectChildMemberValue.array.arrayPath[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, ["a", "b", "array[0]"], 22);
+
+	expect(copy.a.b.array[0]).toBe(22);
+	expect(leafObj?.["array"]?.[0]).toBe(22);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.array.arrayPath.[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, ["a", "b", "array.[0]"], 22);
+
+	expect(copy.a.b.array[0]).toBe(22);
+	expect(leafObj["array"]?.[0]).toBe(22);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.array.arrayPath-[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, ["a", "b", "array", "[0]"], 22);
+	
+	expect(copy.a.b.array[0]).toBe(22);
+	expect(leafObj?.[0]).toBe(22);
+	expect(leafObj).toBe(copy.a.b.array);
+});
+
+it('setObjectChildMemberValue.array.stringPath[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, "a.b.array[0]", 22);
+
+	expect(copy.a.b.array[0]).toBe(22);
+	expect(leafObj?.["array"]?.[0]).toBe(22);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.array.stringPath.[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, "a.b.array.[0]", 22);
+
+	expect(copy.a.b.array[0]).toBe(22);
+	expect(leafObj?.[0]).toBe(22);
+	expect(leafObj).toBe(copy.a.b.array);
+});
+
+it('setObjectChildMemberValue.nonExistingMember.array.stringPath', () => {
+	const obj: any = {};
+	const leafObj = setObjectChildMemberValue(obj, "a.b.array[0]", 2);
+
+	expect(obj["a"]?.["b"]?.["array"]?.[0]).toBe(2);
+	expect(leafObj?.["array"]?.[0]).toBe(2);
+	expect(leafObj).toBe(obj["a"]?.["b"]);
+});
+
+it('deleteObjectChildMember.stringPath', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const deleted = deleteObjectChildMember(copy, "a.b.c");
+
+	expect(copy.a.b.c).toBeUndefined();
+	expect(copy.a.b).toBeDefined();
+	expect(copy.a.b.array?.[0]).toBe(11);
+	expect(deleted).toBe(1);
+});
+
+it('deleteObjectChildMember.array.stringPath[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const deleted = deleteObjectChildMember(copy, "a.b.array[0]");
+
+	expect(copy.a.b.c).toBe(1);
+	expect(copy.a.b.array?.length).toBe(1);
+	expect(copy.a.b.array[0]).toBe(12);
+	expect(deleted).toBe(11);
+});
+
+it('deleteObjectChildMember.array.stringPath.[]', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const deleted = deleteObjectChildMember(copy, "a.b.array.[0]");
+
+	expect(copy.a.b.c).toBe(1);
+	expect(copy.a.b.array?.length).toBe(1);
+	expect(copy.a.b.array[0]).toBe(12);
+	expect(deleted).toBe(11);
 });
