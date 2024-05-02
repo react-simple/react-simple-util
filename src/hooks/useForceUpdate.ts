@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useUniqueId } from './useUniqueId';
+import { ValueOrArray, getResolvedArray } from 'utils';
 
 const UPDATE_TARGETS: {
 	[targetId: string]: {
-		[uniqueId: string]: () => void;
+		[uniqueId: string]: (message: unknown) => void;
 	}
 } = {};
 
@@ -14,9 +15,11 @@ export const useForceUpdate = () => {
 	// if targetId is not specified it will update the caller component
 	// if specified will update all parent components of useUpdateTarget() with same targetId
 	const forceUpdate = useCallback(
-		(targetId?: string) => {
-			if (targetId) {
-				Object.values(UPDATE_TARGETS[targetId] || {}).forEach(t => t());
+		(targetIds?: ValueOrArray<string>, message?: unknown) => {
+			if (targetIds) {
+				getResolvedArray(targetIds).forEach(targetId => {
+					Object.values(UPDATE_TARGETS[targetId] || {}).forEach(t => t(message));
+				});
 			} else {
 				setTick(tick => (tick + 1) & 0x7fffffff);
 			}
@@ -27,21 +30,26 @@ export const useForceUpdate = () => {
 };
 
 // can be used to update components/hooks with particular targetId
-export const useUpdateTarget = (
+export const useUpdateTarget = <NotificationMessage = unknown>(
 	targetId: string,
-	onUpdated?: () => void
+	onUpdated?: (message: NotificationMessage) => void
 ) => {
 	const uniqueId = useUniqueId();
-	const forceUpdate = useForceUpdate(); // update this
+	const [state, setState] = useState<{ tick: number; message?: NotificationMessage; }>({ tick: 0 });
 
 	useEffect(
 		() => {
 			// Initialize
 			UPDATE_TARGETS[targetId] = {
 				...UPDATE_TARGETS[targetId],
-				[uniqueId]: () => {
-					forceUpdate();
-					onUpdated?.();
+				[uniqueId]: message => {
+					// update this
+					setState({
+						tick: (state.tick + 1) & 0x7fffffff,
+						message: message as NotificationMessage
+					});
+
+					onUpdated?.(message as NotificationMessage);
 				}
 			};
 
@@ -51,4 +59,6 @@ export const useUpdateTarget = (
 			};
 		},
 		[]);
+
+	return state.message;
 };
