@@ -1,5 +1,5 @@
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
-import { getResolvedArray, isArray, isEmpty, isUndefinedOrNull, isValueType } from "./typing";
+import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
 import { tryParseFloatISO } from "./number";
@@ -75,10 +75,10 @@ export function compareObjects(
 	if (obj1 === obj2) {
 		return 0;
 	}
-	else if (isUndefinedOrNull(obj1)) {
-		return isUndefinedOrNull(obj2) ? 0 : -1;
+	else if (isNullOrUndefined(obj1)) {
+		return isNullOrUndefined(obj2) ? 0 : -1;
 	}
-	else if (isUndefinedOrNull(obj2)) {
+	else if (isNullOrUndefined(obj2)) {
 		return 1;
 	}
 	else {
@@ -115,10 +115,10 @@ export function sameObjects(
 	if (obj1 === obj2) {
 		return true;
 	}
-	else if (isUndefinedOrNull(obj1)) {
-		return isUndefinedOrNull(obj2);
+	else if (isNullOrUndefined(obj1)) {
+		return isNullOrUndefined(obj2);
 	}
-	else if (isUndefinedOrNull(obj2)) {
+	else if (isNullOrUndefined(obj2)) {
 		return false;
 	}
 	else {

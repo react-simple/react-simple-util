@@ -5,7 +5,7 @@ export function isEmpty(value: unknown): value is undefined | null | '' {
 	return value === undefined || value === null || value === '';
 }
 
-export function isUndefinedOrNull(value: unknown): value is undefined | null {
+export function isNullOrUndefined(value: unknown): value is undefined | null {
 	return value === undefined || value === null;
 }
 
@@ -15,7 +15,7 @@ export function resolveEmpty<Value, EmptyValue>(value: Nullable<Value>, valueIfE
 
 export function resolveUndefinedOrNull<Value, EmptyValue>(value: Nullable<Value>, valueIfEmpty: ValueOrCallback<EmptyValue>
 ): Value | EmptyValue {
-	return isUndefinedOrNull(value) ? getResolvedCallbackValue(valueIfEmpty) : value;
+	return isNullOrUndefined(value) ? getResolvedCallbackValue(valueIfEmpty) : value;
 }
 
 export function isString(obj: unknown): obj is string {
@@ -47,8 +47,18 @@ export function isValueType(obj: unknown): obj is ValueType {
 	return isString(obj) || isNumber(obj) || isBoolean(obj) || isDate(obj);
 }
 
-export const isEmptyObject = (obj: unknown) => {
-	return !obj || !Object.keys(obj).length;
+// Checks if the object has any keys set.
+// If checkMemberValues is specified it also check the values of the members to be empty. By default it uses isEmpty().
+export const isEmptyObject = (
+	obj: unknown,
+	checkMemberValues?: boolean,
+	checkMemberValueIsEmpty?: (value: unknown) => boolean
+) => {
+	return (
+		!obj ||
+		!Object.keys(obj).length ||
+		(checkMemberValues && Object.values(obj).every(checkMemberValueIsEmpty || isEmpty))
+	);
 };
 
 export function isFile(value: unknown): value is File {

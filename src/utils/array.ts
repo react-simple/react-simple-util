@@ -61,7 +61,7 @@ export const mapNonEmptyValues = <In, Out>(array: Nullable<In>[], map: (value: I
 	return array.filter(t => !isEmpty(t)).map(t => map(t!));
 };
 
-export const flatten = <T>(arrays: T[][]) => {
+export const flatten = <T>(arrays: (T | T[])[]) => {
 	return ([] as T[]).concat(...arrays);
 };
 

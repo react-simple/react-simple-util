@@ -3,7 +3,7 @@ import { compareDates, tryParseDateLocalOrISO } from "./date";
 import { compareNumbers, tryParseFloatISO } from "./number";
 import { compareStrings } from "./string";
 import { CompareReturn, StringCompareOptions } from "./types";
-import { isBoolean, isDate, isNumber, isUndefinedOrNull } from "./typing";
+import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
@@ -12,10 +12,10 @@ export function compareValues(value1: unknown, value2: unknown, options?: String
 	if (value1 === value2) {
 		return 0;
 	}
-	else if (isUndefinedOrNull(value1)) {
-		return isUndefinedOrNull(value2) ? 0 : -1;
+	else if (isNullOrUndefined(value1)) {
+		return isNullOrUndefined(value2) ? 0 : -1;
 	}
-	else if (isUndefinedOrNull(value2)) {
+	else if (isNullOrUndefined(value2)) {
 		return 1;
 	}
 	else {
