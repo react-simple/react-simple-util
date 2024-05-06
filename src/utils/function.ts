@@ -1,6 +1,3 @@
-import { ValueOrCallback, ValueOrCallbackWithArgs } from "./types";
-import { isFunction } from "./typing";
-
 export function calculate<In, Out>(value: In, calc: (value: In) => Out): Out {
 	return calc(value);
 }

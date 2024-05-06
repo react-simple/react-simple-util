@@ -1,6 +1,6 @@
 # React Simple! Utility Library
 Basic utility functions for React application development
-Documentation is not up-to-date, does not contain latest CultureInfo enhancements (formatting anmd parsing dates and numbers)
+Documentation for version 0.4.0.
 
 # Usage
 
@@ -26,10 +26,13 @@ Members in the REACT_SIMPLE_UTIL object can be set to update the behavior of the
 # Content
 
 ## Hooks
-### useForceUpdate
+### useForceUpdate, useUpdateTarget
 
 The function returned by the **useForceUpdate()** hook can be used to update the calling hook/component.
 (It sets an internal state to trigger the update.)
+
+It can also be used to update all components using the **useUpdateTarget(*targetId*)** hook by specifying the *targetId*.
+When updating components based on *targetId* also a notification message can be sent which is returned by the useUpdateTarget() hook.
 
 ### useUniqueId
 The **useUniqueId()** hook can be used to generate global unique identifiers. By default it returns a new GUID value (by calling newGuid()), but it
@@ -37,13 +40,13 @@ also supports appending prefix and suffix to it with the default '_' separator o
 
 ## Log
 
-Depending on the **REACT_SIMPLE_UTIL.LOG_LEVEL** value the below functions will write or not to the console.
+Depending on the **REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL** value the below functions will write or not to the console.
 When LogLevel.error is set only errors are logged, when LogLevel.warning is set errors and warnings are logged etc.
-This is the priority order: [error, warning, debug, info, trace]
+Priority order: [error, warning, debug, info, trace]
 
 ### Types
 
-- **LogLevel**: The current level of logging, can be set in REACT_SIMPLE_UTIL.LOG_LEVEL to 'error', 'warning', 'debug', 'info', or 'trace'.
+- **LogLevel**: The current level of logging, can be set in REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL to 'error', 'warning', 'debug', 'info', or 'trace'.
 
 ### Functions
 
@@ -55,47 +58,135 @@ This is the priority order: [error, warning, debug, info, trace]
 - **logMessage**: Expects the *logLevel* argument to specify which above method should be called with the rest of the arguments.
 
 ## Utils
-Utility functions to work with arrays
 
 ### Types
 - **Writable&lt;T&gt;**: Returns new writable type to get rid of readonly specifiers
 - **Nullable&lt;T&gt;**: Returns new nullable type which can be undefined and null too
 - **ObjectKey**: Returns type which can be used as a key for indexing objects (string, number, symbol)
-- **PrimitiveType**: Returns type which covers all primitive/scalar types (string, number, boolean, Date)
-- **ValueOrCallback&lt;Value&gt;**: Generic type which corresponds to a concrete value or a parameterless callback function returning the value
-- **ValueOrCallbackWithArg&lt;Arg, Value&gt;**: Generic type which corresponds to a concrete value or a callback function with a single argument returning the value
-
-#### Guid
+- **ValueType**: Returns type which covers all primitive/scalar types (string, number, boolean, Date)
+- **ValueOrCallback&lt;Value&gt;**: Generic type which corresponds to a concrete value or a parameterless callback function returning the value. See *getResolvedCallbackValue*().
+- **ValueOrCallbackWithArg&lt;Arg, Value&gt;**: Generic type which corresponds to a concrete value or a callback function with a single argument returning the value. See *getResolvedCallbackValueWithArg*().
+- **ValueOrArray&lt;Value&gt;** Generic type to express a value or an array of such values. See *getResolvedArray*().
+- **DatePart** Date part specified for date handling functions (year/month/day/hour/minute/second/millisecond).
 - **Guid**: Type notation for GUID values (it's a string)
+- **StorybookComponent&lt;P&gt;**: Type for Storybook components with typed properties
+- **StringCompareOptions**: String comparison supports trimming and case insensitive comparison
+
+#### ContentType, ContentTypeCategory
+
+Values of different HTML content types and extensions are defined in CONTENT_TYPE and in CONTENT_TYPES by category (documents, images etc.)
+
+#### CultureInfo (~DateTimeFormat, ~NumberFormat, ~BooleanFormat)
+
+Various formatting specifiers for localization. DATE_FORMATS, NUMBER_FORMATS, BOOLEAN_FORMATS and CULTURE_INFO contains predefined values (ISO, EN-US, HU atm.),
+but it's possible to define additional formats. Current and default formats along with any custom formats are accessible under REACT_SIMPLE_UTIL.CULTURE_INFO.
+**REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** can be set to the desired default culture (EN-US by default).
+Usually formatting functions have a ~Local and an ~ISO version (*tryParseNumberLocal*(), *tryParseNumberISO*()) where the local version uses the CURRENT culture;
+and there is a default version (*tryParseNumber*()) which expects the format/culture parameter (for dates and booleans multiple formats can be specified and
+it automatically recognizes the used one).
 
 ### State
 - **StateSetter&lt;State&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
 - **StateReturn&lt;State&gt;**: Return type for state management hooks ([State, StateSetter])
 
-### Storybook
-- **StorybookComponent&lt;P&gt;**: Type for Storybook components with typed properties
-
 ### Functions
 
 #### Array
 - **range, rangeFromTo**: Functions to return range of numbers in an array
-- **getResolvedArray**: From values of type T | T[] returns the resolved array value (unchanged array value or an array made of a single item)
 - **getNonEmptyValues, joinNonEmptyValues, concatNonEmptyValues, mapNonEmptyValues**: Helper functions which only operate on the non-empty values of the passed array (excludes null, undefined or empty string, includes zero and false)
+- **flatten, flatMap**: Clone array-of-arrays into a single flat array by concatenating the child arrays
+- **arrayReplaceFromTo, arrayReplaceAt, arrayInsertAt, arrayRemoveFromTo, arrayRemoveAt**: Replace internal parts of arrays (from/to or start/count)
+- **getDistinct, getDistinctValues, getDistinctBy**: Various helper funtions to get distict values from a list or dictint member values of objects or distinct list of
+objects based on their specified member value (first occurent of an object with that member value is returned only).
+- **sortArray, sortArrayBy**: Sort arrays and return new arrays. Supports proper (shallow) comparison of all types by using *compareValues*() by default, but a
+custom comparer can be specified; for deep object comparison use *compareObjects*().
+
+#### Comparison
+
+- **compareArrays, sameArrays**: For all types we have comparison functions returning [-1, 0, 1] and equality checks. In case of arrays the comparison is shallow,
+items are compared by using *compareValues*() and not *compareObjects*() by default, but a custom comparer can be specified. Also supports **StringCompareOptions**.
+
+#### Boolean
+
+##### Comparison
+
+- **compareBoolean**: Compares boolean values and returns [-1, 0, 1]
+
+##### Localization
+
+- **tryParseBoolean, tryParseBooleanLocal, tryParseBooleanISO**: While *tryParseBoolean*() expects the format parameter (see CULTURE_INFO and BOOLEAN_FORMATS),
+*tryParseBooleanLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseBooleanISO*() is using **BOOLEAN_FORMATS.ISO**.
+- **formateBoolean, formatBooleanLocal, formatBooleanISO**: Format boolean values using specific formats. *formatBoolean*() expects the format parameter,
+*formatBooleanLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatBooleanISO*() uses **BOOLEAN_FORMATS.ISO**.
+
+#### Date
+
+- **getDate, getToday, getFirstDayOfMonth, getLastDayOfMonth, getDaysInMonth**: Various date query functions (*getDate*() and *getToday*() cuts of the time portion).
+- **getDatePart, setDatePart, dateAdd**: Modify specific parts of dates.
+
+##### Comparison
+
+- **compareDates, sameDates**: Compare specified date values (*compareDates*() returns [-1, 0, 1], while *sameDates*() returns true/false)
+
+##### Localization
+
+- **tryParseDate, tryParseDateLocal, tryParseDateISO, tryParseDateLocalOrISO**: While *tryParseDate*() expects the format parameter (see CULTURE_INFO and DATE_FORMATS),
+*tryParseDateLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseDateISO*() is using **DATE_FORMATS.ISO**.
+Multiple formats can be used simoultaneously (which are RegExps) and the recognized one will be used.
+- **formateDate, formatDateLocal, formatDateISO**: Format dates without time portion using specific formats. *formatDate*() expects the format parameter,
+*formatDateLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatDateISO*() uses **DATE_FORMATS.ISO**.
+- **formateDateTime, formatDateTimeLocal, formatDateTimeISO**: Same as *formatDate*() methods but supports the time portion.
+
+#### Dictionary
+
 - **convertArrayToDictionary**: Converts the given array to a string dictionary (Record<string, T>) by using the given callback to get the keys and values of array items
 - **convertArrayToDictionary2**: Converts the given array to a two-level multi-keyyed string dictionary (Record<string, Record<string, T>>) by using the given callback to get the keys and values of array items
-- **flatten, flatMap**: Clone array-of-arrays into a single flat array by concatenating the child arrays
+- **iterateDictionary, filterDictionary, mapDictionary, copyDictionary**: Various helper methods to work with associative array
 
+##### Comparison
+
+- **compareDictionaries, sameDictionaries**: For all types we have comparison functions returning [-1, 0, 1] and equality checks.
+In case of associative arrays the comparison is shallow, values are compared by using *compareValues*() and not *compareObjects*() by default,
+but a custom comparer can be specified. Also supports **StringCompareOptions**.
+ 
 #### Guid
 - **Constants**: EMPTY_GUID, GUID_LENGTH
 - **newGuid**: Returns new GUID value
 
+#### Number
+
+- **clamp, roundDown, roundUp**: Various helper methods for numbers (round methods expect *unit* parameter)
+
+##### Comparison
+
+- **compareNumbers**: Compares numbers and returns [-1, 0, 1]
+
+##### Localization
+
+- **tryParseNumber, tryParseNumberLocal, tryParseNumberISO**: While *tryParseNumber*() expects the format parameter (see CULTURE_INFO and NUMBER_FORMATS),
+*tryParseNumberLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseNumberISO*() is using **NUMBER_FORMATS.ISO**.
+- **formateNumber, formatNumberLocal, formatNumberISO**: Format numbers using specific formats. *formatNumber*() expects the format parameter,
+*formatNumberLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatNumberISO*() uses **NUMBER_FORMATS.ISO**.
+
+#### Object
+
+##### Comparison
+
+- **compareObjects, sameObjects**: For all types we have comparison functions returning [-1, 0, 1] and equality checks.
+***For objects the comparison is deep by default***, objects are compared by using *compareObjects*() and values are compared by using *compareValues*(),
+but custom comparers can be specified for both. Also supports **StringCompareOptions**.
+- **removeKeys, mapObject, deepCopyObject**: Helper methods for objects
+- **getObjectChildMemberValue, setObjectChildMemberValue, removeObjectChildMemberValue**:                                             
+
 #### Typing
 - **isEmpty**: Returns wheter the passed value is null, undefined or empty string. Does not consider zero and false empty (different from 'falsy')
 - **resolveEmpty**: Substitutes empty values with replacement values. The replacement value can be a direct value or a callback function which will be called.
-- **isString, isNumber**, isBoolean, isDate, isArray, isFunction, isPrimitiveType: Type guards
+- **isString, isNumber, isBoolean, isDate, isArray, isFunction, isValueType, isFile**: Type guards
 - **isEmptyObject**: Returns whether the passed object is an object with no keys (!Object.keys())
-- **getResolvedCallbackValue**: From values of type ValueOrCallback<Value> returns the resolved value (unchanged value or result of the callback function)
-- **getResolvedCallbackWithArgsValue**: From values of type ValueOrCallbackWithArg<Arg, Value> returns the resolved value (unchanged value or result of the callback function when called with *args*)
+- **getResolvedCallbackValue**: From values of type *ValueOrCallback*&lt;Value&gt; returns the resolved value (unchanged value or result of the callback function)
+- **getResolvedCallbackWithArgsValue**: From values of type *ValueOrCallbackWithArg*&lt;Arg, Value&gt; returns the resolved value (unchanged value or result of the callback function when called with *args*)
+- **getResolvedArray**: From values of type *ValueOrArray*&lt;Value&gt; returns the resolved array or array with a single value;
+supports custom *splitValue*() callback to split the parameter if it's a single value only and not an array already.
 
 # Links
 

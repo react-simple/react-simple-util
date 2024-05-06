@@ -1,5 +1,5 @@
 import {
-	sameDates, compareDates, tryParseDate, formatDate, formatDateTime, tryParseDateISO, tryParseDateLocal, formatDateLocal, formatDateTimeLocal
+	sameDates, compareDates, tryParseDate, formatDate, formatDateTime, tryParseDateISO, tryParseDateLocal, formatDateLocal, formatDateTimeLocal, formatDateISO, dateAdd, formatDateTimeISO
 } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
 
@@ -59,8 +59,16 @@ it('formatDateLocal', () => {
 	expect(formatDateLocal(new Date(2000, 0, 2, 3, 4, 5, 678))).toBe("01/02/2000");
 });
 
+it('formatDateLocal.midnight', () => {
+	expect(formatDateLocal(new Date(2000, 0, 2))).toBe("01/02/2000");
+});
+
 it('formatDateTimeLocal.hourMinute', () => {
 	expect(formatDateTimeLocal(new Date(2000, 0, 2, 3, 4, 5, 678))).toBe("01/02/2000 03:04");
+});
+
+it('formatDateTimeLocal.hourMinute.midnight', () => {
+	expect(formatDateTimeLocal(new Date(2000, 0, 2))).toBe("01/02/2000 00:00");
 });
 
 it('formatDateTimeLocal.hourMinuteSecond', () => {

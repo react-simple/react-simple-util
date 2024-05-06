@@ -1,12 +1,14 @@
 export enum ContentTypeCategory {
 	image = "image",
-	document = "document"
+	document = "document",
+	text = "text",
+	spreadsheet = "spreadsheet"
 }
 
 export interface ContentType {
 	allowedContentTypes: string[];
 	allowedExtensions: string[];
-	category: ContentTypeCategory;
+	categories: ContentTypeCategory[];
 }
 
 const EXCEL_CONTENT_TYPES = [
@@ -14,60 +16,68 @@ const EXCEL_CONTENT_TYPES = [
 	"application/vnd.ms-excel",
 	"application/x-excel",
 	"application/x-msexcel",
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	"text/csv"
 ];
 
 // https://www.sitepoint.com/mime-types-complete-list/
-// xls,xlsx,csv,pdf,docx,doc,jpg,jpeg,png,gif,ics,eps,ai
-// ics is not yet added (iCalendar)
 export const CONTENT_TYPE = {
 // image
 	png: <ContentType>{
 		allowedContentTypes: ["image/png"],
 		allowedExtensions: ["png"],
-		category: ContentTypeCategory.image
+		categories: [ContentTypeCategory.image]
 	},
 	jpg: <ContentType>{
 		allowedContentTypes: ["image/jpg", "image/jpeg"],
 		allowedExtensions: ["jpg", "jpeg"],
-		category: ContentTypeCategory.image
+		categories: [ContentTypeCategory.image]
 	},
 	gif: <ContentType>{
 		allowedContentTypes: ["image/gif"],
 		allowedExtensions: ["gif"],
-		category: ContentTypeCategory.image
+		categories: [ContentTypeCategory.image]
 	},
 
 	// document
 	xls: <ContentType>{
 		allowedContentTypes: EXCEL_CONTENT_TYPES,
 		allowedExtensions: ["xls", "xlsx"],
-		category: ContentTypeCategory.document
-	},
-	csv: <ContentType>{
-		allowedContentTypes: EXCEL_CONTENT_TYPES,
-		allowedExtensions: ["csv"],
-		category: ContentTypeCategory.document
+		categories: [ContentTypeCategory.document, ContentTypeCategory.spreadsheet]
 	},
 	doc: <ContentType>{
 		allowedContentTypes: ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
 		allowedExtensions: ["doc", "docx"],
-		category: ContentTypeCategory.document
+		categories: [ContentTypeCategory.document]
 	},
 	eps: <ContentType>{
 		allowedContentTypes: ["application/postscript"],
 		allowedExtensions: ["eps", "ai"],
-		category: ContentTypeCategory.document
+		categories: [ContentTypeCategory.document]
 	},
 	pdf: <ContentType>{
 		allowedContentTypes: ["application/pdf"],
 		allowedExtensions: ["pdf"],
-		category: ContentTypeCategory.document
+		categories: [ContentTypeCategory.document]
 	},
+
+	// text
+	csv: <ContentType>{
+		allowedContentTypes: EXCEL_CONTENT_TYPES,
+		allowedExtensions: ["csv"],
+		categories: [ContentTypeCategory.text, ContentTypeCategory.spreadsheet]
+	},
+	txt: <ContentType>{
+		allowedContentTypes: ["text/plain"],
+		allowedExtensions: ["txt"],
+		categories: [ContentTypeCategory.text]
+	}
 };
 
 export const CONTENT_TYPES = {
 	all: Object.values(CONTENT_TYPE),
-	images: Object.values(CONTENT_TYPE).filter(t => t.category === ContentTypeCategory.image),
-	documents: Object.values(CONTENT_TYPE).filter(t => t.category === ContentTypeCategory.document),
+	images: Object.values(CONTENT_TYPE).filter(t => t.categories.includes(ContentTypeCategory.image)),
+	documents: Object.values(CONTENT_TYPE).filter(t => t.categories.includes(ContentTypeCategory.document)),
+	texts: Object.values(CONTENT_TYPE).filter(t => t.categories.includes(ContentTypeCategory.text)),
+	spreadsheets: Object.values(CONTENT_TYPE).filter(t => t.categories.includes(ContentTypeCategory.spreadsheet))
 };

@@ -69,7 +69,8 @@ export function compareObjects(
 	obj1: unknown,
 	obj2: unknown,
 	options?: StringCompareOptions & {
-		compare?: (value1: unknown, value2: unknown) => CompareReturn;
+		compareValues?: (value1: unknown, value2: unknown) => CompareReturn;
+		compareObjects?: (value1: unknown, value2: unknown) => CompareReturn;
 	}
 ): CompareReturn {
 	if (obj1 === obj2) {
@@ -82,17 +83,18 @@ export function compareObjects(
 		return 1;
 	}
 	else {
-		const compare = options?.compare || ((t1, t2) => compareValues(t1, t2, options));
-
 		if (isValueType(obj1) || isValueType(obj2)) {
-			return compare(obj1, obj2);
+			// compare values
+			return options?.compareValues ? options.compareValues(obj1, obj2) : compareValues(obj1, obj2, options);
 		}
 		else {
+			// compare objects
 			// check all keys in alphabetical order for proper comparison (not the order of definition, but the order by name)
 			const keys = sortArray(getDistinct([...Object.keys(obj1 as object), ...Object.keys(obj2 as object)]));
+			const compareObj = options?.compareObjects || ((t1, t2) => compareObjects(t1, t2, options));
 
 			for (const key of keys) {
-				const result = compareObjects((obj1 as any)[key], (obj2 as any)[key], options);
+				const result = compareObj((obj1 as any)[key], (obj2 as any)[key]);
 
 				if (result) {
 					return result;

@@ -27,28 +27,27 @@ export function tryParseFloat(
 	else if (isNumber(value)) {
 		return value;
 	}
-	else if (isString(value)) {
+	else {
 		const numberFormat = format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
 
-		const str = stringReplaceChars(
-			value.toString(),
-			t => {
-				if (t === numberFormat.decimalSeparator) {
-					return ".";
-				}
-				else if (t === numberFormat.thousandSeparator) {
-					return "";
-				}
-				else {
-					return t;
-				}
-			}
+		const str = (
+			numberFormat.decimalSeparator === "." && numberFormat.thousandSeparator === ""
+				? `${value}`
+				: stringReplaceChars(
+					`${value}`,
+					t => (
+						t === numberFormat.decimalSeparator ? "." :
+							t === numberFormat.thousandSeparator ? "" :
+								t
+					)
+				)
 		);
 
 		try {
 			const number = parseFloat(str);
-			return isNumber(number) && !isNaN(number) ? number : undefined;
+			return !isNaN(number) ? number : undefined;
 		} catch {
+			// shall not happen
 			return undefined;
 		}
 	}

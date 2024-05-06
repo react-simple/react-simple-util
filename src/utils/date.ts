@@ -8,6 +8,11 @@ import { REACT_SIMPLE_UTIL } from "data";
 export interface DateTimeFormatOptions {
 	seconds?: boolean;
 	milliseconds?: boolean;
+
+	// shift time zone offset before converting
+	// - specifying 'true' results the same behavior how date.toString() works
+	// - specifying 'false' results the same behavior how date.toLocalDateString() works
+	utc?: boolean; 
 }
 
 export function compareDates(date1: Date, date2: Date): CompareReturn {
@@ -174,7 +179,15 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 	);
 }
 
-export function formatDate(value: Date, format: Pick<CultureInfoDateFormat, "dateFormat">): string {
+export function formatDate(
+	value: Date,
+	format: Pick<CultureInfoDateFormat, "dateFormat">,
+	options?: Pick<DateTimeFormatOptions, "utc">
+): string {
+	if (options?.utc) {
+		value = dateAdd(value, "minute", value.getTimezoneOffset());
+	}
+
 	return (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat).dateFormat
 		.replaceAll("yyyy", value.getFullYear().toString())
 		.replaceAll("yy", (value.getFullYear() % 100).toString())
@@ -185,11 +198,12 @@ export function formatDate(value: Date, format: Pick<CultureInfoDateFormat, "dat
 		.replaceAll("H", "")
 		.replaceAll("m", "")
 		.replaceAll("s", "")
-		.replaceAll("f", "");
+		.replaceAll("f", "")
+		.replaceAll("Z", options?.utc ? "Z" : "");
 }
 
-export function formatDateISO(value: Date): string {
-	return formatDate(value, DATE_FORMATS.ISO);
+export function formatDateISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {
+	return formatDate(value, DATE_FORMATS.ISO, options);
 }
 
 export function formatDateLocal(value: Date): string {
@@ -203,32 +217,35 @@ export function formatDateTime(
 ): string {
 	const dateTimeFormat = (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat).dateTimeFormat;
 
+	if (options?.utc) {
+		value = dateAdd(value, "minute", value.getTimezoneOffset());
+	}
+
 	return (
 		options?.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
 			options?.seconds ? dateTimeFormat.hourMinuteSecond :
 				dateTimeFormat.hourMinute
 	)
-		.replaceAll("yyyy", value.getFullYear().toString())
-		.replaceAll("yy", (value.getFullYear() % 100).toString())
-		.replaceAll("MM", formatNumberISO(value.getMonth() + 1, { minIntegerDigits: 2 }))
-		.replaceAll("M", (value.getMonth() + 1).toString())
-		.replaceAll("dd", formatNumberISO(value.getDate(), { minIntegerDigits: 2 }))
-		.replaceAll("d", value.getDate().toString())
-		.replaceAll("HH", formatNumberISO(value.getHours(), { minIntegerDigits: 2 }))
-		.replaceAll("H", value.getHours().toString())
-		.replaceAll("mm", formatNumberISO(value.getMinutes(), { minIntegerDigits: 2 }))
-		.replaceAll("m", value.getMinutes().toString())
-		.replaceAll("ss", formatNumberISO(value.getSeconds(), { minIntegerDigits: 2 }))
-		.replaceAll("s", value.getSeconds().toString())
-		.replaceAll("fffff", value.getMilliseconds().toString())
-		.replaceAll("ffff", value.getMilliseconds().toString())
-		.replaceAll("fff", value.getMilliseconds().toString())
-		.replaceAll("ff", value.getMilliseconds().toString())
-		.replaceAll("f", value.getMilliseconds().toString());
+		.replace("yyyy", value.getFullYear().toString())
+		.replace("yy", (value.getFullYear() % 100).toString())
+		.replace("MM", formatNumberISO(value.getMonth() + 1, { minIntegerDigits: 2 }))
+		.replace("M", (value.getMonth() + 1).toString())
+		.replace("dd", formatNumberISO(value.getDate(), { minIntegerDigits: 2 }))
+		.replace("d", value.getDate().toString())
+		.replace("HH", formatNumberISO(value.getHours(), { minIntegerDigits: 2 }))
+		.replace("H", value.getHours().toString())
+		.replace("mm", formatNumberISO(value.getMinutes(), { minIntegerDigits: 2 }))
+		.replace("m", value.getMinutes().toString())
+		.replace("ss", formatNumberISO(value.getSeconds(), { minIntegerDigits: 2 }))
+		.replace("s", value.getSeconds().toString())
+		.replace("fff", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 3 }))
+		.replace("ff", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 2 }))
+		.replace("f", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 1 }))
+		.replace("Z", options?.utc ? "Z" : "");
 }
 
-export function formatDateTimeISO(value: Date, options?: DateTimeFormatOptions): string {
-	return formatDateTime(value, DATE_FORMATS.ISO, options);
+export function formatDateTimeISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {
+	return formatDateTime(value, DATE_FORMATS.ISO, { seconds: true, milliseconds: true, utc: options?.utc });
 }
 
 export function formatDateTimeLocal(value: Date, options?: DateTimeFormatOptions): string {

@@ -8,9 +8,9 @@ const ISO: CultureInfoDateFormat = {
 	dateFormatRegExp: /^(?<year>\d{4})-(?<month>\d{1,2})-(?<day>\d{1,2})$/,
 
 	dateTimeFormat: {
-		hourMinute: "yyyy-MM-ddTHH:mm",
-		hourMinuteSecond: "yyyy-MM-ddTHH:mm:ss",
-		hourMinuteSecondMillisecond: "yyyy-MM-ddTHH:mm:ss.fff"
+		hourMinute: "yyyy-MM-ddTHH:mm:00:000Z",
+		hourMinuteSecond: "yyyy-MM-ddTHH:mm:ss:000Z",
+		hourMinuteSecondMillisecond: "yyyy-MM-ddTHH:mm:ss.fffZ"
 	},
 
 	// when parsing we are more relaxed
