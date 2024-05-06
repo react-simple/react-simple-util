@@ -20,7 +20,17 @@ import { ... } from "@react-simple/react-simple-util";
 
 Members in the REACT_SIMPLE_UTIL object can be set to update the behavior of the provided functions.
 
-- **LOG_LEVEL**: The current level of logging, can be set to 'error', 'warning', 'debug', 'info', or 'trace', see Log chapter below
+### REACT_SIMPLE_UTIL.LOGGING
+- **LOG_LEVEL**: The current level of logging, can be set to 'error', 'warning', 'debug', 'info', or 'trace', see Log chapter below.
+- **LOG_IMPLEMENTATION**: Callback function which is used for logging. By default *logDefaultImplementation*() is set.
+
+### REACT_SIMPLE_UTIL.CULTURE_INFO
+
+- Contains all pre-defined cultures: **ISO, EN-US, HU** atm.
+- Provides shortucts to all pre-defined **DATE_FORMATS, NUMBER_FORMATS** and **BOOLEAN_FORMATS**. 
+(For example: CULTURE_INFO.DATE_FORMATS.ISO is the same object as CULTURE_INFO.ISO.DATE_FORMAT.)
+- Contains the **CURRENT** and the **DEFAULT** cultures. The **CURRENT** culture can be set and it is used by all
+*parse\*Local*() and *format\*Local*() functions for dates, numbers and booleans (see later).
 
 # Content
 
@@ -79,12 +89,12 @@ Values of different HTML content types and extensions are defined in CONTENT_TYP
 
 Formatting specifiers for localization.
 
-- DATE_FORMATS, NUMBER_FORMATS, BOOLEAN_FORMATS and CULTURE_INFO contains predefined values (ISO, EN-US, HU atm.),
+- **DATE_FORMATS, NUMBER_FORMATS, BOOLEAN_FORMATS** and **CULTURE_INFO** contains predefined formats (**ISO, EN-US, HU** atm.),
 but additional formats can be defined.
 - **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** can be set to the desired default culture (EN-US by default).
 - Formatting functions have *default*, *local* and *ISO* variants: *tryParseNumber*(), *tryParseNumberLocal*(), *tryParseNumberISO*()).
-- The local version uses the CURRENT culture and the default version expects a format/culture parameter.
-- For dates and booleans multiple formats can be specified simoultaneously and it will be recognized automatically.
+- The local version uses the CURRENT culture and the default version requies a format/culture parameter.
+- For dates and booleans multiple formats can be specified simoultaneously and the matching one will be recognized automatically.
 
 ### State
 - **StateSetter&lt;State&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
@@ -171,13 +181,14 @@ but a custom comparer can be specified. Also supports **StringCompareOptions**.
 
 #### Object
 
+- **removeKeys, mapObject, deepCopyObject**: Helper methods for objects
+- **getObjectChildMemberValue, setObjectChildMemberValue, removeObjectChildMemberValue**:                                             
+
 ##### Object Comparison
 
 - **compareObjects, sameObjects**: For all types we have comparison functions returning [-1, 0, 1] and equality checks.
 ***For objects the comparison is deep by default***, objects are compared by using *compareObjects*() and values are compared by using *compareValues*(),
 but custom comparers can be specified for both. Also supports **StringCompareOptions**.
-- **removeKeys, mapObject, deepCopyObject**: Helper methods for objects
-- **getObjectChildMemberValue, setObjectChildMemberValue, removeObjectChildMemberValue**:                                             
 
 #### Typing
 - **isEmpty**: Returns wheter the passed value is null, undefined or empty string. Does not consider zero and false empty (different from 'falsy')
