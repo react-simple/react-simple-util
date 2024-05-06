@@ -63,9 +63,9 @@ export const isEmptyObject = (
 
 export function isFile(value: unknown): value is File {
 	return !!(
-		(value as File).name &&
-		(value as File).size &&
-		(value as File).type
+		(value as File)?.name &&
+		(value as File)?.size &&
+		(value as File)?.type
 	);
 }
 

@@ -16,8 +16,7 @@ const EXCEL_CONTENT_TYPES = [
 	"application/vnd.ms-excel",
 	"application/x-excel",
 	"application/x-msexcel",
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-	"text/csv"
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 ];
 
 // https://www.sitepoint.com/mime-types-complete-list/
