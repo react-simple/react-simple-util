@@ -61,15 +61,7 @@ export const mapNonEmptyValues = <In, Out>(array: Nullable<In>[], map: (value: I
 	return array.filter(t => !isEmpty(t)).map(t => map(t!));
 };
 
-export const flatten = <T>(arrays: (T | T[])[]) => {
-	return ([] as T[]).concat(...arrays);
-};
-
-export const flatMap = <In, Out>(arrays: In[], map: (value: In) => Out[]) => {
-	return ([] as Out[]).concat(...arrays.map(map));
-};
-
-// will replace the [from, to) range
+// Will replace the [from, to) range. Returns a new array, does not change the parameter array.
 export const arrayReplaceFromTo = <T>(arr: T[], from: number, to: number, value: T[]) => {
 	return [
 		...arr.slice(0, Math.max(from, 0)),
@@ -78,11 +70,12 @@ export const arrayReplaceFromTo = <T>(arr: T[], from: number, to: number, value:
 	];
 };
 
-// will replace the [start, start + length) range
+// Will replace the [start, start + length) range. Returns a new array, does not change the parameter array.
 export const arrayReplaceAt = <T>(arr: T[], start: number, length: number, value: T[]) => {
 	return arrayReplaceFromTo(arr, start, start + length, value);
 };
 
+// Returns a new array, does not change the parameter array.
 export const arrayInsertAt = <T>(arr: T[], index: number, insert: T[]) => {
 	return (
 		index <= 0 ? [...insert, ...arr] :
@@ -95,7 +88,7 @@ export const arrayInsertAt = <T>(arr: T[], index: number, insert: T[]) => {
 	);
 };
 
-// will remove the [from, to) range
+// Will remove the [from, to) range. Returns a new array, does not change the parameter array.
 export const arrayRemoveFromTo = <T>(arr: T[], from: number, to: number) => {
 	return [
 		...arr.slice(0, Math.max(from, 0)),
@@ -103,7 +96,7 @@ export const arrayRemoveFromTo = <T>(arr: T[], from: number, to: number) => {
 	];
 };
 
-// will remove the [start, start + length) range
+// Will remove the [start, start + length) range. Returns a new array, does not change the parameter array.
 export const arrayRemoveAt = <T>(arr: T[], start: number, length: number = 1) => {
 	return arrayRemoveFromTo(arr, start, start + length);
 };

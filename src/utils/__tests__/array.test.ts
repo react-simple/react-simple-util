@@ -1,7 +1,7 @@
 import {
 	arrayInsertAt, arrayRemoveAt, arrayRemoveFromTo, arrayReplaceAt, arrayReplaceFromTo, compareArrays, concatNonEmptyValues, createArray,
-	flatMap, flatten, getDistinct, getDistinctBy, getDistinctValues, getNonEmptyValues, getResolvedArray, joinNonEmptyValues,
-	mapNonEmptyValues, range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy
+	getDistinct, getDistinctBy, getDistinctValues, getNonEmptyValues, getResolvedArray, joinNonEmptyValues, mapNonEmptyValues,
+	range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy
 } from "utils";
 
 const ARR = range(1, 9);
@@ -128,27 +128,6 @@ it('mapNonEmptyValues', () => {
 	expect(sameArrays(
 		mapNonEmptyValues(["a", "b", "", "c", null, "d", undefined], t => `(${t})`),
 		["(a)", "(b)", "(c)", "(d)"]
-	)).toBe(true);
-});
-
-it('flatten', () => {
-	expect(sameArrays(
-		flatten([[1, 2, 3], [4, 5], [6, 7, 8]]),
-		[1, 2, 3, 4, 5, 6, 7, 8]
-	)).toBe(true);
-});
-
-it('flatMap', () => {
-	expect(sameArrays(
-		flatMap([[1, 2, 3], [4, 5], [6, 7, 8]], t => [0, ...t, 0]),
-		[0, 1, 2, 3, 0, 0, 4, 5, 0, 0, 6, 7, 8, 0]
-	)).toBe(true);
-});
-
-it('flatMap', () => {
-	expect(sameArrays(
-		flatMap([[1, 2, 3], [4, 5], [6, 7, 8]], t => [0, ...t, 0]),
-		[0, 1, 2, 3, 0, 0, 4, 5, 0, 0, 6, 7, 8, 0]
 	)).toBe(true);
 });
 

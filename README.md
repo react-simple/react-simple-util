@@ -105,7 +105,6 @@ but additional formats can be defined.
 #### Array
 - **range, rangeFromTo**: Functions to return range of numbers in an array
 - **getNonEmptyValues, joinNonEmptyValues, concatNonEmptyValues, mapNonEmptyValues**: Helper functions which only operate on the non-empty values of the passed array (excludes null, undefined or empty string, includes zero and false)
-- **flatten, flatMap**: Clone array-of-arrays into a single flat array by concatenating the child arrays
 - **arrayReplaceFromTo, arrayReplaceAt, arrayInsertAt, arrayRemoveFromTo, arrayRemoveAt**: Replace internal parts of arrays (from/to or start/count)
 - **getDistinct, getDistinctValues, getDistinctBy**: Various helper funtions to get distict values from a list or dictint member values of objects or distinct list of
 objects based on their specified member value (first occurent of an object with that member value is returned only).
