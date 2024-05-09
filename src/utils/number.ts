@@ -1,9 +1,8 @@
 import { REACT_SIMPLE_UTIL } from "data";
-import { NUMBER_FORMATS } from "internal";
-import { CultureInfoNumberFormat } from "./cultureInfo";
 import { stringReplaceChars } from "./string";
 import { CompareReturn } from "./types";
 import { isEmpty, isNumber, isString } from "./typing";
+import { CULTURE_INFO, CultureInfoNumberFormat } from "./localization";
 
 export interface NumberFormatOptions {
 	minIntegerDigits?: number; // specify 2 and 3 will become "03", maximum value: 100
@@ -193,7 +192,7 @@ export function formatNumber(
 }
 
 export const formatNumberISO = (value: number, options?: NumberFormatOptions) => {
-	return formatNumber(value, NUMBER_FORMATS.ISO, options);
+	return formatNumber(value, CULTURE_INFO.NUMBER_FORMATS.ISO, options);
 };
 
 export const formatNumberLocal = (value: number, options?: NumberFormatOptions) => {

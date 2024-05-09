@@ -1,7 +1,6 @@
+import { CultureInfoDateFormat } from "utils/localization/types";
+
 // Internal artifacts are not exported
-
-import { CultureInfoDateFormat } from "utils/cultureInfo";
-
 const ISO: CultureInfoDateFormat = {
 	formatId: "ISO",
 	dateFormat: "yyyy-MM-dd",

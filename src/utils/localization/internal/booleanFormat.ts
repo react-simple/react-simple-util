@@ -1,7 +1,6 @@
+import { CultureInfoBooleanFormat } from "utils/localization/types";
+
 // Internal artifacts are not exported
-
-import { CultureInfoBooleanFormat } from "utils/cultureInfo";
-
 const DEFAULT_TRUE_SYNONYMS = ["yes", "y", "1", "true", "on", "checked", "enabled", "active"];
 
 const ISO: CultureInfoBooleanFormat = {

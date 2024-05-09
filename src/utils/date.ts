@@ -1,9 +1,9 @@
 import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
 import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
 import { compareNumbers, formatNumberISO, formatNumberLocal, roundDown, tryParseFloatISO } from "./number";
-import { CultureInfoDateFormat } from "./cultureInfo";
-import { DATE_FORMATS } from "internal";
 import { REACT_SIMPLE_UTIL } from "data";
+import { CultureInfoDateFormat } from "./localization";
+import { DATE_FORMATS } from "./localization/internal";
 
 export interface DateTimeFormatOptions {
 	seconds?: boolean;

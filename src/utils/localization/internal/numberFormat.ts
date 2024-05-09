@@ -1,7 +1,6 @@
+import { CultureInfoNumberFormat } from "utils/localization/types";
+
 // Internal artifacts are not exported
-
-import { CultureInfoNumberFormat } from "utils/cultureInfo";
-
 const ISO: CultureInfoNumberFormat = {
 	formatId: "ISO",
 	decimalSeparator: ".",

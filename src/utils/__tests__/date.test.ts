@@ -1,9 +1,6 @@
 import {
-	sameDates, compareDates, tryParseDate, formatDate, formatDateTime, tryParseDateISO, tryParseDateLocal, formatDateLocal, formatDateTimeLocal, formatDateISO, dateAdd, formatDateTimeISO
+	sameDates, compareDates, tryParseDate, formatDate, formatDateTime, tryParseDateISO, tryParseDateLocal, formatDateLocal, formatDateTimeLocal, CULTURE_INFO
 } from "utils";
-import { REACT_SIMPLE_UTIL } from "data";
-
-const { CULTURE_INFO } = REACT_SIMPLE_UTIL;
 
 it('compareDates.date.equals', () => {
 	expect(compareDates(new Date(2000, 1, 1), new Date(2000, 1, 1))).toBe(0);

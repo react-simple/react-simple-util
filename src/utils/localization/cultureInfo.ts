@@ -1,7 +1,5 @@
-import { CultureInfo } from "utils/cultureInfo";
-import { DATE_FORMATS } from "./dateFormat";
-import { NUMBER_FORMATS } from "./numberFormat";
-import { BOOLEAN_FORMATS } from "./booleanFormat";
+import { BOOLEAN_FORMATS, DATE_FORMATS, NUMBER_FORMATS } from "./internal";
+import { CultureInfo } from "./types";
 
 const ISO: CultureInfo = {
 	cultureId: "ISO",
@@ -25,11 +23,23 @@ const HU: CultureInfo = {
 };
 
 export const CULTURE_INFO: {
+	// formats
+	readonly DATE_FORMATS: typeof DATE_FORMATS;
+	readonly BOOLEAN_FORMATS: typeof BOOLEAN_FORMATS;
+	readonly NUMBER_FORMATS: typeof NUMBER_FORMATS;
+
+	// cultures
 	readonly ISO: CultureInfo;
 	readonly 'EN-US': CultureInfo;
 	readonly HU: CultureInfo;
 	readonly ALL: CultureInfo[];
 } = {
+	// formats
+	DATE_FORMATS,
+	BOOLEAN_FORMATS,
+	NUMBER_FORMATS,
+
+	// cultures
 	ISO,
 	'EN-US': EN_US,
 	HU,

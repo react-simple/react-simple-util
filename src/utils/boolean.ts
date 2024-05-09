@@ -1,8 +1,8 @@
+import { CultureInfoBooleanFormat } from "./localization";
+import { BOOLEAN_FORMATS } from "./localization/internal";
 import { CompareReturn, Nullable, ValueOrArray, ValueOrCallback } from "./types";
 import { getResolvedCallbackValue, isArray, isString, resolveEmpty } from "./typing";
-import { CultureInfoBooleanFormat } from "./cultureInfo";
 import { REACT_SIMPLE_UTIL } from "data";
-import { BOOLEAN_FORMATS } from "internal";
 
 // 'true' is considered to succeed 'false'
 export function compareBooleans(value1: boolean, value2: boolean): CompareReturn {

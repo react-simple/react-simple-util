@@ -1,7 +1,5 @@
-import { compareBooleans, formatBoolean, formatBooleanLocal, resolveBoolean, tryParseBoolean, tryParseBooleanLocal } from "utils";
+import { CULTURE_INFO, compareBooleans, formatBoolean, formatBooleanLocal, resolveBoolean, tryParseBoolean, tryParseBooleanLocal } from "utils";
 import { REACT_SIMPLE_UTIL } from "data";
-
-const { CULTURE_INFO } = REACT_SIMPLE_UTIL;
 
 it('compareBooleans.less', () => {
 	expect(compareBooleans(false, true)).toBe(-1);
