@@ -290,3 +290,16 @@ export function sortArrayBy<Item, Value extends ValueType>(
 
 	return result;
 }
+
+// Finds the first occurence where getValue() returns non-undefined and returns the value.
+export function findValue<Item, Value>(arr: Item[], getValue: (item: Item) => Value): Value | undefined {
+	for (const item of arr) {
+		const value = getValue(item);
+
+		if (value !== undefined) {
+			return value;
+		}
+	}
+
+	return undefined;
+}

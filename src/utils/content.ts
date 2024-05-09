@@ -62,7 +62,7 @@ export const CONTENT_TYPE = {
 
 	// text
 	csv: <ContentType>{
-		allowedContentTypes: EXCEL_CONTENT_TYPES,
+		allowedContentTypes: ["text/csv"],
 		allowedExtensions: ["csv"],
 		categories: [ContentTypeCategory.text, ContentTypeCategory.spreadsheet]
 	},
