@@ -251,3 +251,38 @@ export function formatDateTimeISO(value: Date, options?: Pick<DateTimeFormatOpti
 export function formatDateTimeLocal(value: Date, options?: DateTimeFormatOptions): string {
 	return formatDateTime(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat, options);
 }
+
+const getDateHasTime = (d: Date) => {
+	return !!(d.getHours() || d.getMinutes() || d.getSeconds() || d.getMilliseconds());
+};
+
+// if time portion is zero formats value as date, otherwise as date-time
+export function formatDateOrDateTime(
+	value: Date,
+	format: Pick<CultureInfoDateFormat, "dateFormat" | "dateTimeFormat">,
+	options?: DateTimeFormatOptions
+): string {
+	return getDateHasTime(value)
+		? formatDateTime(value, format, options)
+		: formatDate(value, format, options);
+}
+
+// if time portion is zero formats value as date, otherwise as date-time
+export function formatDateOrDateTimeISO(
+	value: Date,
+	options?: DateTimeFormatOptions
+): string {
+	return getDateHasTime(value)
+		? formatDateTimeISO(value, options)
+		: formatDateISO(value, options);
+}
+
+// if time portion is zero formats value as date, otherwise as date-time
+export function formatDateOrDateTimeLocal(
+	value: Date,
+	options?: DateTimeFormatOptions
+): string {
+	return getDateHasTime(value)
+		? formatDateTimeLocal(value, options)
+		: formatDateLocal(value);
+}

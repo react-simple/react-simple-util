@@ -6,6 +6,7 @@ export enum ContentTypeCategory {
 }
 
 export interface ContentType {
+	name: string;
 	allowedContentTypes: string[];
 	allowedExtensions: string[];
 	categories: ContentTypeCategory[];
@@ -23,16 +24,19 @@ const EXCEL_CONTENT_TYPES = [
 export const CONTENT_TYPE = {
 // image
 	png: <ContentType>{
+		name: "PNG image",
 		allowedContentTypes: ["image/png"],
 		allowedExtensions: ["png"],
 		categories: [ContentTypeCategory.image]
 	},
 	jpg: <ContentType>{
+		name: "JPEG image (jpg, jpeg)",
 		allowedContentTypes: ["image/jpg", "image/jpeg"],
 		allowedExtensions: ["jpg", "jpeg"],
 		categories: [ContentTypeCategory.image]
 	},
 	gif: <ContentType>{
+		name: "GIF image",
 		allowedContentTypes: ["image/gif"],
 		allowedExtensions: ["gif"],
 		categories: [ContentTypeCategory.image]
@@ -40,21 +44,25 @@ export const CONTENT_TYPE = {
 
 	// document
 	xls: <ContentType>{
+		name: "Excel workbook (xls, xlsx)",
 		allowedContentTypes: EXCEL_CONTENT_TYPES,
 		allowedExtensions: ["xls", "xlsx"],
 		categories: [ContentTypeCategory.document, ContentTypeCategory.spreadsheet]
 	},
 	doc: <ContentType>{
+		name: "Word document (doc, docx)",
 		allowedContentTypes: ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
 		allowedExtensions: ["doc", "docx"],
 		categories: [ContentTypeCategory.document]
 	},
 	eps: <ContentType>{
+		name: "Postscript document (eps)",
 		allowedContentTypes: ["application/postscript"],
 		allowedExtensions: ["eps", "ai"],
 		categories: [ContentTypeCategory.document]
 	},
 	pdf: <ContentType>{
+		name: "PDF document",
 		allowedContentTypes: ["application/pdf"],
 		allowedExtensions: ["pdf"],
 		categories: [ContentTypeCategory.document]
@@ -62,11 +70,13 @@ export const CONTENT_TYPE = {
 
 	// text
 	csv: <ContentType>{
+		name: "CSV file",
 		allowedContentTypes: ["text/csv"],
 		allowedExtensions: ["csv"],
 		categories: [ContentTypeCategory.text, ContentTypeCategory.spreadsheet]
 	},
 	txt: <ContentType>{
+		name: "Text file (txt)",
 		allowedContentTypes: ["text/plain"],
 		allowedExtensions: ["txt"],
 		categories: [ContentTypeCategory.text]

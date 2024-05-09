@@ -9,6 +9,7 @@ export interface NumberFormatOptions {
 	radix?: number; // default is 10
 	minDecimalDigits?: number; // zeroes will be added to reach this length
 	maxDecimalDigits?: number; // fractional part will be cut over this part (note: there is no rounding!)
+	thousandSeparators?: boolean; // default is 'true'
 }
 
 export function compareNumbers(n1: number, n2: number): CompareReturn {
@@ -132,8 +133,10 @@ export function formatNumber(
 	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
 	options?: NumberFormatOptions	
 ): string {
-	const { decimalSeparator, thousandSeparator } = format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
+	format ||= REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
+	const { decimalSeparator } = format;
 	const { maxDecimalDigits, minDecimalDigits, minIntegerDigits, radix } = options || {};
+	const thousandSeparator = options?.thousandSeparators !== false ? format.thousandSeparator : undefined;
 
 	const str = Math.abs(value).toString(radix);
 	const negativeSign = value < 0 ? "-" : "";
@@ -156,7 +159,8 @@ export function formatNumber(
 
 		const fracPart = addThousandSeparatorsToFracPart(
 			LOTS_OF_ZEROES.substring(0, minDecimalDigits),
-			thousandSeparator);
+			thousandSeparator
+		);
 
 		return `${negativeSign}${intPart}${decimalSeparator}${fracPart}`;
 	}

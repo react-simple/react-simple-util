@@ -61,6 +61,19 @@ export const mapNonEmptyValues = <In, Out>(array: Nullable<In>[], map: (value: I
 	return array.filter(t => !isEmpty(t)).map(t => map(t!));
 };
 
+// Finds the first occurence where getValue() returns non-undefined and returns the value.
+export function findNonEmptyValue<Item, Value>(arr: Item[], getValue: (item: Item) => Value): Value | undefined {
+	for (const item of arr) {
+		const value = getValue(item);
+
+		if (!isEmpty(value)) {
+			return value;
+		}
+	}
+
+	return undefined;
+}
+
 // Will replace the [from, to) range. Returns a new array, does not change the parameter array.
 export const arrayReplaceFromTo = <T>(arr: T[], from: number, to: number, value: T[]) => {
 	return [
@@ -289,17 +302,4 @@ export function sortArrayBy<Item, Value extends ValueType>(
 	}
 
 	return result;
-}
-
-// Finds the first occurence where getValue() returns non-undefined and returns the value.
-export function findValue<Item, Value>(arr: Item[], getValue: (item: Item) => Value): Value | undefined {
-	for (const item of arr) {
-		const value = getValue(item);
-
-		if (value !== undefined) {
-			return value;
-		}
-	}
-
-	return undefined;
 }
