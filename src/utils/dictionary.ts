@@ -58,7 +58,7 @@ export function filterDictionary<Value>(
 	return result;
 }
 
-export function mapDictionary<Value>(
+export function mapDictionaryValues<Value>(
 	dict: Record<string, Value>,
 	map: (value: Value, key: string) => Value
 ): Record<string, Value> {
@@ -66,6 +66,20 @@ export function mapDictionary<Value>(
 
 	iterateDictionary(dict, ([key, value]) => {
 		result[key] = map(value, key);
+	});
+
+	return result;
+}
+
+export function mapDictionaryEntries<Value>(
+	dict: Record<string, Value>,
+	map: (entry: [string, Value]) => [string, Value]
+): Record<string, Value> {
+	const result: Record<string, Value> = {};
+
+	iterateDictionary(dict, entry => {
+		const newEntry = map(entry);
+		result[newEntry[0]] = newEntry[1];
 	});
 
 	return result;
@@ -114,4 +128,35 @@ export function sameDictionaries(
 	}
 ): boolean {
 	return sameObjects(dict1, dict2, options);
+}
+
+export function mergeDictionaries<Value>(
+	dicts: Record<string, Value>[],
+	options?: {
+		filter?: (value: Value, key: string) => boolean,
+		mapValue?: (value: Value, key: string) => Value,
+		mapEntry?: (entry: [string, Value]) => [string, Value]
+	}
+): Record<string, Value> {
+	const result: Record<string, Value> = {};
+	const { filter, mapEntry, mapValue } = options || {};
+
+	for (const dict of dicts) {
+		for (const [key, value] of Object.entries(dict)) {
+			if (!filter || filter(value, key)) {
+				if (mapEntry) {
+					const newEntry = mapEntry([key, value]);
+					result[newEntry[0]] = newEntry[1];
+				}
+				else if (mapValue) {
+					result[key] = mapValue(value, key);
+				}
+				else {
+					result[key] = value;
+				}
+			}
+		}
+	}
+
+	return result;
 }
