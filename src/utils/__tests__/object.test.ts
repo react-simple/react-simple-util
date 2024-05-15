@@ -1,4 +1,7 @@
-import { compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys, sameObjects, setObjectChildMemberValue } from "utils";
+import {
+	compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys, sameObjects,
+	setObjectChildMemberValue
+} from "utils";
 
 const CHIILD_MEMBER_TESTOBJ = {
 	a: {
@@ -8,6 +11,8 @@ const CHIILD_MEMBER_TESTOBJ = {
 		}
 	}
 };
+
+// compareObjects
 
 it('compareObjects.less', () => {
 	expect(compareObjects(
@@ -46,6 +51,8 @@ it('compareObjects.greater.undefined', () => {
 	)).toBe(1);
 });
 
+// sameObjects
+
 it('sameObjects.equals', () => {
 	expect(sameObjects(
 		{ a: { b: 1 } },
@@ -60,6 +67,8 @@ it('sameObjects.strings', () => {
 		{ ignoreCase: true, trim: true }
 	)).toBe(true);
 });
+
+// other
 
 it('removeKeys', () => {
 	expect(sameObjects(
@@ -89,6 +98,8 @@ it('deepCopyObject.transform', () => {
 	expect(copy.a.b.c).toBe(10);
 	expect(copy).not.toBe(original);
 });
+
+// getObjectChildMemberValue
 
 it('getObjectChildMemberValue.arrayPath', () => {
 	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, ["a", "b", "c"])).toBe(1);
@@ -135,6 +146,29 @@ it('getObjectChildMemberValue.arrayPath', () => {
 it('getObjectChildMemberValue.stringPath', () => {
 	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.b.c")).toBe(1);
 });
+
+it('getObjectChildMemberValue.stringPath.customSeparator', () => {
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a/b/c", { pathSeparator: "/" })).toBe(1);
+});
+
+it('getObjectChildMemberValue.stringPath.rootObj', () => {
+	const options = { rootObj: CHIILD_MEMBER_TESTOBJ };
+
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ.a.b, "a.b.c", options)).toBe(undefined);
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ.a.b, "a./a.b.c", options)).toBe(undefined);
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ.a.b, "/a.b.c", options)).toBe(1);	
+});
+
+it('getObjectChildMemberValue.stringPath.namedObjs', () => {
+	const options = { namedObjs: { bbb: CHIILD_MEMBER_TESTOBJ.a.b } };
+
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@b.c", options)).toBe(undefined);
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@bb.c", options)).toBe(undefined);
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "a.@bbb.c", options)).toBe(undefined);
+	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@bbb.c", options)).toBe(1);
+});
+
+// setObjectChildMemberValue
 
 it('setObjectChildMemberValue.arrayPath', () => {
 	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
@@ -217,6 +251,37 @@ it('setObjectChildMemberValue.nonExistingMember.array.stringPath', () => {
 	expect(leafObj).toBe(obj["a"]?.["b"]);
 });
 
+it('setObjectChildMemberValue.stringPath.customSeparator', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const leafObj = setObjectChildMemberValue(copy, "a/b/c", 2, { pathSeparator: "/" });
+
+	expect(copy.a.b.c).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('setObjectChildMemberValue.stringPath.rootObj', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const options = { rootObj: copy };
+	const leafObj = setObjectChildMemberValue(copy.a.b, "/a.b.c", 2, options);
+
+	expect(copy.a.b.c).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+it('getObjectChildMemberValue.stringPath.namedObjs', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const options = { namedObjs: { bbb: copy.a.b } };
+	const leafObj = setObjectChildMemberValue(copy, "@bbb.c", 2, options);
+
+	expect(copy.a.b.c).toBe(2);
+	expect(leafObj?.["c"]).toBe(2);
+	expect(leafObj).toBe(copy.a.b);
+});
+
+// deleteObjectChildMember
+
 it('deleteObjectChildMember.stringPath', () => {
 	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
 	const deleted = deleteObjectChildMember(copy, "a.b.c");
@@ -245,4 +310,36 @@ it('deleteObjectChildMember.array.stringPath.[]', () => {
 	expect(copy.a.b.array?.length).toBe(1);
 	expect(copy.a.b.array[0]).toBe(12);
 	expect(deleted).toBe(11);
+});
+
+it('deleteObjectChildMember.stringPath.customSeparator', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const deleted = deleteObjectChildMember(copy, "a/b/c", { pathSeparator: "/" });
+
+	expect(copy.a.b.c).toBeUndefined();
+	expect(copy.a.b).toBeDefined();
+	expect(copy.a.b.array?.[0]).toBe(11);
+	expect(deleted).toBe(1);
+});
+
+it('deleteObjectChildMember.stringPath.rootObj', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const options = { rootObj: copy };
+	const deleted = deleteObjectChildMember(copy.a.b, "/a.b.c", options);
+
+	expect(copy.a.b.c).toBeUndefined();
+	expect(copy.a.b).toBeDefined();
+	expect(copy.a.b.array?.[0]).toBe(11);
+	expect(deleted).toBe(1);
+});
+
+it('deleteObjectChildMember.stringPath.namedObjs', () => {
+	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
+	const options = { namedObjs: { bbb: copy.a.b } };
+	const deleted = deleteObjectChildMember(copy, "@bbb.c", options);
+
+	expect(copy.a.b.c).toBeUndefined();
+	expect(copy.a.b).toBeDefined();
+	expect(copy.a.b.array?.[0]).toBe(11);
+	expect(deleted).toBe(1);
 });

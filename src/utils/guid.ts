@@ -1,6 +1,5 @@
+import { Guid } from "./types";
 import { isString } from "./typing";
-
-export type Guid = string;
 
 export const EMPTY_GUID: Guid = '00000000-0000-0000-0000-000000000000';
 export const GUID_LENGTH = EMPTY_GUID.length;

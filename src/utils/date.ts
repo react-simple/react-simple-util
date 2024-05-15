@@ -1,19 +1,9 @@
-import { CompareReturn, DatePart, Nullable, ValueOrArray } from "./types";
+import { CompareReturn, DatePart, DateTimeFormatOptions, Nullable, ValueOrArray } from "./types";
 import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
 import { compareNumbers, formatNumberISO, formatNumberLocal, roundDown, tryParseFloatISO } from "./number";
 import { REACT_SIMPLE_UTIL } from "data";
 import { CultureInfoDateFormat } from "./localization";
 import { DATE_FORMATS } from "./localization/internal";
-
-export interface DateTimeFormatOptions {
-	seconds?: boolean;
-	milliseconds?: boolean;
-
-	// shift time zone offset before converting
-	// - specifying 'true' results the same behavior how date.toString() works
-	// - specifying 'false' results the same behavior how date.toLocalDateString() works
-	utc?: boolean; 
-}
 
 export function compareDates(date1: Date, date2: Date): CompareReturn {
 	return compareNumbers(date1.getTime(), date2.getTime());

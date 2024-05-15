@@ -1,16 +1,8 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { stringReplaceChars } from "./string";
-import { CompareReturn } from "./types";
+import { CompareReturn, NumberFormatOptions } from "./types";
 import { isEmpty, isNumber, isString } from "./typing";
 import { CULTURE_INFO, CultureInfoNumberFormat } from "./localization";
-
-export interface NumberFormatOptions {
-	minIntegerDigits?: number; // specify 2 and 3 will become "03", maximum value: 100
-	radix?: number; // default is 10
-	minDecimalDigits?: number; // zeroes will be added to reach this length
-	maxDecimalDigits?: number; // fractional part will be cut over this part (note: there is no rounding!)
-	thousandSeparators?: boolean; // default is 'true'
-}
 
 export function compareNumbers(n1: number, n2: number): CompareReturn {
 	return n1 < n2 ? -1 : n1 > n2 ? 1 : 0;

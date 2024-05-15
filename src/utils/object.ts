@@ -1,4 +1,4 @@
-import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
+import { AccessObjectChildMemberValueOptions, CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
@@ -199,20 +199,55 @@ export function deepCopyObject<T>(
 	}
 }
 
+function getObjectChildMemberObjAndPath(
+	currentObj: unknown,
+	memberNamesPath: ValueOrArray<string>,
+	options?: AccessObjectChildMemberValueOptions
+): {
+	obj: any;
+	path?: string[];
+} {
+	if (!currentObj) {
+		return { obj: currentObj };
+	}
+
+	const path = getResolvedArray(memberNamesPath, t => t.split(options?.pathSeparator || "."));
+
+	if (!path.length) {
+		return { obj: currentObj };
+	}
+
+	let obj: any = currentObj;
+
+	// check root obj
+	if (path[0].startsWith("/")) {
+		obj = options?.rootObj; // if undefined the caller will return undefined
+		path[0] = path[0].substring(1);
+	}
+	// check named obj
+	else if (path[0].startsWith("@")) {
+		obj = options?.namedObjs?.[path[0].substring(1)]; // if undefined the caller will return undefined
+		path.splice(0, 1);
+	}
+
+	return { obj, path };
+}
+
 // Gets child member value by resolving the specified path of member names. Returns undefined if children are not found.
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Also understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 export const getObjectChildMemberValue = (
-	rootObj: unknown,
+	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
-	pathSeparator: string = "." // used only if memberNamesPath is string
+	options?: AccessObjectChildMemberValueOptions
 ) => {
-	if (!rootObj) {
-		return undefined;
-	}
+	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	let obj = prep.obj;
+	const path = prep.path;
 
-	let obj: any = rootObj;
-	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
+	if (!obj || !path) {
+		return obj;
+	}
 
 	for (const memberName of path) {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
@@ -246,20 +281,26 @@ export const getObjectChildMemberValue = (
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has its member set.
 export const setObjectChildMemberValue = (
-	rootObj: unknown,
+	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
 	value: unknown,
-	pathSeparator: string = "." // used only if memberNamesPath is string
+	options?: AccessObjectChildMemberValueOptions
 ) => {
-	let obj: any = rootObj;
-	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
+	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	let obj = prep.obj;
+	const path = prep.path;
+
+	if (!obj || !path) {
+		return obj;
+	}
+
 	const length_m1 = path.length - 1;
 
 	path.forEach((memberName, memberNameIndex) => {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
 
 		if (memberNameIndex < length_m1) {
-			// iterate children
+			// iterate children with path[0..length - 2] values
 			let child: any;
 
 			if (i < 0) {
@@ -305,7 +346,7 @@ export const setObjectChildMemberValue = (
 			obj = child;
 		}
 		else {
-			// set value
+			// set value using path[length - 1] value
 			if (i < 0) {
 				// name only
 				obj[memberName] = value;
@@ -340,23 +381,28 @@ export const setObjectChildMemberValue = (
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has its member set.
 export const deleteObjectChildMember = (
-	rootObj: unknown,
+	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
-	pathSeparator: string = "." // used only if memberNamesPath is string
+	options?: AccessObjectChildMemberValueOptions
 ) => {
-	let obj: any = rootObj;
+	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	let obj = prep.obj;
+	const path = prep.path;
+
+	if (!obj || !path) {
+		return obj;
+	}
+
+	const length_m1 = path.length - 1;
 	let parentObj: any;
 	let parentKey: string;
 	let result: unknown = undefined;
-
-	const path = getResolvedArray(memberNamesPath, t => t.split(pathSeparator));
-	const length_m1 = path.length - 1;
 
 	path.forEach((memberName, memberNameIndex) => {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
 
 		if (memberNameIndex < length_m1) {
-			// iterate children
+			// iterate children with path[0..length - 2] values
 			if (i < 0) {
 				// name only
 				parentObj = obj;
@@ -380,7 +426,7 @@ export const deleteObjectChildMember = (
 			}
 		}
 		else {
-			// set value
+			// set value using path[length - 1] value
 			if (i < 0) {
 				// name only
 				result = obj[memberName];

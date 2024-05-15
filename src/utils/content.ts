@@ -1,16 +1,4 @@
-export enum ContentTypeCategory {
-	image = "image",
-	document = "document",
-	text = "text",
-	spreadsheet = "spreadsheet"
-}
-
-export interface ContentType {
-	name: string;
-	allowedContentTypes: string[];
-	allowedExtensions: string[];
-	categories: ContentTypeCategory[];
-}
+import { ContentType, ContentTypeCategory } from "./types";
 
 const EXCEL_CONTENT_TYPES = [
 	"application/excel",
