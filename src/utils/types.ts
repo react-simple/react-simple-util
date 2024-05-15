@@ -67,7 +67,7 @@ export interface StorybookComponent<P = never> {
 	parameters?: object;
 }
 
-export interface AccessObjectChildMemberValueOptions {
+export interface ObjectChildMemberAccessOptions {
 	pathSeparator?: string; // used only if memberNamesPath is string, not a string array; default is '.'
 
 	// if specified and memberNamesPath starts with "/" then the evaluation will start at the root object, not the parameter object

@@ -1,4 +1,4 @@
-import { AccessObjectChildMemberValueOptions, CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
+import { ObjectChildMemberAccessOptions, CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
@@ -202,7 +202,7 @@ export function deepCopyObject<T>(
 function getObjectChildMemberObjAndPath(
 	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
-	options?: AccessObjectChildMemberValueOptions
+	options?: ObjectChildMemberAccessOptions
 ): {
 	obj: any;
 	path?: string[];
@@ -239,7 +239,7 @@ function getObjectChildMemberObjAndPath(
 export const getObjectChildMemberValue = (
 	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
-	options?: AccessObjectChildMemberValueOptions
+	options?: ObjectChildMemberAccessOptions
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
 	let obj = prep.obj;
@@ -284,7 +284,7 @@ export const setObjectChildMemberValue = (
 	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
 	value: unknown,
-	options?: AccessObjectChildMemberValueOptions
+	options?: ObjectChildMemberAccessOptions
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
 	let obj = prep.obj;
@@ -383,7 +383,7 @@ export const setObjectChildMemberValue = (
 export const deleteObjectChildMember = (
 	currentObj: unknown,
 	memberNamesPath: ValueOrArray<string>,
-	options?: AccessObjectChildMemberValueOptions
+	options?: ObjectChildMemberAccessOptions
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
 	let obj = prep.obj;
