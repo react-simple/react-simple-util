@@ -201,7 +201,7 @@ export function deepCopyObject<T>(
 
 function getObjectChildMemberObjAndPath(
 	currentObj: unknown,
-	memberNamesPath: ValueOrArray<string>,
+	fullQualifiedName: ValueOrArray<string>,
 	options?: ObjectChildMemberAccessOptions
 ): {
 	obj: any;
@@ -211,7 +211,7 @@ function getObjectChildMemberObjAndPath(
 		return { obj: currentObj };
 	}
 
-	const path = getResolvedArray(memberNamesPath, t => t.split(options?.pathSeparator || "."));
+	const path = getResolvedArray(fullQualifiedName, t => t.split(options?.pathSeparator || "."));
 
 	if (!path.length) {
 		return { obj: currentObj };
@@ -238,10 +238,10 @@ function getObjectChildMemberObjAndPath(
 // Also understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 export const getObjectChildMemberValue = (
 	currentObj: unknown,
-	memberNamesPath: ValueOrArray<string>,
+	fullQualifiedName: ValueOrArray<string>,
 	options?: ObjectChildMemberAccessOptions
 ) => {
-	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
 	let obj = prep.obj;
 	const path = prep.path;
 
@@ -282,11 +282,11 @@ export const getObjectChildMemberValue = (
 // Returns the last object which has its member set.
 export const setObjectChildMemberValue = (
 	currentObj: unknown,
-	memberNamesPath: ValueOrArray<string>,
+	fullQualifiedName: ValueOrArray<string>,
 	value: unknown,
 	options?: ObjectChildMemberAccessOptions
 ) => {
-	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
 	let obj = prep.obj;
 	const path = prep.path;
 
@@ -382,10 +382,10 @@ export const setObjectChildMemberValue = (
 // Returns the last object which has its member set.
 export const deleteObjectChildMember = (
 	currentObj: unknown,
-	memberNamesPath: ValueOrArray<string>,
+	fullQualifiedName: ValueOrArray<string>,
 	options?: ObjectChildMemberAccessOptions
 ) => {
-	const prep = getObjectChildMemberObjAndPath(currentObj, memberNamesPath, options);
+	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
 	let obj = prep.obj;
 	const path = prep.path;
 
