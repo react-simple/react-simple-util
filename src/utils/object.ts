@@ -226,7 +226,7 @@ function getObjectChildMemberObjAndPath(
 	}
 	// check named obj
 	else if (path[0].startsWith("@")) {
-		obj = options?.namedObjs?.[path[0].substring(1)]; // if undefined the caller will return undefined
+		obj = options?.getNamedObj?.(path[0].substring(1)); // if undefined the caller will return undefined
 		path.splice(0, 1);
 	}
 

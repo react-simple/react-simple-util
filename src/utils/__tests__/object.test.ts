@@ -1,6 +1,6 @@
 import {
-	compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys, sameObjects,
-	setObjectChildMemberValue
+	ObjectChildMemberAccessOptions, compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys,
+	sameObjects, setObjectChildMemberValue
 } from "utils";
 
 const CHIILD_MEMBER_TESTOBJ = {
@@ -160,7 +160,9 @@ it('getObjectChildMemberValue.stringPath.rootObj', () => {
 });
 
 it('getObjectChildMemberValue.stringPath.namedObjs', () => {
-	const options = { namedObjs: { bbb: CHIILD_MEMBER_TESTOBJ.a.b } };
+	const options: ObjectChildMemberAccessOptions = {
+		getNamedObj: name => name === "bbb" ? CHIILD_MEMBER_TESTOBJ.a.b : undefined
+	};
 
 	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@b.c", options)).toBe(undefined);
 	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@bb.c", options)).toBe(undefined);
@@ -272,7 +274,10 @@ it('setObjectChildMemberValue.stringPath.rootObj', () => {
 
 it('getObjectChildMemberValue.stringPath.namedObjs', () => {
 	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
-	const options = { namedObjs: { bbb: copy.a.b } };
+	const options: ObjectChildMemberAccessOptions = {
+		getNamedObj: name => name === "bbb" ? copy.a.b : undefined
+	};
+
 	const leafObj = setObjectChildMemberValue(copy, "@bbb.c", 2, options);
 
 	expect(copy.a.b.c).toBe(2);
@@ -335,7 +340,10 @@ it('deleteObjectChildMember.stringPath.rootObj', () => {
 
 it('deleteObjectChildMember.stringPath.namedObjs', () => {
 	const copy = deepCopyObject(CHIILD_MEMBER_TESTOBJ);
-	const options = { namedObjs: { bbb: copy.a.b } };
+	const options: ObjectChildMemberAccessOptions = {
+		getNamedObj: name => name === "bbb" ? copy.a.b : undefined
+	};
+
 	const deleted = deleteObjectChildMember(copy, "@bbb.c", options);
 
 	expect(copy.a.b.c).toBeUndefined();

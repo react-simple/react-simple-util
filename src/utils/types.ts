@@ -74,5 +74,5 @@ export interface ObjectChildMemberAccessOptions {
 	readonly rootObj?: unknown;
 
 	// if specified and fullQualifiedName starts with "@name" then the evaluation will start at the named object found here, not the parameter object
-	readonly namedObjs?: { [name: string]: unknown };
+	readonly getNamedObj?: (name: string) => unknown;
 }
