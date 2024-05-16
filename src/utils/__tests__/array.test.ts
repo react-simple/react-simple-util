@@ -1,7 +1,7 @@
 import {
 	arrayInsertAt, arrayRemoveAt, arrayRemoveFromTo, arrayReplaceAt, arrayReplaceFromTo, compareArrays, concatNonEmptyValues, createArray,
 	getDistinct, getDistinctBy, getDistinctValues, getNonEmptyValues, getResolvedArray, joinNonEmptyValues, mapNonEmptyValues,
-	range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy
+	range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy, recursiveIteration
 } from "utils";
 
 const ARR = range(1, 9);
@@ -255,4 +255,68 @@ it('sortArrayBy.desc', () => {
 
 it('sortArray.string', () => {
 	expect(sameArrays(sortArray(["C ", " a ", " b"]), [" a ", " b", "C "], { ignoreCase: true, trim: true })).toBe(true);
+});
+
+it('recursiveIteration.brethFirst', () => {
+	const arr = [
+		{ value: 1 },
+		{ value: 2 },
+		{
+			value: 3,
+			children: [
+				{ value: 5 },
+				{
+					value: 6,
+					children: [
+						{ value: 9 },
+						{ value: 10 }
+					]
+				},
+				{
+					value: 7,
+					children: []
+				}
+			]
+		},
+		{
+			value: 4,
+			children: { value: 8 }
+		}
+	];
+
+	const result: number[] = [];
+	recursiveIteration(arr, t => t.item.children, t => result.push(t.item.value));
+	expect(sameArrays(result, range(1, 10))).toBe(true);
+});
+
+it('recursiveIteration.depthFirst', () => {
+	const arr = [
+		{ value: 1 },
+		{ value: 2 },
+		{
+			value: 3,
+			children: [
+				{ value: 4 },
+				{
+					value: 5,
+					children: [
+						{ value: 6 },
+						{ value: 7 }
+					]
+				},
+				{
+					value: 8,
+					children: []
+				}
+			]
+		},
+		{
+			value: 9,
+			children: { value: 10 }
+		}
+	];
+
+	const result: number[] = [];
+	recursiveIteration(arr, t => t.item.children, t => result.push(t.item.value), true);
+	expect(sameArrays(result, range(1, 10))).toBe(true);
 });

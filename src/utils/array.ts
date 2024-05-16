@@ -1,7 +1,7 @@
 import { compareNumbers } from "./number";
 import { compareValues } from "./value";
 import { CompareReturn, Nullable, StringCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
-import { isArray, isEmpty, isFunction } from "./typing";
+import { getResolvedArray, isArray, isEmpty, isFunction } from "./typing";
 
 export const range = (start: number, count: number) => {
 	return Object.keys([...new Array(count)]).map(t => start + parseInt(t));
@@ -303,3 +303,53 @@ export function sortArrayBy<Item, Value extends ValueType>(
 
 	return result;
 }
+
+export interface ArrayIterationNodeData<Item> {
+	readonly item: Item;
+	readonly level: number; // zero for root level
+	readonly globalIndex: number; // sequential number for all nodes, never repeats
+	readonly indexInParent: number; // the index of this node in the children of its parent (but not on the level among siblings)
+	readonly indexOnLevel: number; // the index of this node on its level among all siblings (not scoped to its parent)
+}
+
+export const recursiveIteration = <Item>(
+	rootNodes: Item | Item[],
+	getChildren: (args: Omit<ArrayIterationNodeData<Item>, "children">) => Nullable<ValueOrArray<Item>>,
+	callback: (args: ArrayIterationNodeData<Item>) => void,
+	depthFirst = false // by deafult it's breadth-first
+) => {
+	let globalIndex = 0;
+
+	const root = getResolvedArray(rootNodes);
+
+	const queue: ArrayIterationNodeData<Item>[] = (depthFirst ? root.reverse() : root).map((item, index) => ({
+		item,
+		level: 0,
+		indexInParent: index,
+		indexOnLevel: index,
+		globalIndex: globalIndex++
+	}));
+
+	const indexOnLevelByLevel: { [level: number]: number } = {};
+
+	while (queue.length) {
+		const args = depthFirst ? queue.pop()! : queue.shift()!;
+		callback(args);
+
+		const children = getResolvedArray(getChildren(args));
+
+		if (children.length) {
+			const level = args.level + 1;
+			const indexOnLevel = indexOnLevelByLevel[level] || 0;
+			indexOnLevelByLevel[level] = indexOnLevel + children.length;
+
+			queue.push(...(depthFirst ? children.reverse() : children).map((item, index) => ({
+				item,
+				level,
+				indexInParent: index,
+				indexOnLevel: indexOnLevel + index,
+				globalIndex: globalIndex++
+			})));
+		}
+	}
+};
