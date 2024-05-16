@@ -77,3 +77,11 @@ export interface ObjectChildMemberAccessOptions {
 	// if specified and fullQualifiedName starts with "@name" then the evaluation will start at the named object found here, not the parameter object
 	readonly getNamedObj?: (name: string) => unknown;
 }
+
+export interface ArrayIterationNode<Item> {
+	readonly item: Item;
+	readonly level: number; // zero for root level
+	readonly globalIndex: number; // sequential number for all nodes, never repeats
+	readonly indexInParent: number; // the index of this node in the children of its parent (but not on the level among siblings)
+	readonly indexOnLevel: number; // the index of this node on its level among all siblings (not scoped to its parent)
+}
