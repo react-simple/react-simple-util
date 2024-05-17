@@ -345,3 +345,19 @@ export const recursiveIteration = <Item>(
 		}
 	}
 };
+
+export function findMapped<In, Out>(
+	arr: In[],
+	map: (item: In) => Out,
+	predicate: (item: Out) => boolean
+): Out | undefined {
+	for (const item of arr) {
+		const value = map(item);
+
+		if (predicate(value)) {
+			return value;
+		}
+	}
+
+	return undefined;
+}
