@@ -1,6 +1,6 @@
 import { compareObjects, sameObjects } from "./object";
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
-import { isArray } from "./typing";
+import { getResolvedArray, isArray } from "./typing";
 
 export function convertArrayToDictionary<Item, Value>(
 	array: Item[],
@@ -130,6 +130,35 @@ export function sameDictionaries(
 	return sameObjects(dict1, dict2, options);
 }
 
+export function appendDictionary<Value>(
+	target: Record<string, Value>,
+	source: ValueOrArray<Record<string, Value>>,
+	options?: {
+		filter?: (value: Value, key: string) => boolean,
+		mapValue?: (value: Value, key: string) => Value,
+		mapEntry?: (entry: [string, Value]) => [string, Value]
+	}
+) {
+	const { filter, mapEntry, mapValue } = options || {};
+
+	for (const dict of getResolvedArray(source)) {
+		for (const [key, value] of Object.entries(dict)) {
+			if (!filter || filter(value, key)) {
+				if (mapEntry) {
+					const newEntry = mapEntry([key, value]);
+					target[newEntry[0]] = newEntry[1];
+				}
+				else if (mapValue) {
+					target[key] = mapValue(value, key);
+				}
+				else {
+					target[key] = value;
+				}
+			}
+		}
+	}
+}
+
 export function mergeDictionaries<Value>(
 	dicts: Record<string, Value>[],
 	options?: {
@@ -139,24 +168,6 @@ export function mergeDictionaries<Value>(
 	}
 ): Record<string, Value> {
 	const result: Record<string, Value> = {};
-	const { filter, mapEntry, mapValue } = options || {};
-
-	for (const dict of dicts) {
-		for (const [key, value] of Object.entries(dict)) {
-			if (!filter || filter(value, key)) {
-				if (mapEntry) {
-					const newEntry = mapEntry([key, value]);
-					result[newEntry[0]] = newEntry[1];
-				}
-				else if (mapValue) {
-					result[key] = mapValue(value, key);
-				}
-				else {
-					result[key] = value;
-				}
-			}
-		}
-	}
-
+	appendDictionary(result, dicts, options);
 	return result;
 }
