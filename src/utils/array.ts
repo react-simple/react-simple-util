@@ -306,8 +306,8 @@ export function sortArrayBy<Item, Value extends ValueType>(
 
 export const recursiveIteration = <Item>(
 	rootNodes: Item | Item[],
-	getChildren: (args: ArrayIterationNode<Item>) => Nullable<ValueOrArray<Item>>,
-	callback: (args: ArrayIterationNode<Item>) => void,
+	getChildren: (node: ArrayIterationNode<Item>) => Nullable<ValueOrArray<Item>>,
+	callback: (node: ArrayIterationNode<Item>) => void,
 	depthFirst = false // by deafult it's breadth-first
 ) => {
 	let globalIndex = 0;

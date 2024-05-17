@@ -58,11 +58,11 @@ export function filterDictionary<Value>(
 	return result;
 }
 
-export function mapDictionaryValues<Value>(
-	dict: Record<string, Value>,
-	map: (value: Value, key: string) => Value
-): Record<string, Value> {
-	const result: Record<string, Value> = {};
+export function mapDictionaryValues<In, Out>(
+	dict: Record<string, In>,
+	map: (value: In, key: string) => Out
+): Record<string, Out> {
+	const result: Record<string, Out> = {};
 
 	iterateDictionary(dict, ([key, value]) => {
 		result[key] = map(value, key);
@@ -71,11 +71,11 @@ export function mapDictionaryValues<Value>(
 	return result;
 }
 
-export function mapDictionaryEntries<Value>(
-	dict: Record<string, Value>,
-	map: (entry: [string, Value]) => [string, Value]
-): Record<string, Value> {
-	const result: Record<string, Value> = {};
+export function mapDictionaryEntries<In, Out>(
+	dict: Record<string, In>,
+	map: (entry: [string, In]) => [string, Out]
+): Record<string, Out> {
+	const result: Record<string, Out> = {};
 
 	iterateDictionary(dict, entry => {
 		const newEntry = map(entry);
@@ -85,11 +85,11 @@ export function mapDictionaryEntries<Value>(
 	return result;
 }
 
-export function copyDictionary<Value>(
-	dict: Record<string, Value>,
-	clone: ([key, value]: [string, Value]) => ValueOrArray<[string, Value]> | undefined // undefined items will be skipped
-): Record<string, Value> {
-	const result: Record<string, Value> = {};
+export function copyDictionary<In, Out>(
+	dict: Record<string, In>,
+	clone: ([key, value]: [string, In]) => ValueOrArray<[string, Out]> | undefined // undefined items will be skipped
+): Record<string, Out> {
+	const result: Record<string, Out> = {};
 
 	iterateDictionary(dict, entry => {
 		const newEntry = clone(entry);
@@ -97,7 +97,7 @@ export function copyDictionary<Value>(
 		if (newEntry) {
 			if (isArray(newEntry)) {
 				newEntry.forEach(entry2 => {
-					result[(entry2 as [string, Value])[0]] = (entry2 as [string, Value])[1];
+					result[(entry2 as [string, Out])[0]] = (entry2 as [string, Out])[1];
 				});
 			} else {
 				result[newEntry[0]] = newEntry[1];
