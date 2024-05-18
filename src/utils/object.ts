@@ -1,4 +1,4 @@
-import { ObjectChildMemberAccessOptions, CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
+import { ObjectChildMemberAccessOptions, CompareReturn, StringCompareOptions, ValueOrArray, ObjectCompareOptions } from "./types";
 import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
@@ -65,14 +65,7 @@ export function removeKeysUnsafe<Obj extends object>(
 }
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-export function compareObjects(
-	obj1: unknown,
-	obj2: unknown,
-	options?: StringCompareOptions & {
-		compareValues?: (value1: unknown, value2: unknown) => CompareReturn;
-		compareObjects?: (value1: unknown, value2: unknown) => CompareReturn;
-	}
-): CompareReturn {
+export function compareObjects(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions): CompareReturn {
 	if (obj1 === obj2) {
 		return 0;
 	}

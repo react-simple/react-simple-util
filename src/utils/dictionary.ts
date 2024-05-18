@@ -1,5 +1,5 @@
 import { compareObjects, sameObjects } from "./object";
-import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
+import { CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray } from "./typing";
 
 export function convertArrayToDictionary<Item, Value>(
@@ -112,9 +112,7 @@ export function copyDictionary<In, Out>(
 export function compareDictionaries<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options?: StringCompareOptions & {
-		compare?: (value1: unknown, value2: unknown) => CompareReturn;
-	}
+	options?: ObjectCompareOptions
 ): CompareReturn {
 	return compareObjects(dict1, dict2, options);
 }

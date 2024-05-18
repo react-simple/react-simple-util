@@ -1,3 +1,4 @@
+import { MAX_INT } from "consts";
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray } from "./typing";
 
@@ -150,4 +151,23 @@ export const stringReplaceChars = (s: string, replace: (c: string, index: number
 	}
 
 	return result;
+};
+
+export const indexOf = (s: string, searchString: string, options?: StringCompareOptions & { position?: number }) => {
+	return getComparableString(s, options).indexOf(getComparableString(searchString, options), options?.position);
+};
+
+export const indexOfAny = (s: string, searchStrings: string[], options?: StringCompareOptions & { position?: number }) => {
+	s = getComparableString(s, options);
+	let result = MAX_INT;
+
+	for (const search of searchStrings) {
+		const i = indexOf(s, search, options);
+
+		if (i >= 0 && i < result) {
+			result = i;
+		}
+	}
+
+	return result === MAX_INT ? -1 : result;
 };

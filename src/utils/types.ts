@@ -1,3 +1,5 @@
+import { CultureInfo } from "./localization/types";
+
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 export type Nullable<T> = T | undefined | null;
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -15,6 +17,15 @@ export type Guid = string;
 export interface StringCompareOptions {
 	readonly ignoreCase?: boolean;
 	readonly trim?: boolean;
+}
+
+export interface ValueCompareOptions<Value = unknown, Result = CompareReturn> extends StringCompareOptions {
+	readonly compareValues?: (value1: Value, value2: Value, options?: ValueCompareOptions<Value, Result>) => Result;
+	readonly cultureInfo?: Partial<CultureInfo>;
+}
+
+export interface ObjectCompareOptions<Result = CompareReturn> extends ValueCompareOptions<unknown, Result> {
+	readonly compareObjects?: (value1: unknown, value2: unknown, options?: ObjectCompareOptions<Result>) => Result;
 }
 
 export type DatePart = "year" | "month" | "day" | "hour" | "minute" | "second" | "millisecond";

@@ -169,7 +169,7 @@ it('compareArrays.customcompare.equals', () => {
 		[10, 20, 30],
 		[1, 2, 3],
 		{
-			compare: (t1, t2) => compareValues(t1, t2 * 10)
+			compareValues: (t1, t2) => compareValues(t1, t2 * 10)
 		}
 	)).toBe(0);
 });
@@ -216,7 +216,7 @@ it('sameArrays.customcompare', () => {
 		[10, 20, 30],
 		[1, 2, 3],
 		{
-			compare: (t1, t2) => t1 === t2 * 10
+			compareValues: (t1, t2) => t1 === t2 * 10
 		}
 	)).toBe(true);
 });
