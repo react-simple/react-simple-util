@@ -9,7 +9,7 @@ export function compareNumbers(n1: number, n2: number): CompareReturn {
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-export function tryParseFloat(
+function tryParseFloat_default(
 	value: unknown,
 	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">
 ): number | undefined {
@@ -43,6 +43,15 @@ export function tryParseFloat(
 			return undefined;
 		}
 	}
+}
+
+REACT_SIMPLE_UTIL.DI.number.tryParseFloat = tryParseFloat_default;
+
+export function tryParseFloat(
+	value: unknown,
+	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">
+): number | undefined {
+	return REACT_SIMPLE_UTIL.DI.number.tryParseFloat(value, format, tryParseFloat_default);
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
@@ -120,10 +129,10 @@ const addThousandSeparatorsToFracPart = (s: string, thousandSeparator: string | 
 	return result;
 };
 
-export function formatNumber(
+function formatNumber_default(
 	value: number,
 	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-	options?: NumberFormatOptions	
+	options?: NumberFormatOptions
 ): string {
 	format ||= REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
 	const { decimalSeparator } = format;
@@ -183,8 +192,18 @@ export function formatNumber(
 			);
 
 			return `${negativeSign}${intPart}${decimalSeparator}${fracPart}`;
-		}		
+		}
 	}
+}
+
+REACT_SIMPLE_UTIL.DI.number.formatNumber = formatNumber_default;
+
+export function formatNumber(
+	value: number,
+	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
+	options?: NumberFormatOptions
+): string {
+	return REACT_SIMPLE_UTIL.DI.number.formatNumber(value, format, options || {}, formatNumber_default);
 }
 
 export const formatNumberISO = (value: number, options?: NumberFormatOptions) => {

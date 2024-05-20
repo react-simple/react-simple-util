@@ -20,12 +20,21 @@ export interface StringCompareOptions {
 }
 
 export interface ValueCompareOptions<Value = unknown, Result = CompareReturn> extends StringCompareOptions {
-	readonly compareValues?: (value1: Value, value2: Value, options?: ValueCompareOptions<Value, Result>) => Result;
+	readonly compareValues?: (
+		value1: Value,
+		value2: Value,
+		options: Omit<ValueCompareOptions<Value, Result>, "compareValues"> | undefined
+	) => Result;
+
 	readonly cultureInfo?: Partial<CultureInfo>;
 }
 
 export interface ObjectCompareOptions<Result = CompareReturn> extends ValueCompareOptions<unknown, Result> {
-	readonly compareObjects?: (value1: unknown, value2: unknown, options?: ObjectCompareOptions<Result>) => Result;
+	readonly compareObjects?: (
+		value1: unknown,
+		value2: unknown,
+		options: Omit<ObjectCompareOptions<Result> | undefined, "compareObjects"> | undefined
+	) => Result;
 }
 
 export type DatePart = "year" | "month" | "day" | "hour" | "minute" | "second" | "millisecond";

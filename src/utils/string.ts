@@ -1,6 +1,7 @@
 import { MAX_INT } from "consts";
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray } from "./typing";
+import { REACT_SIMPLE_UTIL } from "data";
 
 export const getComparableString = (s: string, options?: StringCompareOptions) => {
 	if (options?.trim) {
@@ -14,15 +15,27 @@ export const getComparableString = (s: string, options?: StringCompareOptions) =
 	return s;
 };
 
-export function compareStrings(s1: string, s2: string, options?: StringCompareOptions): CompareReturn {
+function compareStrings_default(s1: string, s2: string, options?: StringCompareOptions): CompareReturn {
 	s1 = getComparableString(s1, options);
 	s2 = getComparableString(s2, options);
 
 	return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
 }
 
-export const sameStrings = (s1: string, s2: string, options?: StringCompareOptions) => {
+REACT_SIMPLE_UTIL.DI.string.compareStrings = compareStrings_default;
+
+export function compareStrings(s1: string, s2: string, options?: StringCompareOptions): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.string.compareStrings(s1, s2, options || {}, compareStrings);
+}
+
+const sameStrings_default = (s1: string, s2: string, options?: StringCompareOptions) => {
 	return compareStrings(s1, s2, options) === 0;
+};
+
+REACT_SIMPLE_UTIL.DI.string.sameStrings = sameStrings_default;
+
+export const sameStrings = (s1: string, s2: string, options?: StringCompareOptions) => {
+	return REACT_SIMPLE_UTIL.DI.string.sameStrings(s1, s2, options || {}, sameStrings_default);
 };
 
 export const startsWith = (s: string, prefix: ValueOrArray<string>, options?: StringCompareOptions) => {

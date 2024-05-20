@@ -1,3 +1,4 @@
+import { REACT_SIMPLE_UTIL } from "data";
 import { compareBooleans, tryParseBoolean, tryParseBooleanLocalOrISO } from "./boolean";
 import { compareDates, tryParseDate, tryParseDateLocalOrISO } from "./date";
 import { compareNumbers, tryParseFloat, tryParseFloatISO } from "./number";
@@ -8,13 +9,13 @@ import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
 // understands DATE_FORMATS.ISO and REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat.
-export function compareValues<Value = unknown>(
+ function compareValues_default<Value = unknown>(
 	value1: Value,
 	value2: Value,
 	options?: ValueCompareOptions<Value>
 ): CompareReturn {
 	if (options?.compareValues) {
-		return options.compareValues(value1, value2);
+		return options.compareValues(value1, value2, options);
 	}
 	else if (value1 === value2) {
 		return 0;
@@ -76,9 +77,22 @@ export function compareValues<Value = unknown>(
 	}
 }
 
+REACT_SIMPLE_UTIL.DI.value.compareValues = compareValues_default;
+
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
-export const sameValues = <Value = unknown>(
+// understands DATE_FORMATS.ISO and REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat.
+export function compareValues<Value = unknown>(
+	value1: Value,
+	value2: Value,
+	options?: ValueCompareOptions<Value>
+): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.value.compareValues(value1, value2, options || {}, compareValues_default);
+}
+
+// compares the two values based on their recognized types.
+// considers undefined and null to be equal.
+const sameValues_default = <Value = unknown>(
 	value1: Value,
 	value2: Value,
 	options?: ValueCompareOptions<Value, boolean>
@@ -86,6 +100,18 @@ export const sameValues = <Value = unknown>(
 	return compareValues(value1, value2, options && {
 		...options,
 		// we check for equality, if it's less or greater that does not matter
-		compareValues: options.compareValues ? (t1, t2) => (options.compareValues!(t1, t2) ? 0 : 1) : undefined
+		compareValues: options.compareValues ? (t1, t2, t3) => (options.compareValues!(t1, t2, t3) ? 0 : 1) : undefined
 	}) === 0;
+};
+
+REACT_SIMPLE_UTIL.DI.value.sameValues = sameValues_default;
+
+// compares the two values based on their recognized types.
+// considers undefined and null to be equal.
+export const sameValues = <Value = unknown>(
+	value1: Value,
+	value2: Value,
+	options?: ValueCompareOptions<Value, boolean>
+) => {
+	return REACT_SIMPLE_UTIL.DI.value.sameValues(value1, value2, options || {}, sameValues_default);
 };

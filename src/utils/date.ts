@@ -18,7 +18,7 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
+function tryParseDate_default(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
 	if (!value) {
 		return undefined;
 	}
@@ -88,6 +88,12 @@ export function tryParseDate(value: Date | string | number, formats: ValueOrArra
 	}
 
 	return undefined;
+}
+
+REACT_SIMPLE_UTIL.DI.date.tryParseDate = tryParseDate_default;
+
+export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
+	return REACT_SIMPLE_UTIL.DI.date.tryParseDate(value, formats, tryParseDate_default);
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
@@ -169,7 +175,7 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 	);
 }
 
-export function formatDate(
+function formatDate_default(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateFormat">,
 	options?: Pick<DateTimeFormatOptions, "utc">
@@ -192,6 +198,16 @@ export function formatDate(
 		.replaceAll("Z", options?.utc ? "Z" : "");
 }
 
+REACT_SIMPLE_UTIL.DI.date.formatDate = formatDate_default;
+
+export function formatDate(
+	value: Date,
+	format: Pick<CultureInfoDateFormat, "dateFormat">,
+	options?: Pick<DateTimeFormatOptions, "utc">
+): string {
+	return REACT_SIMPLE_UTIL.DI.date.formatDate(value, format, options || {}, formatDate_default);
+}
+
 export function formatDateISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {
 	return formatDate(value, DATE_FORMATS.ISO, options);
 }
@@ -200,7 +216,7 @@ export function formatDateLocal(value: Date): string {
 	return formatDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat);
 }
 
-export function formatDateTime(
+function formatDateTime_default(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
 	options?: DateTimeFormatOptions
@@ -232,6 +248,16 @@ export function formatDateTime(
 		.replace("ff", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 2 }))
 		.replace("f", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 1 }))
 		.replace("Z", options?.utc ? "Z" : "");
+}
+
+REACT_SIMPLE_UTIL.DI.date.formatDateTime = formatDateTime_default;
+
+export function formatDateTime(
+	value: Date,
+	format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
+	options?: DateTimeFormatOptions
+): string {
+	return REACT_SIMPLE_UTIL.DI.date.formatDateTime(value, format, options || {}, formatDateTime_default);
 }
 
 export function formatDateTimeISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {

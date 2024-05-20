@@ -3,6 +3,7 @@ import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } fr
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
 import { tryParseFloatISO } from "./number";
+import { REACT_SIMPLE_UTIL } from "data";
 
 // accepts of keyof Obj keys
 export function removeKeys<Obj extends object>(
@@ -65,8 +66,11 @@ export function removeKeysUnsafe<Obj extends object>(
 }
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-export function compareObjects(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions): CompareReturn {
-	if (obj1 === obj2) {
+function compareObjects_default(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions): CompareReturn {
+	if (options?.compareObjects) {
+		return options.compareObjects(obj1, obj2, options);
+	}
+	else if (obj1 === obj2) {
 		return 0;
 	}
 	else if (isNullOrUndefined(obj1)) {
@@ -78,16 +82,16 @@ export function compareObjects(obj1: unknown, obj2: unknown, options?: ObjectCom
 	else {
 		if (isValueType(obj1) || isValueType(obj2)) {
 			// compare values
-			return options?.compareValues ? options.compareValues(obj1, obj2) : compareValues(obj1, obj2, options);
+			return (options?.compareValues || compareValues)(obj1, obj2, options);
 		}
 		else {
 			// compare objects
 			// check all keys in alphabetical order for proper comparison (not the order of definition, but the order by name)
 			const keys = sortArray(getDistinct([...Object.keys(obj1 as object), ...Object.keys(obj2 as object)]));
-			const compareObj = options?.compareObjects || ((t1, t2) => compareObjects(t1, t2, options));
+			const compareObj = options?.compareObjects || ((t1, t2, t3) => compareObjects_default(t1, t2, t3));
 
 			for (const key of keys) {
-				const result = compareObj((obj1 as any)[key], (obj2 as any)[key]);
+				const result = compareObj((obj1 as any)[key], (obj2 as any)[key], options);
 
 				if (result) {
 					return result;
@@ -99,14 +103,15 @@ export function compareObjects(obj1: unknown, obj2: unknown, options?: ObjectCom
 	}
 }
 
+REACT_SIMPLE_UTIL.DI.object.compareObjects = compareObjects_default;
+
+// member names always compared case-sensitive. members are compared in alphabetical order (by name).
+export function compareObjects(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.object.compareObjects(obj1, obj2, options || {}, compareObjects_default);
+}
+
 // member names always compared case-sensitive
-export function sameObjects(
-	obj1: unknown,
-	obj2: unknown,
-	options?: StringCompareOptions & {
-		compare?: (value1: unknown, value2: unknown) => boolean;
-	}
-): boolean {
+function sameObjects_default(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions<boolean>): boolean {
 	if (obj1 === obj2) {
 		return true;
 	}
@@ -117,15 +122,15 @@ export function sameObjects(
 		return false;
 	}
 	else {
-		const compare = options?.compare || ((t1, t2) => sameValues(t1, t2, options));
-
 		if (isValueType(obj1) || isValueType(obj2)) {
-			return compare(obj1, obj2);
+			return (options?.compareValues || sameValues)(obj1, obj2, options);
 		}
 		else {
+			const compare = options?.compareObjects || ((t1, t2, t3) => sameObjects_default(t1, t2, t3));
+
 			// check keys of obj1
 			for (const [key, value1] of Object.entries(obj1 as object)) {
-				const result = sameObjects(value1, (obj2 as any)[key], options);
+				const result = compare(value1, (obj2 as any)[key], options);
 
 				if (!result) {
 					return result;
@@ -143,6 +148,13 @@ export function sameObjects(
 			return true;
 		}
 	}
+}
+
+REACT_SIMPLE_UTIL.DI.object.sameObjects = sameObjects_default;
+
+// member names always compared case-sensitive
+export function sameObjects(obj1: unknown, obj2: unknown, options?: ObjectCompareOptions<boolean>): boolean {
+	return REACT_SIMPLE_UTIL.DI.object.sameObjects(obj1, obj2, options || {}, sameObjects_default);
 }
 
 // Be careful to not change value type in transform(). Shallow map, not a deep map of all children. Use deepCopyObject() to deep copy/transform.

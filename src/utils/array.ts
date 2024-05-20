@@ -1,7 +1,8 @@
-import { compareNumbers } from "./number";
 import { compareValues, sameValues } from "./value";
 import { ArrayIterationNode, CompareReturn, Nullable, ValueCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
 import { getResolvedArray, isArray, isEmpty, isFunction } from "./typing";
+import { REACT_SIMPLE_UTIL } from "data";
+import { compareNumbers } from "./number";
 
 export const range = (start: number, count: number) => {
 	return Object.keys([...new Array(count)]).map(t => start + parseInt(t));
@@ -116,16 +117,16 @@ export const arrayRemoveAt = <T>(arr: T[], start: number, length: number = 1) =>
 
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
-export function compareArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T>): CompareReturn {
+function compareArrays_default<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T>): CompareReturn {
 	let result = compareNumbers(arr1.length, arr2.length);
-	const compare = options?.compareValues || ((t1, t2) => compareValues(t1, t2, options));
+	const compare = options?.compareValues || ((t1, t2, t3) => compareValues(t1, t2, t3));
 
 	if (result) {
 		return result;
 	}
 
 	for (let i = 0; i < arr1.length; i++) {
-		result = compare!(arr1[i], arr2[i]);
+		result = compare!(arr1[i], arr2[i], options);
 
 		if (result) {
 			return result;
@@ -135,14 +136,32 @@ export function compareArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOpt
 	return 0;
 }
 
+REACT_SIMPLE_UTIL.DI.array.compareArrays = compareArrays_default;
+	
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
-export function sameArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T, boolean>): boolean {
+// for dependency injection set REACT_SIMPLE_UTIL.DI.array.compareArrays
+export function compareArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T>): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.array.compareArrays(arr1, arr2, options || {}, compareArrays_default);
+}
+
+// the shorter array is considered to preceed the longer array.
+// for array with same length compareValues() will be used.
+function sameArrays_default<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T, boolean>): boolean {
 	return compareArrays(arr1, arr2, options && {
 		...options,
 		// we check for equality, if it's less or greater that does not matter
-		compareValues: options.compareValues ? (t1, t2) => (options.compareValues!(t1, t2) ? 0 : 1) : undefined
+		compareValues: options.compareValues ? (t1, t2) => (options.compareValues!(t1, t2, options) ? 0 : 1) : undefined
 	}) === 0;
+}
+
+REACT_SIMPLE_UTIL.DI.array.sameArrays = sameArrays_default;
+
+// the shorter array is considered to preceed the longer array.
+// for array with same length compareValues() will be used.
+// for dependency injection set REACT_SIMPLE_UTIL.DI.array.sameArrays
+export function sameArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T, boolean>): boolean {
+	return REACT_SIMPLE_UTIL.DI.array.sameArrays(arr1, arr2, options || {}, sameArrays_default);
 }
 
 // returns distinct items, keeps order of first occurence (uses compareValues(), performs shallow comparation only)
@@ -262,9 +281,9 @@ export function sortArray<Value extends ValueType>(
 	const result = [...array]; // clone
 
 	if (options?.reverse) {
-		result.sort((t1, t2) => compare(t2, t1));
+		result.sort((t1, t2) => compare(t2, t1, options));
 	} else {
-		result.sort((t1, t2) => compare(t1, t2));
+		result.sort((t1, t2) => compare(t1, t2, options));
 	}
 
 	return result;
@@ -281,9 +300,9 @@ export function sortArrayBy<Item, Value extends ValueType>(
 	const result = [...array]; // clone
 
 	if (options?.reverse) {
-		result.sort((t1, t2) => compare(sortBy(t2), sortBy(t1)));
+		result.sort((t1, t2) => compare(sortBy(t2), sortBy(t1), options));
 	} else {
-		result.sort((t1, t2) => compare(sortBy(t1), sortBy(t2)));
+		result.sort((t1, t2) => compare(sortBy(t1), sortBy(t2), options));
 	}
 
 	return result;

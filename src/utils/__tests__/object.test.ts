@@ -1,6 +1,6 @@
 import {
-	ObjectChildMemberAccessOptions, compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue, isNumber, mapObject, removeKeys,
-	sameObjects, setObjectChildMemberValue
+	ObjectChildMemberAccessOptions, compareNumbers, compareObjects, deepCopyObject, deleteObjectChildMember, getObjectChildMemberValue,
+	isNumber, mapObject, removeKeys, sameObjects, setObjectChildMemberValue
 } from "utils";
 
 const CHIILD_MEMBER_TESTOBJ = {
@@ -35,6 +35,16 @@ it('compareObjects.equals', () => {
 	)).toBe(0);
 });
 
+it('compareObjects.custom.compareValues', () => {
+	expect(compareObjects(
+		{ a: { b: 1 } },
+		{ a: { b: 10 } },
+		{
+			compareValues: (t1, t2) => compareNumbers(t1 as number * 10, t2 as number)
+		}
+	)).toBe(0);
+});
+
 it('compareObjects.less.undefined', () => {
 	// obj1 does not have value for member 'a' which is less than any value present in obj2; members are compared in alphatbetical order (by name)
 	expect(compareObjects(
@@ -57,6 +67,16 @@ it('sameObjects.equals', () => {
 	expect(sameObjects(
 		{ a: { b: 1 } },
 		{ a: { b: 1 } }
+	)).toBe(true);
+});
+
+it('sameObjects.custom.compareValues', () => {
+	expect(sameObjects(
+		{ a: { b: 1 } },
+		{ a: { b: 10 } },
+		{
+			compareValues: (t1, t2) => t1 as number * 10 === t2 as number
+		}
 	)).toBe(true);
 });
 

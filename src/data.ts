@@ -1,25 +1,58 @@
-import { LogImplementation, LogLevel } from "log/types";
-import { logDefaultImplementation } from "./log/logDefaultImplementation"; // avoid circular dependency
-import { CultureInfo , CULTURE_INFO } from "./utils/localization";
+import { CULTURE_INFO } from "./utils/localization";
+import { ReactSimpleUtil } from "./types";
+import { LOG_LEVELS } from "log";
 
-export const REACT_SIMPLE_UTIL: {
-	readonly LOGGING: {
-		LOG_LEVEL: LogLevel;
-		LOG_IMPLEMENTATION: LogImplementation;
-	};
+const stub: any = () => { };
 
-	readonly CULTURE_INFO: {
-		CURRENT: CultureInfo;
-		readonly DEFAULT: CultureInfo;
-	};
-} = {
+export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	LOGGING: {
-		LOG_LEVEL: "none",
-		LOG_IMPLEMENTATION: logDefaultImplementation,
+		logLevel: "none",
+		executeLog: stub // set by log/functions.ts
 	},
 
 	CULTURE_INFO: {
 		CURRENT: CULTURE_INFO["EN-US"],
 		DEFAULT: CULTURE_INFO["EN-US"]
+	},
+
+	CALL_CONTEXT: {
+		logLevelDefault: "none"
+	},
+		
+	DI: {
+		// set by utils/array.ts
+		array: {
+			compareArrays: stub,
+			sameArrays: stub
+		},
+		boolean: {
+			tryParseBoolean: stub,
+			formatBoolean: stub
+		},
+		date: {
+			tryParseDate: stub,
+			formatDate: stub,
+			formatDateTime: stub
+		},
+		dictionary: {
+			compareDictionaries: stub,
+			sameDictionaries: stub
+		},
+		number: {
+			tryParseFloat: stub,
+			formatNumber: stub
+		},
+		object: {
+			compareObjects: stub,
+			sameObjects: stub,
+		},
+		string: {
+			compareStrings: stub,
+			sameStrings: stub
+		},
+		value: {
+			compareValues: stub,
+			sameValues: stub
+		}
 	}
 };

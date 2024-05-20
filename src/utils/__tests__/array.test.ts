@@ -1,7 +1,9 @@
+import { REACT_SIMPLE_UTIL } from "data";
 import {
 	arrayInsertAt, arrayRemoveAt, arrayRemoveFromTo, arrayReplaceAt, arrayReplaceFromTo, compareArrays, concatNonEmptyValues, createArray,
 	getDistinct, getDistinctBy, getDistinctValues, getNonEmptyValues, getResolvedArray, joinNonEmptyValues, mapNonEmptyValues,
-	range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy, recursiveIteration
+	range, rangeFromTo, sameArrays, sameObjects, compareValues, sortArray, sortArrayBy, recursiveIteration,
+	callContext
 } from "utils";
 
 const ARR = range(1, 9);
@@ -319,4 +321,18 @@ it('recursiveIteration.depthFirst', () => {
 	const result: number[] = [];
 	recursiveIteration(arr, t => t.item.children, t => result.push(t.item.value), true);
 	expect(sameArrays(result, range(1, 10))).toBe(true);
+});
+
+it('compareArray.dependencyInjection', () => {
+	const def = REACT_SIMPLE_UTIL.DI.array.compareArrays;
+	REACT_SIMPLE_UTIL.DI.array.compareArrays = (t1, t2) => 0; // dummy value, all arrays are considered equal
+
+	try {
+		expect(sameArrays([10, 20, 30], [10, 20, 30])).toBe(true);
+		expect(sameArrays([10, 20, 30], [1, 2, 3])).toBe(true);
+		expect(sameArrays([10, 20, 30], [])).toBe(true);
+	}
+	finally {
+		REACT_SIMPLE_UTIL.DI.array.compareArrays = def;
+	}
 });

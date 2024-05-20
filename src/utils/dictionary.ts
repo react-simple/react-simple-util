@@ -1,3 +1,4 @@
+import { REACT_SIMPLE_UTIL } from "data";
 import { compareObjects, sameObjects } from "./object";
 import { CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray } from "./typing";
@@ -109,7 +110,7 @@ export function copyDictionary<In, Out>(
 }
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-export function compareDictionaries<Value>(
+function compareDictionaries_default<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
 	options?: ObjectCompareOptions
@@ -117,15 +118,35 @@ export function compareDictionaries<Value>(
 	return compareObjects(dict1, dict2, options);
 }
 
+REACT_SIMPLE_UTIL.DI.dictionary.compareDictionaries = compareDictionaries_default;
+
+// member names always compared case-sensitive. members are compared in alphabetical order (by name).
+export function compareDictionaries<Value>(
+	dict1: Record<string, Value>,
+	dict2: Record<string, Value>,
+	options?: ObjectCompareOptions
+): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.dictionary.compareDictionaries(dict1, dict2, options || {}, compareDictionaries_default);
+}
+
 // member names always compared case-sensitive
-export function sameDictionaries(
-	dict1: unknown,
-	dict2: unknown,
-	options?: StringCompareOptions & {
-		compare?: (value1: unknown, value2: unknown) => boolean;
-	}
+function sameDictionaries_default<Value>(
+	dict1: Record<string, Value>,
+	dict2: Record<string, Value>,
+	options?: ObjectCompareOptions<boolean>
 ): boolean {
 	return sameObjects(dict1, dict2, options);
+}
+
+REACT_SIMPLE_UTIL.DI.dictionary.sameDictionaries = sameDictionaries_default;
+
+// member names always compared case-sensitive
+export function sameDictionaries<Value>(
+	dict1: Record<string, Value>,
+	dict2: Record<string, Value>,
+	options?: ObjectCompareOptions<boolean>
+): boolean {
+	return REACT_SIMPLE_UTIL.DI.dictionary.sameDictionaries(dict1, dict2, options || {}, sameDictionaries_default);
 }
 
 export function appendDictionary<Value>(
