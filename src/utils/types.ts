@@ -96,6 +96,11 @@ export interface ObjectChildMemberAccessOptions {
 
 	// if specified and fullQualifiedName starts with "@name" then the evaluation will start at the named object found here, not the parameter object
 	readonly getNamedObj?: (name: string) => unknown;
+
+	// by default parent[childName] is used
+	readonly getMemberValue?: (parent: unknown, name: string, options: ObjectChildMemberAccessOptions) => unknown;
+	readonly setMemberValue?: (parent: unknown, name: string, value: unknown, options: ObjectChildMemberAccessOptions) => void;
+	readonly deleteMemberValue?: (parent: unknown, name: string, options: ObjectChildMemberAccessOptions) => void;
 }
 
 export interface ArrayIterationNode<Item> {

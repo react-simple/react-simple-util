@@ -1,4 +1,4 @@
-import { ObjectChildMemberAccessOptions, CompareReturn, StringCompareOptions, ValueOrArray, ObjectCompareOptions } from "./types";
+import { ObjectChildMemberAccessOptions, CompareReturn, ValueOrArray, ObjectCompareOptions } from "./types";
 import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
@@ -178,7 +178,7 @@ export function mapObject<T>(obj: T, map: (value: unknown, key: string | number)
 
 // Be careful to not change value type in transform().
 // Transform is called for all children not value types (leaves) only, but not for the root.
-export function deepCopyObject<T>(
+function deepCopyObject_default<T>(
 	obj: T,
 	transform?: (value: unknown, key: string | number, obj: unknown) => unknown
 ): T {
@@ -204,10 +204,19 @@ export function deepCopyObject<T>(
 	}
 }
 
+REACT_SIMPLE_UTIL.DI.object.deepCopyObject = deepCopyObject_default;
+
+export function deepCopyObject<T>(
+	obj: T,
+	transform?: (value: unknown, key: string | number, obj: unknown) => unknown
+): T {
+	return REACT_SIMPLE_UTIL.DI.object.deepCopyObject(obj, transform, deepCopyObject_default);
+}
+
 function getObjectChildMemberObjAndPath(
 	currentObj: unknown,
 	fullQualifiedName: ValueOrArray<string>,
-	options?: ObjectChildMemberAccessOptions
+	options: ObjectChildMemberAccessOptions
 ): {
 	obj: any;
 	path?: string[];
@@ -216,7 +225,7 @@ function getObjectChildMemberObjAndPath(
 		return { obj: currentObj };
 	}
 
-	const path = getResolvedArray(fullQualifiedName, t => t.split(options?.pathSeparator || "."));
+	const path = getResolvedArray(fullQualifiedName, t => t.split(options.pathSeparator || "."));
 
 	if (!path.length) {
 		return { obj: currentObj };
@@ -226,12 +235,12 @@ function getObjectChildMemberObjAndPath(
 
 	// check root obj
 	if (path[0].startsWith("/")) {
-		obj = options?.rootObj; // if undefined the caller will return undefined
+		obj = options.rootObj; // if undefined the caller will return undefined
 		path[0] = path[0].substring(1);
 	}
 	// check named obj
 	else if (path[0].startsWith("@")) {
-		obj = options?.getNamedObj?.(path[0].substring(1)); // if undefined the caller will return undefined
+		obj = options.getNamedObj?.(path[0].substring(1)); // if undefined the caller will return undefined
 		path.splice(0, 1);
 	}
 
@@ -241,12 +250,13 @@ function getObjectChildMemberObjAndPath(
 // Gets child member value by resolving the specified path of member names. Returns undefined if children are not found.
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Also understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
-export const getObjectChildMemberValue = (
+const getObjectChildMemberValue_default = (
 	currentObj: unknown,
 	fullQualifiedName: ValueOrArray<string>,
-	options?: ObjectChildMemberAccessOptions
+	options: ObjectChildMemberAccessOptions = {}
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
+
 	let obj = prep.obj;
 	const path = prep.path;
 
@@ -254,23 +264,31 @@ export const getObjectChildMemberValue = (
 		return obj;
 	}
 
+	const get = options.getMemberValue || ((t1, t2) => (t1 as any)[t2]);
+
 	for (const memberName of path) {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
 
 		if (i < 0) {
 			// name only
-			obj = obj[memberName];
+			obj = get(obj, memberName, options);
 		}
 		else if (i === 0) {
 			// [index] only			
-			obj = obj[memberName.substring(1, memberName.length - 1)];
+			obj = get(obj, memberName.substring(1, memberName.length - 1), options);
 		}
 		else if (memberName[i - 1] === ".") {
 			// name.[index]
-			obj = obj[memberName.substring(0, i - 1)]?.[memberName.substring(i + 1, memberName.length - 1)];
+			obj = get(
+				get(obj, memberName.substring(0, i - 1), options),
+				memberName.substring(i + 1, memberName.length - 1),
+				options);
 		} else {
 			// name[index]
-			obj = obj[memberName.substring(0, i)]?.[memberName.substring(i + 1, memberName.length - 1)];
+			obj = get(
+				get(obj, memberName.substring(0, i), options),
+				memberName.substring(i + 1, memberName.length - 1),
+				options);
 		}
 
 		if (!obj) {
@@ -281,15 +299,27 @@ export const getObjectChildMemberValue = (
 	return obj as unknown;
 };
 
+REACT_SIMPLE_UTIL.DI.object.getObjectChildMemberValue = getObjectChildMemberValue_default;
+
+export const getObjectChildMemberValue = (
+	currentObj: unknown,
+	fullQualifiedName: ValueOrArray<string>,
+	options: ObjectChildMemberAccessOptions = {}
+) => {
+	return REACT_SIMPLE_UTIL.DI.object.getObjectChildMemberValue(
+		currentObj, fullQualifiedName, options, getObjectChildMemberValue_default
+	);
+};
+
 // Sets child member value by resolving the specified path of member names. Create subobjects if children is not found.
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has its member set.
-export const setObjectChildMemberValue = (
+const setObjectChildMemberValue_default = (
 	currentObj: unknown,
 	fullQualifiedName: ValueOrArray<string>,
 	value: unknown,
-	options?: ObjectChildMemberAccessOptions
+	options: ObjectChildMemberAccessOptions = {}
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
 	let obj = prep.obj;
@@ -300,6 +330,8 @@ export const setObjectChildMemberValue = (
 	}
 
 	const length_m1 = path.length - 1;
+	const get = options.getMemberValue || ((t1, t2) => (t1 as any)[t2]);
+	const set = options.setMemberValue || ((t1, t2, t3) => { (t1 as any)[t2] = t3; });
 
 	path.forEach((memberName, memberNameIndex) => {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
@@ -310,11 +342,11 @@ export const setObjectChildMemberValue = (
 
 			if (i < 0) {
 				// name only
-				child = obj[memberName];
+				child = get(obj, memberName, options);
 
 				if (child === undefined || child === null) {
 					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
-					obj[memberName] = child;
+					set(obj, memberName, child, options);
 				}
 			}
 			else if (i === 0) {
@@ -333,11 +365,11 @@ export const setObjectChildMemberValue = (
 				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
 				const index = memberName.substring(i + 1, memberName.length - 1);
 
-				let array = obj[name];
+				let array = get(obj, name, options);
 
 				if (array === undefined || array === null) {
 					array = [];
-					obj[name] = array;
+					set(obj, name, array, options);
 				}
 
 				child = array[index];
@@ -354,18 +386,18 @@ export const setObjectChildMemberValue = (
 			// set value using path[length - 1] value
 			if (i < 0) {
 				// name only
-				obj[memberName] = value;
+				set(obj, memberName, value, options);
 			}
 			else if (i > 0) {
 				// name[index], name.[index]
 				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
 				const index = memberName.substring(i + 1, memberName.length - 1);
 
-				let array = obj[name];
+				let array = get(obj, name, options);
 
 				if (array === undefined || array === null) {
 					array = [];
-					obj[name] = array;
+					set(obj, name, array, options);
 				}
 
 				array[index] = value;
@@ -381,14 +413,27 @@ export const setObjectChildMemberValue = (
 	return obj;
 };
 
+REACT_SIMPLE_UTIL.DI.object.setObjectChildMemberValue = setObjectChildMemberValue_default;
+
+export const setObjectChildMemberValue = (
+	currentObj: unknown,
+	fullQualifiedName: ValueOrArray<string>,
+	value: unknown,
+	options: ObjectChildMemberAccessOptions = {}
+) => {
+	return REACT_SIMPLE_UTIL.DI.object.setObjectChildMemberValue(
+		currentObj, fullQualifiedName, value, options || {}, setObjectChildMemberValue_default
+	);
+};
+
 // Sets child member value by resolving the specified path of member names. Create subobjects if children is not found.
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has its member set.
-export const deleteObjectChildMember = (
+const deleteObjectChildMember_default = (
 	currentObj: unknown,
 	fullQualifiedName: ValueOrArray<string>,
-	options?: ObjectChildMemberAccessOptions
+	options: ObjectChildMemberAccessOptions = {}
 ) => {
 	const prep = getObjectChildMemberObjAndPath(currentObj, fullQualifiedName, options);
 	let obj = prep.obj;
@@ -402,6 +447,10 @@ export const deleteObjectChildMember = (
 	let parentObj: any;
 	let parentKey: string;
 	let result: unknown = undefined;
+
+	const get = options.getMemberValue || ((t1, t2) => (t1 as any)[t2]);
+	const set = options.setMemberValue || ((t1, t2, t3) => { (t1 as any)[t2] = t3; });
+	const delete_ = options.deleteMemberValue || ((t1, t2, t3) => { delete (t1 as any)[t2]; });
 
 	path.forEach((memberName, memberNameIndex) => {
 		const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
@@ -420,11 +469,16 @@ export const deleteObjectChildMember = (
 			}
 			else {
 				// name.[index]
-				parentObj = memberName[i - 1] === "." ? obj[memberName.substring(0, i - 1)] : obj[memberName.substring(0, i)];
+				parentObj = get(
+					obj,
+					memberName.substring(0, memberName[i - 1] === "." ? i - 1 : i),
+					options
+				);
+
 				parentKey = memberName.substring(i + 1, memberName.length - 1);
 			}
 
-			obj = parentObj?.[parentKey];
+			obj = parentObj && get(parentObj, parentKey, options);
 
 			if (obj === undefined || obj === null) {
 				return undefined;
@@ -434,13 +488,13 @@ export const deleteObjectChildMember = (
 			// set value using path[length - 1] value
 			if (i < 0) {
 				// name only
-				result = obj[memberName];
-				delete obj[memberName];
+				result = get(obj, memberName, options);
+				delete_(obj, memberName, options);
 			}
 			else if (i > 0) {
 				// name[index], name.[index]
-				const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
-				let array = obj[name];
+				const name = memberName.substring(0, memberName[i - 1] === "." ? i - 1 : i);
+				let array = get(obj, name, options);
 
 				if (obj === undefined || obj === null) {
 					return undefined;
@@ -453,7 +507,7 @@ export const deleteObjectChildMember = (
 
 				if (indexNum !== undefined) {
 					array = arrayRemoveAt(array, indexNum);
-					obj[name] = array;
+					set(obj, name, array, options);
 				} else {
 					delete array[index];
 				}				
@@ -469,7 +523,7 @@ export const deleteObjectChildMember = (
 					obj = arrayRemoveAt(obj, indexNum);
 
 					if (parentObj) {
-						parentObj[parentKey] = obj;
+						set(parentObj, parentKey, obj, options);
 					}
 				} else {
 					delete obj[index];
@@ -479,4 +533,16 @@ export const deleteObjectChildMember = (
 	});
 
 	return result;
+};
+
+REACT_SIMPLE_UTIL.DI.object.deleteObjectChildMember = deleteObjectChildMember_default;
+
+export const deleteObjectChildMember = (
+	currentObj: unknown,
+	fullQualifiedName: ValueOrArray<string>,
+	options?: ObjectChildMemberAccessOptions
+) => {
+	return REACT_SIMPLE_UTIL.DI.object.deleteObjectChildMember(
+		currentObj, fullQualifiedName, options || {}, deleteObjectChildMember_default
+	);
 };

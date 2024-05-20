@@ -190,6 +190,14 @@ it('getObjectChildMemberValue.stringPath.namedObjs', () => {
 	expect(getObjectChildMemberValue(CHIILD_MEMBER_TESTOBJ, "@bbb.c", options)).toBe(1);
 });
 
+it('getObjectChildMemberValue.custom.getMemberValue', () => {
+	const data = { a_: { b_: { c_: 1 } } };
+
+	expect(getObjectChildMemberValue(data, "a.b.c", {
+		getMemberValue: (parent, name) => (parent as any)[`${name}_`]
+	})).toBe(1);
+});
+
 // setObjectChildMemberValue
 
 it('setObjectChildMemberValue.arrayPath', () => {
@@ -305,6 +313,17 @@ it('getObjectChildMemberValue.stringPath.namedObjs', () => {
 	expect(leafObj).toBe(copy.a.b);
 });
 
+it('setObjectChildMemberValue.custom.setMemberValue', () => {
+	const data = { a_: { b_: { c_: 1 } } };
+
+	setObjectChildMemberValue(data, "a.b.c", 2, {
+		getMemberValue: (parent, name) => (parent as any)[`${name}_`],
+		setMemberValue: (parent, name, value) => { (parent as any)[`${name}_`] = value; }
+	});
+
+	expect(data.a_.b_.c_).toBe(2);
+});
+
 // deleteObjectChildMember
 
 it('deleteObjectChildMember.stringPath', () => {
@@ -369,5 +388,18 @@ it('deleteObjectChildMember.stringPath.namedObjs', () => {
 	expect(copy.a.b.c).toBeUndefined();
 	expect(copy.a.b).toBeDefined();
 	expect(copy.a.b.array?.[0]).toBe(11);
+	expect(deleted).toBe(1);
+});
+
+it('deleteObjectChildMemberValue.custom.deleteMemberValue', () => {
+	const data = { a_: { b_: { c_: 1 } } };
+
+	const deleted = deleteObjectChildMember(data, "a.b.c", {
+		getMemberValue: (parent, name) => (parent as any)[`${name}_`],
+		deleteMemberValue: (parent, name) => { delete (parent as any)[`${name}_`]; }
+	});
+
+	expect(data.a_.b_.c_).toBeUndefined();
+	expect(data.a_.b_).toBeDefined();
 	expect(deleted).toBe(1);
 });

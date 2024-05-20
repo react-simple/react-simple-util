@@ -1,6 +1,5 @@
 import { CULTURE_INFO } from "./utils/localization";
 import { ReactSimpleUtil } from "./types";
-import { LOG_LEVELS } from "log";
 
 const stub: any = () => { };
 
@@ -45,6 +44,10 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 		object: {
 			compareObjects: stub,
 			sameObjects: stub,
+			deepCopyObject: stub,
+			getObjectChildMemberValue: stub,
+			setObjectChildMemberValue: stub,
+			deleteObjectChildMember: stub
 		},
 		string: {
 			compareStrings: stub,

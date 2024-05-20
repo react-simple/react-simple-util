@@ -1,7 +1,8 @@
 import { LogImplementation, LogLevel } from "log/types";
 import { CultureInfo, CultureInfoBooleanFormat, CultureInfoDateFormat, CultureInfoNumberFormat } from "./utils/localization/types";
 import {
-	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, ValueOrArray
+	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, ObjectChildMemberAccessOptions, ObjectCompareOptions, StringCompareOptions,
+	ValueCompareOptions, ValueOrArray
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
@@ -103,6 +104,34 @@ export interface ReactSimpleUtilDependencyInjection {
 			options: ObjectCompareOptions<boolean>,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["sameObjects"]
 		) => boolean;
+
+		deepCopyObject: <T>(
+			obj: T,
+			transform: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined,
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deepCopyObject"]
+		) => T;
+
+		getObjectChildMemberValue: (
+			currentObj: unknown,
+			fullQualifiedName: ValueOrArray<string>,
+			options: ObjectChildMemberAccessOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["getObjectChildMemberValue"]
+		) => any;
+
+		setObjectChildMemberValue: (
+			currentObj: unknown,
+			fullQualifiedName: ValueOrArray<string>,
+			value: unknown,
+			options: ObjectChildMemberAccessOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["setObjectChildMemberValue"]
+		) => any;
+
+		deleteObjectChildMember: (
+			currentObj: unknown,
+			fullQualifiedName: ValueOrArray<string>,
+			options: ObjectChildMemberAccessOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deleteObjectChildMember"]
+		) => any;
 	};
 
 	string: {
