@@ -1,5 +1,5 @@
 import { REACT_SIMPLE_UTIL } from "data";
-import { LogLevel, logError, logMessage, logWarning } from "log";
+import { LogLevel, logMessage, logWarning } from "log";
 import { newGuid } from "./guid";
 import { removeKeys } from "./object";
 
@@ -13,8 +13,8 @@ export interface CallContext<State = unknown> {
 };
 
 export interface CallContextReturn extends CallContext {
-  readonly completed: () => void;
-  readonly error: (error: any) => void;
+  readonly completed: (error?: any) => void;
+  readonly run: <Result>(action: () => Result) => Result;
 };
 
 export let CALLCONTEXT_DATA: {
@@ -27,12 +27,9 @@ export let CALLCONTEXT_DATA: {
 
 export function callContext<State = unknown>(
   contextKey: string,
-  options?: {    
-    logLevel?: LogLevel;
-    data?: State;
-    onCompleted?: (context: CallContext<State>) => void;
-    onError?: (error: any, context: CallContext<State>) => void;
-  }
+  data?: State,
+  onCompleted?: (context: CallContext<State>, error?: any) => void,
+  logLevel?: LogLevel
 ): CallContextReturn {
   const contextId = newGuid();
     
@@ -46,13 +43,13 @@ export function callContext<State = unknown>(
     contextDepth: CALLCONTEXT_DATA.currentContext ?
       CALLCONTEXT_DATA.currentContext.contextDepth + 1 :
       0,
-    data: options?.data as State
+    data: data as State
   };
 
-  const logLevel = options?.logLevel || REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevelDefault;
+  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevelDefault;
 
   if (logLevel) {
-    logMessage(logLevel, `[CallContext] BEGIN ${contextKey}`, { context, CALLCONTEXT_DATA });
+    logMessage(logLevel, `[CallContext] Started context '${contextKey}'`, { context, CALLCONTEXT_DATA });
   }
 
   CALLCONTEXT_DATA = {
@@ -63,55 +60,38 @@ export function callContext<State = unknown>(
     currentContext: context
   };
 
-  return {
-    ...context,
-    
-    completed: () => {
-      if (CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
-        logWarning(
-          `[CallContext]: Completing context [contextKey: ${contextKey}, contextId: ${contextId}] ` +
-          `while current context is [contextKey: ${contextKey}, contextId: ${contextId}].`,
-          { context, CALLCONTEXT_DATA }
-        );
-      }
-      else if (logLevel) {
-        logMessage(
-          logLevel,
-          `[CallContext]: Completing context [contextKey: ${contextKey}, contextId: ${contextId}]`,
-          { context, CALLCONTEXT_DATA }
-        );
-      }      
+  const completed: CallContextReturn["completed"] = (error?: any) => {
+    if (CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
+      logWarning(
+        `[CallContext]: Completed context${error ? " with error " : ""} '${contextKey}' ` +
+        `while current context is another context '${CALLCONTEXT_DATA.currentContext?.contextKey}'.`,
+        { context, CALLCONTEXT_DATA }
+      );
+    }
+    else if (logLevel) {
+      logMessage(
+        logLevel,
+        `[CallContext]: Completed context${error ? " with error" : ""} '${contextKey}'`,
+        { context, CALLCONTEXT_DATA }
+      );
+    }
 
-      CALLCONTEXT_DATA = {
-        allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
-        currentContext: context.parentContext
-      };
+    CALLCONTEXT_DATA = {
+      allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
+      currentContext: context.parentContext
+    };
 
-      options?.onCompleted?.(context);
-    },
+    onCompleted?.(context, error);
+  };
 
-    error: error => {
-      if (CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
-        logError(
-          `[CallContext]: Completing context with error [contextKey: ${contextKey}, contextId: ${contextId}] ` +
-          `while current context is [contextKey: ${contextKey}, contextId: ${contextId}].`,
-          { context, CALLCONTEXT_DATA, error }
-        );
-      }
-      else if (logLevel) {
-        logError(
-          logLevel,
-          `[CallContext]: Completing context with error [contextKey: ${contextKey}, contextId: ${contextId}]`,
-          { context, CALLCONTEXT_DATA, error }
-        );
-      }
-
-      CALLCONTEXT_DATA = {
-        allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
-        currentContext: context.parentContext
-      };
-
-      options?.onError?.(error, context);
+  const run: CallContextReturn["run"] = action => {
+    try {
+      return action();
+    }
+    finally {
+      completed();
     }
   };
+
+  return { ...context, completed, run };
 };
