@@ -111,12 +111,12 @@ export interface ReactSimpleUtilDependencyInjection {
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deepCopyObject"]
 		) => Obj;
 
-		getObjectChildMember: (
-			currentObj: object,
+		getObjectChildMember: <RootObj extends object>(
+			rootObj: RootObj,
 			fullQualifiedName: ValueOrArray<string>,
 			options: GetObjectChildMemberOptions,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["getObjectChildMember"]
-		) => GetObjectChildMemberReturn;
+		) => GetObjectChildMemberReturn<RootObj>;
 	};
 
 	string: {

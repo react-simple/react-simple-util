@@ -217,24 +217,24 @@ export function deepCopyObject<Obj extends object>(
 }
 
 function getObjectChildMemberRootObjAndPath(
-	currentObj: object,
+	rootObj: object,
 	fullQualifiedName: ValueOrArray<string>,
 	options: GetObjectChildMemberOptions
 ): {
 	obj: any;
 	path?: string[];
 } {
-	if (!currentObj) {
-		return { obj: currentObj };
+	if (!rootObj) {
+		return { obj: rootObj };
 	}
 
 	const path = getResolvedArray(fullQualifiedName, t => t.split(options.pathSeparator || "."));
 
 	if (!path.length) {
-		return { obj: currentObj };
+		return { obj: rootObj };
 	}
 
-	let obj: any = currentObj;
+	let obj: any = rootObj;
 
 	// check root obj
 	if (path[0].startsWith("/")) {
@@ -254,18 +254,19 @@ function getObjectChildMemberRootObjAndPath(
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has the member to be set or get. (Returned 'name' is the last part of 'path'.)
-function getObjectChildMember_default(
-	currentObj: object,
+function getObjectChildMember_default<RootObj extends object>(
+	rootObj: RootObj,
 	fullQualifiedName: ValueOrArray<string>,
 	options: GetObjectChildMemberOptions = {}
-): GetObjectChildMemberReturn {
-	const prep = getObjectChildMemberRootObjAndPath(currentObj, fullQualifiedName, options);
+): GetObjectChildMemberReturn<RootObj> {
+	const prep = getObjectChildMemberRootObjAndPath(rootObj, fullQualifiedName, options);
 	let obj = prep.obj;
 	const path = prep.path;
 
 	if (!obj || !path?.length) {
 		return {
-			obj,
+			rootObj,
+			obj: rootObj,
 			name: "",
 			fullQualifiedName: "",
 			parents: [],
@@ -350,6 +351,7 @@ function getObjectChildMember_default(
 	if (i < 0) {
 		// name only
 		return {
+			rootObj,
 			obj,
 			name: memberName,
 			fullQualifiedName: stringAppend(parentFullQualifiedName, memberName, "."),
@@ -373,6 +375,7 @@ function getObjectChildMember_default(
 		}
 
 		return {
+			rootObj,
 			obj,
 			name,
 			fullQualifiedName: stringAppend(parentFullQualifiedName, name, "."),
@@ -407,6 +410,7 @@ function getObjectChildMember_default(
 		const parentArray = parents[parents.length - 1];
 
 		return {
+			rootObj,
 			obj: parentObj?.obj || obj,
 			name: parentArray.name,
 			fullQualifiedName: parentArray.fullQualifiedName,
@@ -441,10 +445,10 @@ REACT_SIMPLE_UTIL.DI.object.getObjectChildMember = getObjectChildMember_default;
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has the member to be set or get. (Returned 'name' is the last part of 'path'.)
-export function getObjectChildMember(
-	currentObj: object,
+export function getObjectChildMember<RootObj extends object>(
+	rootObj: RootObj,
 	fullQualifiedName: ValueOrArray<string>,
 	options: GetObjectChildMemberOptions = {}
-): GetObjectChildMemberReturn {
-	return REACT_SIMPLE_UTIL.DI.object.getObjectChildMember(currentObj, fullQualifiedName, options, getObjectChildMember_default);
+): GetObjectChildMemberReturn<RootObj> {
+	return REACT_SIMPLE_UTIL.DI.object.getObjectChildMember(rootObj, fullQualifiedName, options, getObjectChildMember_default);
 }

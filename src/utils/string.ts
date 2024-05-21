@@ -160,7 +160,7 @@ export const stringReplaceChars = (s: string, replace: (c: string, index: number
 	let result = "";
 	
 	for (let i = 0; i < s.length; i++) {
-		result+= replace(s.charAt(i), i);
+		result+= replace(s[i], i);
 	}
 
 	return result;
