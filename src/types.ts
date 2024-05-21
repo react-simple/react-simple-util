@@ -17,6 +17,6 @@ export interface ReactSimpleUtil {
 		logLevelDefault: LogLevel;
 	},
 
-	// dependency injection; these methods are replacable
+	// dependency injection; these methods are replacable with custom implementation
 	DI: ReactSimpleUtilDependencyInjection;
 }

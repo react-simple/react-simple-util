@@ -1,7 +1,7 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { compareObjects, sameObjects } from "./object";
 import { CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueOrArray } from "./types";
-import { getResolvedArray, isArray } from "./typing";
+import { getResolvedArray, isArray } from "./common";
 
 export function convertArrayToDictionary<Item, Value>(
 	array: Item[],

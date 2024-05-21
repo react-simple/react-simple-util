@@ -1,7 +1,7 @@
 import { CultureInfoBooleanFormat } from "./localization";
 import { BOOLEAN_FORMATS } from "./localization/internal";
 import { CompareReturn, Nullable, ValueOrArray, ValueOrCallback } from "./types";
-import { getResolvedCallbackValue, isArray, isString, resolveEmpty } from "./typing";
+import { getResolvedCallbackValue, isArray, isString, resolveEmpty } from "./common";
 import { REACT_SIMPLE_UTIL } from "data";
 
 // 'true' is considered to succeed 'false'

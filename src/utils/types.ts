@@ -37,6 +37,27 @@ export interface ObjectCompareOptions<Result = CompareReturn> extends ValueCompa
 	) => Result;
 }
 
+export interface EvaluateValueBinaryOperatorOptions<Value = unknown> extends StringCompareOptions {
+	readonly evaluate?: (
+		value1: Value,
+		value2: Value,
+		operator: ValueBinaryOperator,
+		options: Omit<EvaluateValueBinaryOperatorOptions<Value>, "evaluate"> | undefined
+	) => boolean;
+
+	readonly cultureInfo?: Partial<CultureInfo>;
+}
+
+export interface EvaluateValueUnaryOperatorOptions<Value = unknown> extends StringCompareOptions {
+	readonly evaluate?: (
+		value: Value,
+		operator: ValueUnaryOperator,
+		options: Omit<EvaluateValueUnaryOperatorOptions<Value>, "evaluate"> | undefined
+	) => boolean;
+
+	readonly cultureInfo?: Partial<CultureInfo>;
+}
+
 export type DatePart = "year" | "month" | "day" | "hour" | "minute" | "second" | "millisecond";
 
 export interface DateTimeFormatOptions {
@@ -137,3 +158,16 @@ export interface ArrayIterationNode<Item> {
 	readonly indexInParent: number; // the index of this node in the children of its parent (but not on the level among siblings)
 	readonly indexOnLevel: number; // the index of this node on its level among all siblings (not scoped to its parent)
 }
+
+export type ValueBinaryOperator =
+	| "equals" | "not-equals"
+	| "includes" | "not-includes"
+	| "startswith" | "not-startswith"
+	| "endswith" | "not-endswith"
+	| "greater" | "greater-equals"
+	| "less" | "less-equals"
+	| "or" | "and";
+
+export type ValueUnaryOperator =
+	| "empty" | "not-empty" // undefined, null or empty string
+	| "null-undefined" | "not-null-undefined";

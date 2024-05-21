@@ -1,5 +1,5 @@
 import { CompareReturn, DatePart, DateTimeFormatOptions, Nullable, ValueOrArray } from "./types";
-import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./typing";
+import { getResolvedArray, isDate, isEmpty, isNumber, isString } from "./common";
 import { compareNumbers, formatNumberISO, formatNumberLocal, roundDown, tryParseFloatISO } from "./number";
 import { REACT_SIMPLE_UTIL } from "data";
 import { CultureInfoDateFormat } from "./localization";

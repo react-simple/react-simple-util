@@ -1,6 +1,6 @@
 import { MAX_INT } from "consts";
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
-import { getResolvedArray, isArray } from "./typing";
+import { getResolvedArray, isArray } from "./common";
 import { REACT_SIMPLE_UTIL } from "data";
 
 export const getComparableString = (s: string, options: StringCompareOptions = {}) => {
@@ -38,7 +38,7 @@ export const sameStrings = (s1: string, s2: string, options: StringCompareOption
 	return REACT_SIMPLE_UTIL.DI.string.sameStrings(s1, s2, options, sameStrings_default);
 };
 
-export const startsWith = (s: string, prefix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
+export const stringStartsWith = (s: string, prefix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	return isArray(prefix)
@@ -46,12 +46,20 @@ export const startsWith = (s: string, prefix: ValueOrArray<string>, options: Str
 		: s.startsWith(getComparableString(prefix, options));
 };
 
-export const endsWith = (s: string, suffix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
+export const stringEndsWith = (s: string, suffix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	return isArray(suffix)
 		? suffix.some(t => s.endsWith(getComparableString(t, options))) :
 		s.endsWith(getComparableString(suffix, options));
+};
+
+export const stringIncludes = (s: string, searchString: ValueOrArray<string>, options: StringCompareOptions = {}) => {
+	s = getComparableString(s, options);
+
+	return isArray(searchString)
+		? searchString.some(t => s.includes(getComparableString(t, options))) :
+		s.endsWith(getComparableString(searchString, options));
 };
 
 // removes all occurences from string

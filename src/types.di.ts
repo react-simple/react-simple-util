@@ -1,7 +1,8 @@
 import { CultureInfoBooleanFormat, CultureInfoDateFormat, CultureInfoNumberFormat } from "./utils/localization/types";
 import {
 	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, GetObjectChildMemberOptions, ObjectCompareOptions, StringCompareOptions,
-	ValueCompareOptions, ValueOrArray, GetObjectChildMemberReturn
+	ValueCompareOptions, ValueOrArray, GetObjectChildMemberReturn, Nullable, EvaluateValueBinaryOperatorOptions, ValueBinaryOperator,
+	ValueUnaryOperator, EvaluateValueUnaryOperatorOptions
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
@@ -147,6 +148,21 @@ export interface ReactSimpleUtilDependencyInjection {
 			value2: Value,
 			options: ValueCompareOptions<Value, boolean>,
 			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["sameValues"]
+		) => boolean;
+
+		evaluateValueBinaryOperator: <Value = unknown>(
+			value1: Value,
+			value2: Nullable<Value>,
+			operator: ValueBinaryOperator,
+			options: EvaluateValueBinaryOperatorOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["evaluateValueBinaryOperator"]
+		) => boolean;
+
+		evaluateValueUnaryOperator: <Value = unknown>(
+			value: Value,
+			operator: ValueUnaryOperator,
+			options: EvaluateValueUnaryOperatorOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["evaluateValueUnaryOperator"]
 		) => boolean;
 	}
 }

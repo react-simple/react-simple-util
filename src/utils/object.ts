@@ -1,7 +1,7 @@
 import {
 	GetObjectChildMemberOptions, CompareReturn, ValueOrArray, ObjectCompareOptions, GetObjectChildMemberReturn, ObjectWithFullQualifiedName
 } from "./types";
-import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./typing";
+import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./common";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
 import { tryParseFloatISO } from "./number";

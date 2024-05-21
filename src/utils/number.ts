@@ -1,7 +1,7 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { stringReplaceChars } from "./string";
 import { CompareReturn, NumberFormatOptions } from "./types";
-import { isEmpty, isNumber, isString } from "./typing";
+import { isEmpty, isNumber, isString } from "./common";
 import { CULTURE_INFO, CultureInfoNumberFormat } from "./localization";
 
 export function compareNumbers(n1: number, n2: number): CompareReturn {

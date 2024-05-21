@@ -1,6 +1,6 @@
 import { compareValues, sameValues } from "./value";
 import { ArrayIterationNode, CompareReturn, Nullable, ValueCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
-import { getResolvedArray, isArray, isEmpty, isFunction } from "./typing";
+import { getResolvedArray, isArray, isEmpty, isFunction } from "./common";
 import { REACT_SIMPLE_UTIL } from "data";
 import { compareNumbers } from "./number";
 
