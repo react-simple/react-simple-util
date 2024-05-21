@@ -45,9 +45,7 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 			compareObjects: stub,
 			sameObjects: stub,
 			deepCopyObject: stub,
-			getObjectChildMemberValue: stub,
-			setObjectChildMemberValue: stub,
-			deleteObjectChildMember: stub
+			getObjectChildMember: stub
 		},
 		string: {
 			compareStrings: stub,

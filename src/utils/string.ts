@@ -166,16 +166,16 @@ export const stringReplaceChars = (s: string, replace: (c: string, index: number
 	return result;
 };
 
-export const indexOf = (s: string, searchString: string, options?: StringCompareOptions & { position?: number }) => {
+export const stringIndexOf = (s: string, searchString: string, options?: StringCompareOptions & { position?: number }) => {
 	return getComparableString(s, options).indexOf(getComparableString(searchString, options), options?.position);
 };
 
-export const indexOfAny = (s: string, searchStrings: string[], options?: StringCompareOptions & { position?: number }) => {
+export const stringIndexOfAny = (s: string, searchStrings: string[], options?: StringCompareOptions & { position?: number }) => {
 	s = getComparableString(s, options);
 	let result = MAX_INT;
 
 	for (const search of searchStrings) {
-		const i = indexOf(s, search, options);
+		const i = stringIndexOf(s, search, options);
 
 		if (i >= 0 && i < result) {
 			result = i;
@@ -183,4 +183,8 @@ export const indexOfAny = (s: string, searchStrings: string[], options?: StringC
 	}
 
 	return result === MAX_INT ? -1 : result;
+};
+
+export const stringAppend = (s: string, append: string, separator = "") => {
+	return !s ? append : !append ? s : `${s}${separator}${append}`;
 };

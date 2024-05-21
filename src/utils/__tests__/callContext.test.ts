@@ -10,7 +10,7 @@ it('callContext', () => {
 	const context = callContext(
 		"test",
 		REACT_SIMPLE_UTIL.DI.array.compareArrays,
-		t => REACT_SIMPLE_UTIL.DI.array.compareArrays = t.data
+		t => REACT_SIMPLE_UTIL.DI.array.compareArrays = t.data // finalize
 	);
 
 	try {
@@ -26,13 +26,10 @@ it('callContext', () => {
 });
 
 it('callContext.run', () => {
-	REACT_SIMPLE_UTIL.LOGGING.logLevel = "trace";
-	
 	callContext(
 		"test",
 		REACT_SIMPLE_UTIL.DI.array.compareArrays,
-		t => REACT_SIMPLE_UTIL.DI.array.compareArrays = t.data,
-		"trace"
+		t => REACT_SIMPLE_UTIL.DI.array.compareArrays = t.data // finalize
 	).run(() => {
 		REACT_SIMPLE_UTIL.DI.array.compareArrays = () => 0; // dummy return, return always true
 		

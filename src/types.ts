@@ -1,8 +1,8 @@
 import { LogImplementation, LogLevel } from "log/types";
 import { CultureInfo, CultureInfoBooleanFormat, CultureInfoDateFormat, CultureInfoNumberFormat } from "./utils/localization/types";
 import {
-	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, ObjectChildMemberAccessOptions, ObjectCompareOptions, StringCompareOptions,
-	ValueCompareOptions, ValueOrArray
+	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, GetObjectChildMemberOptions, ObjectCompareOptions, StringCompareOptions,
+	ValueCompareOptions, ValueOrArray, GetObjectChildMemberReturn
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
@@ -92,46 +92,31 @@ export interface ReactSimpleUtilDependencyInjection {
 
 	object: {
 		compareObjects: (
-			obj1: unknown,
-			obj2: unknown,
+			obj1: object,
+			obj2: object,
 			options: ObjectCompareOptions,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["compareObjects"]
 		) => CompareReturn;
 
 		sameObjects: (
-			obj1: unknown,
-			obj2: unknown,
+			obj1: object,
+			obj2: object,
 			options: ObjectCompareOptions<boolean>,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["sameObjects"]
 		) => boolean;
 
-		deepCopyObject: <T>(
-			obj: T,
-			transform: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined,
+		deepCopyObject: <Obj extends object>(
+			obj: Obj,
+			transformValue: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deepCopyObject"]
-		) => T;
+		) => Obj;
 
-		getObjectChildMemberValue: (
-			currentObj: unknown,
+		getObjectChildMember: (
+			currentObj: object,
 			fullQualifiedName: ValueOrArray<string>,
-			options: ObjectChildMemberAccessOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["getObjectChildMemberValue"]
-		) => any;
-
-		setObjectChildMemberValue: (
-			currentObj: unknown,
-			fullQualifiedName: ValueOrArray<string>,
-			value: unknown,
-			options: ObjectChildMemberAccessOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["setObjectChildMemberValue"]
-		) => any;
-
-		deleteObjectChildMember: (
-			currentObj: unknown,
-			fullQualifiedName: ValueOrArray<string>,
-			options: ObjectChildMemberAccessOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deleteObjectChildMember"]
-		) => any;
+			options: GetObjectChildMemberOptions,
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["getObjectChildMember"]
+		) => GetObjectChildMemberReturn;
 	};
 
 	string: {
