@@ -9,12 +9,12 @@ import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
 // understands DATE_FORMATS.ISO and REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat.
- function compareValues_default<Value = unknown>(
+function compareValues_default<Value = unknown>(
 	value1: Value,
 	value2: Value,
-	options?: ValueCompareOptions<Value>
+	options: ValueCompareOptions<Value> = {}
 ): CompareReturn {
-	if (options?.compareValues) {
+	if (options.compareValues) {
 		return options.compareValues(value1, value2, options);
 	}
 	else if (value1 === value2) {
@@ -29,11 +29,11 @@ import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 	else {
 		// number
 		if (isNumber(value1) || isNumber(value2)) {
-			const num1 = options?.cultureInfo?.numberFormat
+			const num1 = options.cultureInfo?.numberFormat
 				? tryParseFloat(value1, options.cultureInfo.numberFormat)
 				: tryParseFloatISO(value1);
-			
-			const num2 = options?.cultureInfo?.numberFormat
+
+			const num2 = options.cultureInfo?.numberFormat
 				? tryParseFloat(value2, options.cultureInfo.numberFormat)
 				: tryParseFloatISO(value2);
 
@@ -44,11 +44,11 @@ import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 
 		// date
 		if (isDate(value1) || isDate(value2)) {
-			const date1 = options?.cultureInfo?.dateFormat
+			const date1 = options.cultureInfo?.dateFormat
 				? tryParseDate(value1 as Date, options.cultureInfo.dateFormat)
 				: tryParseDateLocalOrISO(value1 as Date);
-			
-			const date2 = options?.cultureInfo?.dateFormat
+
+			const date2 = options.cultureInfo?.dateFormat
 				? tryParseDate(value2 as Date, options.cultureInfo.dateFormat)
 				: tryParseDateLocalOrISO(value2 as Date);
 
@@ -59,11 +59,11 @@ import { isBoolean, isDate, isNumber, isNullOrUndefined } from "./typing";
 
 		// boolean
 		if (isBoolean(value1) || isBoolean(value2)) {
-			const bool1 = options?.cultureInfo?.booleanFormat
+			const bool1 = options.cultureInfo?.booleanFormat
 				? tryParseBoolean(value1, options.cultureInfo.booleanFormat)
 				: tryParseBooleanLocalOrISO(value1);
-			
-			const bool2 = options?.cultureInfo?.booleanFormat
+
+			const bool2 = options.cultureInfo?.booleanFormat
 				? tryParseBoolean(value2, options.cultureInfo.booleanFormat)
 				: tryParseBooleanLocalOrISO(value2);
 
@@ -85,9 +85,9 @@ REACT_SIMPLE_UTIL.DI.value.compareValues = compareValues_default;
 export function compareValues<Value = unknown>(
 	value1: Value,
 	value2: Value,
-	options?: ValueCompareOptions<Value>
+	options: ValueCompareOptions<Value> = {}
 ): CompareReturn {
-	return REACT_SIMPLE_UTIL.DI.value.compareValues(value1, value2, options || {}, compareValues_default);
+	return REACT_SIMPLE_UTIL.DI.value.compareValues(value1, value2, options, compareValues_default);
 }
 
 // compares the two values based on their recognized types.
@@ -95,7 +95,7 @@ export function compareValues<Value = unknown>(
 const sameValues_default = <Value = unknown>(
 	value1: Value,
 	value2: Value,
-	options?: ValueCompareOptions<Value, boolean>
+	options: ValueCompareOptions<Value, boolean> = {}
 ) => {
 	return compareValues(value1, value2, options && {
 		...options,
@@ -111,7 +111,7 @@ REACT_SIMPLE_UTIL.DI.value.sameValues = sameValues_default;
 export const sameValues = <Value = unknown>(
 	value1: Value,
 	value2: Value,
-	options?: ValueCompareOptions<Value, boolean>
+	options: ValueCompareOptions<Value, boolean> = {}
 ) => {
-	return REACT_SIMPLE_UTIL.DI.value.sameValues(value1, value2, options || {}, sameValues_default);
+	return REACT_SIMPLE_UTIL.DI.value.sameValues(value1, value2, options, sameValues_default);
 };

@@ -4,3 +4,4 @@ export * from "./hooks";
 export * from "./log";
 export * from "./utils";
 export * from "./types";
+export * from "./types.di";

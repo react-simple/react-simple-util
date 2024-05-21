@@ -117,9 +117,9 @@ export const arrayRemoveAt = <T>(arr: T[], start: number, length: number = 1) =>
 
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
-function compareArrays_default<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T>): CompareReturn {
+function compareArrays_default<T>(arr1: T[], arr2: T[], options: ValueCompareOptions<T> = {}): CompareReturn {
 	let result = compareNumbers(arr1.length, arr2.length);
-	const compare = options?.compareValues || ((t1, t2, t3) => compareValues(t1, t2, t3));
+	const compare = options.compareValues || compareValues;
 
 	if (result) {
 		return result;
@@ -141,13 +141,13 @@ REACT_SIMPLE_UTIL.DI.array.compareArrays = compareArrays_default;
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
 // for dependency injection set REACT_SIMPLE_UTIL.DI.array.compareArrays
-export function compareArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T>): CompareReturn {
-	return REACT_SIMPLE_UTIL.DI.array.compareArrays(arr1, arr2, options || {}, compareArrays_default);
+export function compareArrays<T>(arr1: T[], arr2: T[], options: ValueCompareOptions<T> = {}): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.array.compareArrays(arr1, arr2, options, compareArrays_default);
 }
 
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
-function sameArrays_default<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T, boolean>): boolean {
+function sameArrays_default<T>(arr1: T[], arr2: T[], options: ValueCompareOptions<T, boolean> = {}): boolean {
 	return compareArrays(arr1, arr2, options && {
 		...options,
 		// we check for equality, if it's less or greater that does not matter
@@ -160,18 +160,18 @@ REACT_SIMPLE_UTIL.DI.array.sameArrays = sameArrays_default;
 // the shorter array is considered to preceed the longer array.
 // for array with same length compareValues() will be used.
 // for dependency injection set REACT_SIMPLE_UTIL.DI.array.sameArrays
-export function sameArrays<T>(arr1: T[], arr2: T[], options?: ValueCompareOptions<T, boolean>): boolean {
-	return REACT_SIMPLE_UTIL.DI.array.sameArrays(arr1, arr2, options || {}, sameArrays_default);
+export function sameArrays<T>(arr1: T[], arr2: T[], options: ValueCompareOptions<T, boolean> = {}): boolean {
+	return REACT_SIMPLE_UTIL.DI.array.sameArrays(arr1, arr2, options, sameArrays_default);
 }
 
 // returns distinct items, keeps order of first occurence (uses compareValues(), performs shallow comparation only)
 export function getDistinct<T>(
 	arr: T[],
-	options?: ValueCompareOptions<T, boolean>
+	options: ValueCompareOptions<T, boolean> = {}
 ): T[] {
 	const result: T[] = [];
 
-	if (!options?.compareValues && !options?.ignoreCase && !options?.trim) {
+	if (!options.compareValues && !options.ignoreCase && !options.trim) {
 		// faster
 		const added = new Set<T>();
 
@@ -184,7 +184,7 @@ export function getDistinct<T>(
 	}
 	else {
 		// slower
-		const compare = options?.compareValues || ((t1, t2) => sameValues(t1, t2, options));
+		const compare = options.compareValues || sameValues;
 
 		for (const item of arr) {
 			if (!result.some(t => compare(t, item, options))) {
@@ -200,11 +200,11 @@ export function getDistinct<T>(
 export function getDistinctValues<Item, Value>(
 	arr: Item[],
 	getValue: (item: Item) => Value,
-	options?: ValueCompareOptions<Value, boolean>
+	options: ValueCompareOptions<Value, boolean> = {}
 ): Value[] {
 	const result: Value[] = [];
 
-	if (!options?.compareValues && !options?.ignoreCase && !options?.trim) {
+	if (!options.compareValues && !options.ignoreCase && !options.trim) {
 		// faster
 		const added = new Set<Value>();
 
@@ -218,7 +218,7 @@ export function getDistinctValues<Item, Value>(
 		}
 	} else {
 		// slower
-		const compare = options?.compareValues || ((t1, t2) => sameValues(t1, t2, options));
+		const compare = options.compareValues || sameValues;
 
 		for (const item of arr) {
 			const value = getValue(item);
@@ -236,11 +236,11 @@ export function getDistinctValues<Item, Value>(
 export function getDistinctBy<Item, Value>(
 	arr: Item[],
 	getValue: (item: Item) => Value,
-	options?: ValueCompareOptions<Value, boolean>
+	options: ValueCompareOptions<Value, boolean> = {}
 ): Item[] {
 	const result: Item[] = [];
 
-	if (!options?.compareValues && !options?.ignoreCase && !options?.trim) {
+	if (!options.compareValues && !options.ignoreCase && !options.trim) {
 		// faster
 		const added = new Set<Value>();
 
@@ -255,7 +255,7 @@ export function getDistinctBy<Item, Value>(
 	}
 	else {
 		// slower
-		const compare = options?.compareValues || ((t1, t2) => sameValues(t1, t2, options));
+		const compare = options.compareValues || sameValues;
 		const addedValues: Value[] = [];
 
 		for (const item of arr) {
@@ -273,14 +273,14 @@ export function getDistinctBy<Item, Value>(
 
 export function sortArray<Value extends ValueType>(
 	array: Value[],
-	options?: ValueCompareOptions<Value> & {
+	options: ValueCompareOptions<Value> & {
 		reverse?: boolean;
-	}
+	} = {}
 ): Value[] {
-	const compare = options?.compareValues || ((t1, t2) => compareValues(t1, t2, options));
+	const compare = options.compareValues || compareValues;
 	const result = [...array]; // clone
 
-	if (options?.reverse) {
+	if (options.reverse) {
 		result.sort((t1, t2) => compare(t2, t1, options));
 	} else {
 		result.sort((t1, t2) => compare(t1, t2, options));
@@ -292,14 +292,14 @@ export function sortArray<Value extends ValueType>(
 export function sortArrayBy<Item, Value extends ValueType>(
 	array: Item[],
 	sortBy: (item: Item) => Value,
-	options?: ValueCompareOptions<Value> & {
+	options: ValueCompareOptions<Value> & {
 		reverse?: boolean;
-	}
+	} = {}
 ): Item[] {
-	const compare = options?.compareValues || ((t1, t2) => compareValues(t1, t2, options));
+	const compare = options.compareValues || compareValues;
 	const result = [...array]; // clone
 
-	if (options?.reverse) {
+	if (options.reverse) {
 		result.sort((t1, t2) => compare(sortBy(t2), sortBy(t1), options));
 	} else {
 		result.sort((t1, t2) => compare(sortBy(t1), sortBy(t2), options));

@@ -3,19 +3,19 @@ import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
 import { getResolvedArray, isArray } from "./typing";
 import { REACT_SIMPLE_UTIL } from "data";
 
-export const getComparableString = (s: string, options?: StringCompareOptions) => {
-	if (options?.trim) {
+export const getComparableString = (s: string, options: StringCompareOptions = {}) => {
+	if (options.trim) {
 		s = s.trim();
 	}
 
-	if (options?.ignoreCase) {
+	if (options.ignoreCase) {
 		s = s.toLowerCase();
 	}
 
 	return s;
 };
 
-function compareStrings_default(s1: string, s2: string, options?: StringCompareOptions): CompareReturn {
+function compareStrings_default(s1: string, s2: string, options: StringCompareOptions = {}): CompareReturn {
 	s1 = getComparableString(s1, options);
 	s2 = getComparableString(s2, options);
 
@@ -24,21 +24,21 @@ function compareStrings_default(s1: string, s2: string, options?: StringCompareO
 
 REACT_SIMPLE_UTIL.DI.string.compareStrings = compareStrings_default;
 
-export function compareStrings(s1: string, s2: string, options?: StringCompareOptions): CompareReturn {
-	return REACT_SIMPLE_UTIL.DI.string.compareStrings(s1, s2, options || {}, compareStrings);
+export function compareStrings(s1: string, s2: string, options: StringCompareOptions = {}): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.string.compareStrings(s1, s2, options, compareStrings);
 }
 
-const sameStrings_default = (s1: string, s2: string, options?: StringCompareOptions) => {
+const sameStrings_default = (s1: string, s2: string, options: StringCompareOptions = {}) => {
 	return compareStrings(s1, s2, options) === 0;
 };
 
 REACT_SIMPLE_UTIL.DI.string.sameStrings = sameStrings_default;
 
-export const sameStrings = (s1: string, s2: string, options?: StringCompareOptions) => {
-	return REACT_SIMPLE_UTIL.DI.string.sameStrings(s1, s2, options || {}, sameStrings_default);
+export const sameStrings = (s1: string, s2: string, options: StringCompareOptions = {}) => {
+	return REACT_SIMPLE_UTIL.DI.string.sameStrings(s1, s2, options, sameStrings_default);
 };
 
-export const startsWith = (s: string, prefix: ValueOrArray<string>, options?: StringCompareOptions) => {
+export const startsWith = (s: string, prefix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	return isArray(prefix)
@@ -46,7 +46,7 @@ export const startsWith = (s: string, prefix: ValueOrArray<string>, options?: St
 		: s.startsWith(getComparableString(prefix, options));
 };
 
-export const endsWith = (s: string, suffix: ValueOrArray<string>, options?: StringCompareOptions) => {
+export const endsWith = (s: string, suffix: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	return isArray(suffix)
@@ -55,7 +55,7 @@ export const endsWith = (s: string, suffix: ValueOrArray<string>, options?: Stri
 };
 
 // removes all occurences from string
-export const trimStart = (s: string, remove: ValueOrArray<string>, options?: StringCompareOptions) => {
+export const trimStart = (s: string, remove: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	if (!s) {
@@ -90,7 +90,7 @@ export const trimStart = (s: string, remove: ValueOrArray<string>, options?: Str
 };
 
 // removes all occurences from string
-export const trimEnd = (s: string, remove: ValueOrArray<string>, options?: StringCompareOptions) => {
+export const trimEnd = (s: string, remove: ValueOrArray<string>, options: StringCompareOptions = {}) => {
 	s = getComparableString(s, options);
 
 	if (!s) {
@@ -124,7 +124,7 @@ export const trimEnd = (s: string, remove: ValueOrArray<string>, options?: Strin
 	return i <= 0 ? "" : s.substring(0, i);
 };
 
-export function trim(s: string, removes: ValueOrArray<string>, options?: StringCompareOptions): string {
+export function trim(s: string, removes: ValueOrArray<string>, options: StringCompareOptions = {}): string {
 	return trimStart(trimEnd(s, removes, options), removes, options);
 }
 
@@ -166,11 +166,19 @@ export const stringReplaceChars = (s: string, replace: (c: string, index: number
 	return result;
 };
 
-export const stringIndexOf = (s: string, searchString: string, options?: StringCompareOptions & { position?: number }) => {
-	return getComparableString(s, options).indexOf(getComparableString(searchString, options), options?.position);
+export const stringIndexOf = (
+	s: string,
+	searchString: string,
+	options: StringCompareOptions & { position?: number } = {}
+) => {
+	return getComparableString(s, options).indexOf(getComparableString(searchString, options), options.position);
 };
 
-export const stringIndexOfAny = (s: string, searchStrings: string[], options?: StringCompareOptions & { position?: number }) => {
+export const stringIndexOfAny = (
+	s: string,
+	searchStrings: string[],
+	options: StringCompareOptions & { position?: number } = {}
+) => {
 	s = getComparableString(s, options);
 	let result = MAX_INT;
 

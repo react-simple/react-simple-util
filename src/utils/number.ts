@@ -132,12 +132,12 @@ const addThousandSeparatorsToFracPart = (s: string, thousandSeparator: string | 
 function formatNumber_default(
 	value: number,
 	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-	options?: NumberFormatOptions
+	options: NumberFormatOptions = {}
 ): string {
 	format ||= REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat;
 	const { decimalSeparator } = format;
-	const { maxDecimalDigits, minDecimalDigits, minIntegerDigits, radix } = options || {};
-	const thousandSeparator = options?.thousandSeparators !== false ? format.thousandSeparator : undefined;
+	const { maxDecimalDigits, minDecimalDigits, minIntegerDigits, radix } = options;
+	const thousandSeparator = options.thousandSeparators !== false ? format.thousandSeparator : undefined;
 
 	const str = Math.abs(value).toString(radix);
 	const negativeSign = value < 0 ? "-" : "";
@@ -201,15 +201,15 @@ REACT_SIMPLE_UTIL.DI.number.formatNumber = formatNumber_default;
 export function formatNumber(
 	value: number,
 	format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-	options?: NumberFormatOptions
+	options: NumberFormatOptions = {}
 ): string {
-	return REACT_SIMPLE_UTIL.DI.number.formatNumber(value, format, options || {}, formatNumber_default);
+	return REACT_SIMPLE_UTIL.DI.number.formatNumber(value, format, options, formatNumber_default);
 }
 
-export const formatNumberISO = (value: number, options?: NumberFormatOptions) => {
+export const formatNumberISO = (value: number, options: NumberFormatOptions = {}) => {
 	return formatNumber(value, CULTURE_INFO.NUMBER_FORMATS.ISO, options);
 };
 
-export const formatNumberLocal = (value: number, options?: NumberFormatOptions) => {
+export const formatNumberLocal = (value: number, options: NumberFormatOptions = {}) => {
 	return formatNumber(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.numberFormat, options);
 };

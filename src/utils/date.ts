@@ -178,9 +178,9 @@ export function setDatePart(date: Date, part: DatePart, value: number): Date {
 function formatDate_default(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateFormat">,
-	options?: Pick<DateTimeFormatOptions, "utc">
+	options: Pick<DateTimeFormatOptions, "utc"> = {}
 ): string {
-	if (options?.utc) {
+	if (options.utc) {
 		value = dateAdd(value, "minute", value.getTimezoneOffset());
 	}
 
@@ -195,7 +195,7 @@ function formatDate_default(
 		.replaceAll("m", "")
 		.replaceAll("s", "")
 		.replaceAll("f", "")
-		.replaceAll("Z", options?.utc ? "Z" : "");
+		.replaceAll("Z", options.utc ? "Z" : "");
 }
 
 REACT_SIMPLE_UTIL.DI.date.formatDate = formatDate_default;
@@ -203,12 +203,12 @@ REACT_SIMPLE_UTIL.DI.date.formatDate = formatDate_default;
 export function formatDate(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateFormat">,
-	options?: Pick<DateTimeFormatOptions, "utc">
+	options: Pick<DateTimeFormatOptions, "utc"> = {}
 ): string {
-	return REACT_SIMPLE_UTIL.DI.date.formatDate(value, format, options || {}, formatDate_default);
+	return REACT_SIMPLE_UTIL.DI.date.formatDate(value, format, options, formatDate_default);
 }
 
-export function formatDateISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {
+export function formatDateISO(value: Date, options: Pick<DateTimeFormatOptions, "utc"> = {}): string {
 	return formatDate(value, DATE_FORMATS.ISO, options);
 }
 
@@ -219,17 +219,17 @@ export function formatDateLocal(value: Date): string {
 function formatDateTime_default(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
-	options?: DateTimeFormatOptions
+	options: DateTimeFormatOptions = {}
 ): string {
 	const dateTimeFormat = (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat).dateTimeFormat;
 
-	if (options?.utc) {
+	if (options.utc) {
 		value = dateAdd(value, "minute", value.getTimezoneOffset());
 	}
 
 	return (
-		options?.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
-			options?.seconds ? dateTimeFormat.hourMinuteSecond :
+		options.milliseconds ? dateTimeFormat.hourMinuteSecondMillisecond :
+			options.seconds ? dateTimeFormat.hourMinuteSecond :
 				dateTimeFormat.hourMinute
 	)
 		.replace("yyyy", value.getFullYear().toString())
@@ -247,7 +247,7 @@ function formatDateTime_default(
 		.replace("fff", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 3 }))
 		.replace("ff", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 2 }))
 		.replace("f", formatNumberISO(value.getMilliseconds(), { minIntegerDigits: 1 }))
-		.replace("Z", options?.utc ? "Z" : "");
+		.replace("Z", options.utc ? "Z" : "");
 }
 
 REACT_SIMPLE_UTIL.DI.date.formatDateTime = formatDateTime_default;
@@ -255,16 +255,16 @@ REACT_SIMPLE_UTIL.DI.date.formatDateTime = formatDateTime_default;
 export function formatDateTime(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
-	options?: DateTimeFormatOptions
+	options: DateTimeFormatOptions = {}
 ): string {
-	return REACT_SIMPLE_UTIL.DI.date.formatDateTime(value, format, options || {}, formatDateTime_default);
+	return REACT_SIMPLE_UTIL.DI.date.formatDateTime(value, format, options, formatDateTime_default);
 }
 
-export function formatDateTimeISO(value: Date, options?: Pick<DateTimeFormatOptions, "utc">): string {
-	return formatDateTime(value, DATE_FORMATS.ISO, { seconds: true, milliseconds: true, utc: options?.utc });
+export function formatDateTimeISO(value: Date, options: Pick<DateTimeFormatOptions, "utc"> = {}): string {
+	return formatDateTime(value, DATE_FORMATS.ISO, { seconds: true, milliseconds: true, utc: options.utc });
 }
 
-export function formatDateTimeLocal(value: Date, options?: DateTimeFormatOptions): string {
+export function formatDateTimeLocal(value: Date, options: DateTimeFormatOptions = {}): string {
 	return formatDateTime(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat, options);
 }
 
@@ -276,7 +276,7 @@ const getDateHasTime = (d: Date) => {
 export function formatDateOrDateTime(
 	value: Date,
 	format: Pick<CultureInfoDateFormat, "dateFormat" | "dateTimeFormat">,
-	options?: DateTimeFormatOptions
+	options: DateTimeFormatOptions = {}
 ): string {
 	return getDateHasTime(value)
 		? formatDateTime(value, format, options)
@@ -286,7 +286,7 @@ export function formatDateOrDateTime(
 // if time portion is zero formats value as date, otherwise as date-time
 export function formatDateOrDateTimeISO(
 	value: Date,
-	options?: DateTimeFormatOptions
+	options: DateTimeFormatOptions = {}
 ): string {
 	return getDateHasTime(value)
 		? formatDateTimeISO(value, options)
@@ -296,7 +296,7 @@ export function formatDateOrDateTimeISO(
 // if time portion is zero formats value as date, otherwise as date-time
 export function formatDateOrDateTimeLocal(
 	value: Date,
-	options?: DateTimeFormatOptions
+	options: DateTimeFormatOptions = {}
 ): string {
 	return getDateHasTime(value)
 		? formatDateTimeLocal(value, options)

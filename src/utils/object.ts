@@ -69,8 +69,8 @@ export function removeKeysUnsafe<Obj extends object>(
 }
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-function compareObjects_default(obj1: any, obj2: any, options?: ObjectCompareOptions): CompareReturn {
-	if (options?.compareObjects) {
+function compareObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions = {}): CompareReturn {
+	if (options.compareObjects) {
 		return options.compareObjects(obj1, obj2, options);
 	}
 	else if (obj1 === obj2) {
@@ -85,13 +85,13 @@ function compareObjects_default(obj1: any, obj2: any, options?: ObjectCompareOpt
 	else {
 		if (isValueType(obj1) || isValueType(obj2)) {
 			// compare values
-			return (options?.compareValues || compareValues)(obj1, obj2, options);
+			return (options.compareValues || compareValues)(obj1, obj2, options);
 		}
 		else {
 			// compare objects
 			// check all keys in alphabetical order for proper comparison (not the order of definition, but the order by name)
 			const keys = sortArray(getDistinct([...Object.keys(obj1 as object), ...Object.keys(obj2 as object)]));
-			const compareObj = options?.compareObjects || ((t1, t2, t3) => compareObjects_default(t1, t2, t3));
+			const compareObj = options.compareObjects || compareObjects_default;
 
 			for (const key of keys) {
 				const result = compareObj(obj1[key], obj2[key], options);
@@ -109,12 +109,12 @@ function compareObjects_default(obj1: any, obj2: any, options?: ObjectCompareOpt
 REACT_SIMPLE_UTIL.DI.object.compareObjects = compareObjects_default;
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-export function compareObjects(obj1: any, obj2: any, options?: ObjectCompareOptions): CompareReturn {
-	return REACT_SIMPLE_UTIL.DI.object.compareObjects(obj1, obj2, options || {}, compareObjects_default);
+export function compareObjects(obj1: any, obj2: any, options: ObjectCompareOptions = {}): CompareReturn {
+	return REACT_SIMPLE_UTIL.DI.object.compareObjects(obj1, obj2, options, compareObjects_default);
 }
 
 // member names always compared case-sensitive
-function sameObjects_default(obj1: any, obj2: any, options?: ObjectCompareOptions<boolean>): boolean {
+function sameObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions<boolean> = {}): boolean {
 	if (obj1 === obj2) {
 		return true;
 	}
@@ -126,10 +126,10 @@ function sameObjects_default(obj1: any, obj2: any, options?: ObjectCompareOption
 	}
 	else {
 		if (isValueType(obj1) || isValueType(obj2)) {
-			return (options?.compareValues || sameValues)(obj1, obj2, options);
+			return (options.compareValues || sameValues)(obj1, obj2, options);
 		}
 		else {
-			const compare = options?.compareObjects || ((t1, t2, t3) => sameObjects_default(t1, t2, t3));
+			const compare = options.compareObjects || sameObjects_default;
 
 			// check keys of obj1
 			for (const [key, value1] of Object.entries(obj1 as object)) {
@@ -156,8 +156,8 @@ function sameObjects_default(obj1: any, obj2: any, options?: ObjectCompareOption
 REACT_SIMPLE_UTIL.DI.object.sameObjects = sameObjects_default;
 
 // member names always compared case-sensitive
-export function sameObjects(obj1: any, obj2: any, options?: ObjectCompareOptions<boolean>): boolean {
-	return REACT_SIMPLE_UTIL.DI.object.sameObjects(obj1, obj2, options || {}, sameObjects_default);
+export function sameObjects(obj1: any, obj2: any, options: ObjectCompareOptions<boolean> = {}): boolean {
+	return REACT_SIMPLE_UTIL.DI.object.sameObjects(obj1, obj2, options, sameObjects_default);
 }
 
 // Be careful to not change value type in transform(). Shallow map, not a deep map of all children. Use deepCopyObject() to deep copy/transform.
@@ -254,11 +254,11 @@ function getObjectChildMemberRootObjAndPath(
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has the member to be set or get. (Returned 'name' is the last part of 'path'.)
-function getObjectChildMember_default<RootObj extends object>(
+function getObjectChildMember_default<ValueType = unknown, RootObj extends object = any>(
 	rootObj: RootObj,
 	fullQualifiedName: ValueOrArray<string>,
-	options: GetObjectChildMemberOptions = {}
-): GetObjectChildMemberReturn<RootObj> {
+	options: GetObjectChildMemberOptions<ValueType> = {}
+): GetObjectChildMemberReturn<ValueType, RootObj> {
 	const prep = getObjectChildMemberRootObjAndPath(rootObj, fullQualifiedName, options);
 	let obj = prep.obj;
 	const path = prep.path;
@@ -304,12 +304,11 @@ function getObjectChildMember_default<RootObj extends object>(
 			else if (i === 0) {
 				// [index] only
 				const index = memberName.substring(1, memberName.length - 1);
-
-				child = obj[index];
+				child = getValue(obj, index, options);
 
 				if (child === undefined || child === null) {
 					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
-					obj[index] = child; // create missing item in array
+					setValue(obj, index, child, options); // create missing item in array
 				}
 			}
 			else {
@@ -324,11 +323,11 @@ function getObjectChildMember_default<RootObj extends object>(
 					setValue(obj, name, array, options); // create missing child
 				}
 
-				child = array[index];
+				child = getValue(array,index, options);
 
 				if (child === undefined || child === null) {
 					child = path[memberNameIndex + 1].startsWith("[") ? [] : {};
-					array[index] = child; // create missing item in array
+					setValue(array, index, child, options); // create missing item in array
 				}
 			}
 
@@ -347,7 +346,7 @@ function getObjectChildMember_default<RootObj extends object>(
 	const memberName = path[path.length - 1];
 	const i = memberName.endsWith("]") ? memberName.lastIndexOf("[") : -1;
 	
-	// set value using path[length - 1] value
+	// set value using path[length - 1]
 	if (i < 0) {
 		// name only
 		return {
@@ -421,20 +420,12 @@ function getObjectChildMember_default<RootObj extends object>(
 				name: memberName,
 				fullQualifiedName: stringAppend(parentFullQualifiedName, memberName, ".")
 			},
-			getValue: () => obj[index],
-			setValue: value => {
-				obj[index] = value;
-				return true;
-			},
+			getValue: () => getValue(obj, index, options),
+			setValue: value => setValue(obj, index, value, options),
 			deleteMember: !isEmpty(indexNum)
-				? () => {
-					// set the new array instance in the parent obj
-					return !!parentObj && setValue(parentObj.obj, parentArray.name, arrayRemoveAt(obj, indexNum), options);
-				}
-				: () => {
-					delete obj[index];
-					return true;
-				}
+				// set the new array instance in the parent obj
+				? () => !!parentObj && setValue(parentObj.obj, parentArray.name, arrayRemoveAt(obj, indexNum), options)
+				: () => deleteMember(obj, index, options)
 		};
 	}
 }
@@ -445,10 +436,10 @@ REACT_SIMPLE_UTIL.DI.object.getObjectChildMember = getObjectChildMember_default;
 // Understands array indexes, for example: memberName1.memberName2[index].memberName3
 // Does not understand standalone indexes, for example: memberName1.memberName2.[index].memberName3
 // Returns the last object which has the member to be set or get. (Returned 'name' is the last part of 'path'.)
-export function getObjectChildMember<RootObj extends object>(
+export function getObjectChildMember<ValueType = unknown, RootObj extends object = any>(
 	rootObj: RootObj,
 	fullQualifiedName: ValueOrArray<string>,
-	options: GetObjectChildMemberOptions = {}
-): GetObjectChildMemberReturn<RootObj> {
+	options: GetObjectChildMemberOptions<ValueType> = {}
+): GetObjectChildMemberReturn<ValueType, RootObj> {
 	return REACT_SIMPLE_UTIL.DI.object.getObjectChildMember(rootObj, fullQualifiedName, options, getObjectChildMember_default);
 }

@@ -113,7 +113,7 @@ export function copyDictionary<In, Out>(
 function compareDictionaries_default<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options?: ObjectCompareOptions
+	options: ObjectCompareOptions = {}
 ): CompareReturn {
 	return compareObjects(dict1, dict2, options);
 }
@@ -124,16 +124,16 @@ REACT_SIMPLE_UTIL.DI.dictionary.compareDictionaries = compareDictionaries_defaul
 export function compareDictionaries<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options?: ObjectCompareOptions
+	options: ObjectCompareOptions = {}
 ): CompareReturn {
-	return REACT_SIMPLE_UTIL.DI.dictionary.compareDictionaries(dict1, dict2, options || {}, compareDictionaries_default);
+	return REACT_SIMPLE_UTIL.DI.dictionary.compareDictionaries(dict1, dict2, options, compareDictionaries_default);
 }
 
 // member names always compared case-sensitive
 function sameDictionaries_default<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options?: ObjectCompareOptions<boolean>
+	options: ObjectCompareOptions<boolean> = {}
 ): boolean {
 	return sameObjects(dict1, dict2, options);
 }
@@ -144,21 +144,21 @@ REACT_SIMPLE_UTIL.DI.dictionary.sameDictionaries = sameDictionaries_default;
 export function sameDictionaries<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options?: ObjectCompareOptions<boolean>
+	options: ObjectCompareOptions<boolean> = {}
 ): boolean {
-	return REACT_SIMPLE_UTIL.DI.dictionary.sameDictionaries(dict1, dict2, options || {}, sameDictionaries_default);
+	return REACT_SIMPLE_UTIL.DI.dictionary.sameDictionaries(dict1, dict2, options, sameDictionaries_default);
 }
 
 export function appendDictionary<Value>(
 	target: Record<string, Value>,
 	source: ValueOrArray<Record<string, Value>>,
-	options?: {
+	options: {
 		filter?: (value: Value, key: string) => boolean,
 		mapValue?: (value: Value, key: string) => Value,
 		mapEntry?: (entry: [string, Value]) => [string, Value]
-	}
+	} = {}
 ) {
-	const { filter, mapEntry, mapValue } = options || {};
+	const { filter, mapEntry, mapValue } = options;
 
 	for (const dict of getResolvedArray(source)) {
 		for (const [key, value] of Object.entries(dict)) {
@@ -180,11 +180,11 @@ export function appendDictionary<Value>(
 
 export function mergeDictionaries<Value>(
 	dicts: Record<string, Value>[],
-	options?: {
+	options: {
 		filter?: (value: Value, key: string) => boolean,
 		mapValue?: (value: Value, key: string) => Value,
 		mapEntry?: (entry: [string, Value]) => [string, Value]
-	}
+	} = {}
 ): Record<string, Value> {
 	const result: Record<string, Value> = {};
 	appendDictionary(result, dicts, options);
