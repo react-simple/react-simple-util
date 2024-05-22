@@ -1,5 +1,4 @@
 import { CULTURE_INFO, compareBooleans, formatBoolean, formatBooleanLocal, resolveBoolean, tryParseBoolean, tryParseBooleanLocal } from "utils";
-import { REACT_SIMPLE_UTIL } from "data";
 
 it('compareBooleans.less', () => {
 	expect(compareBooleans(false, true)).toBe(-1);
@@ -37,12 +36,24 @@ it('tryParseBoolean.false', () => {
 	expect(tryParseBooleanLocal("false")).toBe(false);
 });
 
+it('tryParseBoolean.undefiend', () => {
+	expect(tryParseBooleanLocal("xxx")).toBeUndefined();
+});
+
 it('tryParseBoolean.1', () => {
 	expect(tryParseBooleanLocal(1)).toBe(true);
 });
 
 it('tryParseBoolean.0', () => {
 	expect(tryParseBooleanLocal(0)).toBe(false);
+});
+
+it('tryParseBoolean.-1', () => {
+	expect(tryParseBooleanLocal(-1)).toBeUndefined();
+});
+
+it('tryParseBoolean.2', () => {
+	expect(tryParseBooleanLocal(-1)).toBeUndefined();
 });
 
 it('tryParseBoolean.yes', () => {

@@ -1,13 +1,15 @@
 import { REACT_SIMPLE_UTIL } from "data";
-import { compareBooleans, tryParseBoolean, tryParseBooleanLocalOrISO } from "./boolean";
-import { compareDates, sameDates, tryParseDate, tryParseDateLocalOrISO } from "./date";
-import { compareNumbers, tryParseFloat, tryParseFloatISO } from "./number";
+import { compareBooleans, formatBoolean, tryParseBoolean, tryParseBooleanLocalOrISO } from "./boolean";
+import { compareDates, formatDate, formatDateTime, sameDates, tryParseDate, tryParseDateLocalOrISO } from "./date";
+import { compareNumbers, formatNumber, tryParseFloat, tryParseFloatISO } from "./number";
 import { compareStrings, getComparableString, sameStrings, stringEndsWith, stringIncludes, stringStartsWith } from "./string";
 import {
-	CompareReturn, EvaluateValueBinaryOperatorOptions, EvaluateValueUnaryOperatorOptions, Nullable, ValueBinaryOperator,
-	ValueCompareOptions, ValueUnaryOperator
+	CompareReturn, DateTimeFormatOptions, EvaluateValueBinaryOperatorOptions, EvaluateValueUnaryOperatorOptions, Nullable, NumberFormatOptions,
+	ValueBinaryOperator, ValueCompareOptions, ValueOrArray, ValueType, ValueUnaryOperator
 } from "./types";
 import { isBoolean, isDate, isNumber, isNullOrUndefined, isEmpty } from "./common";
+import { CULTURE_INFO, CultureInfoBooleanFormat, CultureInfoDateFormat, CultureInfoNumberFormat } from "./localization";
+import { coalesce } from "./array";
 
 // compares the two values based on their recognized types.
 // considers undefined and null to be equal.
@@ -302,4 +304,171 @@ export function evaluateValueUnaryOperator<Value = unknown>(
 	options: EvaluateValueUnaryOperatorOptions = {}
 ): boolean {
 	return REACT_SIMPLE_UTIL.DI.value.evaluateValueUnaryOperator(value, operator, options, evaluateValueUnaryOperator_default);
+}
+
+function formatValue_default(
+	value: unknown,
+	// CultureInfo can be specified here for 'format'
+	format: {
+		dateFormat: Pick<CultureInfoDateFormat, "dateFormat" | "dateTimeFormat">,
+		numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
+		booleanFormat: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">
+	},
+	options: Pick<DateTimeFormatOptions, "utc"> & NumberFormatOptions & { dateTime?: boolean }
+): string {
+	return (
+		isEmpty(value) ? "" :
+			isNumber(value) ? formatNumber(value, format.numberFormat, options) :
+				isDate(value) ? (options.dateTime ? formatDateTime(value, format.dateFormat, options) : formatDate(value, format.dateFormat, options)) :
+					isBoolean(value) ? formatBoolean(value, format.booleanFormat) :
+						`${value}`
+	);
+}
+
+REACT_SIMPLE_UTIL.DI.value.formatValue = formatValue_default;
+
+export function formatValue(
+	value: unknown,
+	// CultureInfo can be specified here for 'format'
+	format: {
+		dateFormat: Pick<CultureInfoDateFormat, "dateFormat" | "dateTimeFormat">,
+		numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
+		booleanFormat: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">
+	},
+	options: Pick<DateTimeFormatOptions, "utc"> & NumberFormatOptions & { dateTime?: boolean } = {}
+): string {
+	return REACT_SIMPLE_UTIL.DI.value.formatValue(value, format, options, formatValue_default);
+}
+
+export function formatValueISO(
+	value: unknown,
+	options: Pick<DateTimeFormatOptions, "utc"> & NumberFormatOptions & { dateTime?: boolean } = {}
+): string {
+	return formatValue(value, CULTURE_INFO.ISO, options);
+}
+
+export function formatValueLocal(
+	value: unknown,
+	options: Pick<DateTimeFormatOptions, "utc"> & NumberFormatOptions & { dateTime?: boolean } = {}
+): string {
+	return formatValue(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT, options);
+}
+
+function tryParseValue_default(
+	value: unknown,
+	// CultureInfo can be specified here for 'format'
+	format: {
+		dateFormat: ValueOrArray<CultureInfoDateFormat>,
+		numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
+		booleanFormat: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>
+	},
+	options: {
+		forcedType?: "string" | "number" | "date" | "boolean" // type is recognized automatically by default, but it can be forced
+	}
+): ValueType | undefined {
+	if (isNullOrUndefined(value)) {
+		return undefined;
+	}
+	else if (isNumber(value)) {
+		switch (options.forcedType) {
+			case "boolean":
+				return tryParseBoolean(value, format.booleanFormat);
+			
+			case "string":
+				return undefined; // not formatting here, just parsing
+			
+			case "date":
+				return new Date(value);
+
+			// number, undefined
+			default:
+				return value;
+		}
+	}
+	else if (isBoolean(value)) {
+		switch (options.forcedType) {
+			case "number":
+				return value ? 1 : 0;
+
+			case "string":
+				return undefined; // not formatting here, just parsing
+
+			case "date":
+				return undefined;
+
+			// boolean, undefined
+			default:
+				return value;
+		}
+	}
+	else if (isDate(value)) {
+		switch (options.forcedType) {
+			case "number":
+				return value.getTime();
+
+			case "boolean":
+				return undefined;
+
+			case "string":
+				return undefined; // not formatting here, just parsing
+
+			// date, undefined
+			default:
+				return value;
+		}
+	}
+	else {
+		// value is string or not supported type
+		switch (options.forcedType) {
+			case "number":
+				return tryParseFloat(value, format.numberFormat);
+
+			case "boolean":
+				return tryParseBoolean(value, format.booleanFormat);
+
+			// string, undefined
+			default:
+				return coalesce<ValueType | undefined>(
+					tryParseDate(value, format.dateFormat),
+					tryParseFloat(value, format.numberFormat),					
+					tryParseBoolean(value, format.booleanFormat),
+					`${value}`
+				);
+		}
+	}
+}
+
+REACT_SIMPLE_UTIL.DI.value.tryParseValue = tryParseValue_default;
+
+export function tryParseValue(
+	value: unknown,
+	// CultureInfo can be specified here for 'format'
+	format: {
+		dateFormat: ValueOrArray<CultureInfoDateFormat>,
+		numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
+		booleanFormat: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>
+	},
+	options: {
+		forcedType?: "string" | "number" | "date" | "boolean" // type is recognized automatically by default, but it can be forced
+	} = {}
+): ValueType | undefined{
+	return REACT_SIMPLE_UTIL.DI.value.tryParseValue(value, format, options, tryParseValue_default);
+}
+
+export function tryParseValueISO(
+	value: unknown,
+	options: {
+		forcedType?: "string" | "number" | "date" | "boolean" // type is recognized automatically by default, but it can be forced
+	} = {}
+): ValueType | undefined {
+	return tryParseValue(value, CULTURE_INFO.ISO, options);
+}
+
+export function tryParseValueLocal(
+	value: unknown,
+	options: {
+		forcedType?: "string" | "number" | "date" | "boolean" // type is recognized automatically by default, but it can be forced
+	} = {}
+): ValueType | undefined{
+	return tryParseValue(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT, options);
 }

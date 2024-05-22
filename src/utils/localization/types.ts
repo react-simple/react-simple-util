@@ -26,6 +26,7 @@ export interface CultureInfoBooleanFormat {
 	readonly true_format: string;
 	readonly false_format: string;
 	readonly true_synonyms: string[]; // see tryParseBoolean(), must contain true_format, lowercase
+	readonly false_synonyms: string[]; // see tryParseBoolean(), must contain true_format, lowercase
 }
 
 export interface CultureInfo {

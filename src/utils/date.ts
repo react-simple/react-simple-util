@@ -18,7 +18,7 @@ export function sameDates(date1: Nullable<Date>, date2: Nullable<Date>): boolean
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-function tryParseDate_default(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
+function tryParseDate_default(value: unknown, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
 	if (!value) {
 		return undefined;
 	}
@@ -92,20 +92,20 @@ function tryParseDate_default(value: Date | string | number, formats: ValueOrArr
 
 REACT_SIMPLE_UTIL.DI.date.tryParseDate = tryParseDate_default;
 
-export function tryParseDate(value: Date | string | number, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
+export function tryParseDate(value: unknown, formats: ValueOrArray<CultureInfoDateFormat>): Date | undefined {
 	return REACT_SIMPLE_UTIL.DI.date.tryParseDate(value, formats, tryParseDate_default);
 }
 
 // uses REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT or the specified format/culture to parse
-export function tryParseDateISO(value: Date | string | number): Date | undefined {
+export function tryParseDateISO(value: unknown): Date | undefined {
 	return tryParseDate(value, DATE_FORMATS.ISO);
 }
 
-export function tryParseDateLocal(value: Date | string | number): Date | undefined {
+export function tryParseDateLocal(value: unknown): Date | undefined {
 	return tryParseDate(value, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat);
 }
 
-export function tryParseDateLocalOrISO(value: Date | string | number): Date | undefined {
+export function tryParseDateLocalOrISO(value: unknown): Date | undefined {
 	return tryParseDate(value, [DATE_FORMATS.ISO, REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.dateFormat]);
 }
 

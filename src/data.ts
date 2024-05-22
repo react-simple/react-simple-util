@@ -55,6 +55,8 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 		value: {
 			compareValues: stub,
 			sameValues: stub,
+			formatValue: stub,
+			tryParseValue: stub,
 			evaluateValueBinaryOperator: stub,
 			evaluateValueUnaryOperator: stub
 		}

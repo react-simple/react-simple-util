@@ -371,3 +371,7 @@ export const forEachReverse = <T>(arr: T[], callback: (item: T, index: number) =
 		callback(arr[i], i);
 	}
 };
+
+export const coalesce = <T>(...values: T[]) => {
+	return values.find(t => !isEmpty(t));
+};

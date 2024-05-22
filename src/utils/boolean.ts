@@ -25,7 +25,7 @@ export function resolveBoolean<Result>(
 // understands true, 1, yes, y, on, checked, enabled in different casing, string/number/boolean as TRUE
 function tryParseBoolean_default(
 	value: unknown,
-	formats: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms">>
+	formats: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>
 ): boolean | undefined {
 	if (value === false || value === 0) {
 		return false;
@@ -36,11 +36,22 @@ function tryParseBoolean_default(
 	else if (!isString(value)) {
 		return undefined;
 	}
-	else if (isArray(formats)) {
+	else {
 		const valueStr = value.trim().toLowerCase();
-		return formats.some(t => t.true_synonyms.includes(valueStr));
-	} else {
-		return (formats || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.booleanFormat).true_synonyms.includes(value.trim().toLowerCase());
+
+		if (isArray(formats)) {
+			return (
+				formats.some(t => t.true_synonyms.includes(valueStr)) ? true :
+					formats.some(t => t.false_synonyms.includes(valueStr)) ? false :
+						undefined
+			);
+		} else {
+			return (				
+				formats.true_synonyms.includes(valueStr) ? true :
+					formats.false_synonyms.includes(valueStr) ? false :
+						undefined
+			);
+		}
 	}
 }
 
@@ -49,7 +60,7 @@ REACT_SIMPLE_UTIL.DI.boolean.tryParseBoolean = tryParseBoolean_default;
 // understands true, 1, yes, y, on, checked, enabled in different casing, string/number/boolean as TRUE
 export function tryParseBoolean(
 	value: unknown,
-	formats: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms">>
+	formats: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>
 ): boolean | undefined {
 	return REACT_SIMPLE_UTIL.DI.boolean.tryParseBoolean(value, formats, tryParseBoolean_default);
 }
@@ -67,15 +78,17 @@ export function tryParseBooleanLocalOrISO(value: unknown): boolean | undefined {
 }
 
 function formatBoolean_default(value: boolean, format: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">): string {
-	return value
-		? (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.booleanFormat).true_format
-		: (format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.booleanFormat).false_format;
+	return value ? format.true_format : format.false_format;
 }
 
 REACT_SIMPLE_UTIL.DI.boolean.formatBoolean = formatBoolean_default;
 
-export const formatBoolean = (value: boolean, format: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">) => {
-	return REACT_SIMPLE_UTIL.DI.boolean.formatBoolean(value, format,formatBoolean_default);
+export const formatBoolean = (value: boolean, format?: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">) => {
+	return REACT_SIMPLE_UTIL.DI.boolean.formatBoolean(
+		value,
+		format || REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT.booleanFormat,
+		formatBoolean_default
+	);
 };
 
 export const formatBooleanISO = (value: boolean) => {
