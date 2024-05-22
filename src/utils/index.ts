@@ -7,7 +7,6 @@ export * from "./date";
 export * from "./dictionary";
 export * from "./function";
 export * from "./guid";
-export * from "./localization";
 export * from "./number";
 export * from "./object";
 export * from "./string";

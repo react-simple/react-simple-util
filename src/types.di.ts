@@ -1,9 +1,6 @@
-import { CultureInfoBooleanFormat, CultureInfoDateFormat, CultureInfoNumberFormat } from "./utils/localization/types";
 import {
-	CompareReturn, DateTimeFormatOptions, NumberFormatOptions, GetObjectChildMemberOptions, ObjectCompareOptions, StringCompareOptions,
-	ValueCompareOptions, ValueOrArray, GetObjectChildMemberReturn, Nullable, EvaluateValueBinaryOperatorOptions, ValueBinaryOperator,
-	ValueUnaryOperator, EvaluateValueUnaryOperatorOptions,
-	ValueType
+	CompareReturn, GetObjectChildMemberOptions, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, ValueOrArray,
+	GetObjectChildMemberReturn, Nullable, EvaluateValueBinaryOperatorOptions, ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
@@ -24,42 +21,6 @@ export interface ReactSimpleUtilDependencyInjection {
 		) => boolean;
 	};
 
-	boolean: {
-		tryParseBoolean: (
-			value: unknown,
-			formats: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>,
-			defaultImpl: ReactSimpleUtilDependencyInjection["boolean"]["tryParseBoolean"]
-		) => boolean | undefined;
-
-		formatBoolean: (
-			value: boolean,
-			format: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">,
-			defaultImpl: ReactSimpleUtilDependencyInjection["boolean"]["formatBoolean"]
-		) => string;
-	};
-
-	date: {
-		tryParseDate: (
-			value: unknown,
-			formats: ValueOrArray<CultureInfoDateFormat>,
-			defaultImpl: ReactSimpleUtilDependencyInjection["date"]["tryParseDate"]
-		) => Date | undefined;
-
-		formatDate: (
-			value: Date,
-			format: Pick<CultureInfoDateFormat, "dateFormat">,
-			options: Pick<DateTimeFormatOptions, "utc">,
-			defaultImpl: ReactSimpleUtilDependencyInjection["date"]["formatDate"]
-		) => string;
-
-		formatDateTime: (
-			value: Date,
-			format: Pick<CultureInfoDateFormat, "dateTimeFormat">,
-			options: DateTimeFormatOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["date"]["formatDateTime"]
-		) => string;
-	};
-
 	dictionary: {
 		compareDictionaries: <Value>(
 			dict1: Record<string, Value>,
@@ -74,21 +35,6 @@ export interface ReactSimpleUtilDependencyInjection {
 			options: ObjectCompareOptions<boolean>,
 			defaultImpl: ReactSimpleUtilDependencyInjection["dictionary"]["sameDictionaries"]
 		) => boolean;
-	};
-
-	number: {
-		tryParseFloat: (
-			value: unknown,
-			format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-			defaultImpl: ReactSimpleUtilDependencyInjection["number"]["tryParseFloat"]
-		) => number | undefined;
-
-		formatNumber: (
-			value: number,
-			format: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-			options: NumberFormatOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["number"]["formatNumber"]
-		) => string;
 	};
 
 	object: {
@@ -150,32 +96,6 @@ export interface ReactSimpleUtilDependencyInjection {
 			options: ValueCompareOptions<Value, boolean>,
 			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["sameValues"]
 		) => boolean;
-
-		formatValue: (
-			value: unknown,
-			// CultureInfo can be specified here for 'format'
-			format: {
-				dateFormat: Pick<CultureInfoDateFormat, "dateFormat" | "dateTimeFormat">,
-				numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-				booleanFormat: Pick<CultureInfoBooleanFormat, "true_format" | "false_format">
-			},
-			options: Pick<DateTimeFormatOptions, "utc"> & NumberFormatOptions & { dateTime?: boolean },
-			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["formatValue"]
-		) => string;
-
-		tryParseValue: (
-			value: unknown,
-			// CultureInfo can be specified here for 'format'
-			format: {
-				dateFormat: ValueOrArray<CultureInfoDateFormat>,
-				numberFormat: Pick<CultureInfoNumberFormat, "decimalSeparator" | "thousandSeparator">,
-				booleanFormat: ValueOrArray<Pick<CultureInfoBooleanFormat, "true_synonyms" | "false_synonyms">>
-			},
-			options: {
-				forcedType?: "string" | "number" | "date" | "boolean" // type is recognized automatically by default, but it can be forced
-			},
-			defaultImpl: ReactSimpleUtilDependencyInjection["value"]["tryParseValue"]
-		) => ValueType | undefined;
 
 		evaluateValueBinaryOperator: <Value = unknown>(
 			value1: Value,

@@ -1,8 +1,6 @@
 # React Simple! Utility Library
 Basic utility functions for React application development. This documentation is for version 0.5.0.
 Supports the following features:
-- Parsing and formatting number, date and boolean values using pre-defined (ISO, EN-US, HU) and custom cultures for localization and globalization. 
-Any format can be specified by using templates and regular expressions. 
 - Supports min/max decimal places, min digits, thousand separators, date/time formats in ISO or local format.
 - Equality and relational comparers for value types, arrays and dictionaries/objects; deep comparison with custom callbacks.
 - Iteration and deep copy helpers for arrays and dictionaries/objects with custom callbacks.
@@ -40,21 +38,13 @@ Members in the REACT_SIMPLE_UTIL object can be set to update the behavior of the
 - **LOG_LEVEL**: The current level of logging, can be set to 'error', 'warning', 'debug', 'info', or 'trace', see Log chapter below.
 - **log()**: Callback function which is used for logging. By default console logging is used.
 
-### REACT_SIMPLE_UTIL.CULTURE_INFO
-
-- Contains all pre-defined cultures: **ISO, EN-US, HU** atm.
-- Provides shortucts to all pre-defined **DATE_FORMATS, NUMBER_FORMATS** and **BOOLEAN_FORMATS**. 
-(For example: CULTURE_INFO.DATE_FORMATS.ISO is the same object as CULTURE_INFO.ISO.DATE_FORMAT.)
-- Contains the **CURRENT** and the **DEFAULT** cultures. The **CURRENT** culture can be set and it is used by all
-*parse...Local*() and *format...Local*() functions for dates, numbers and booleans (see later).
-
 ### REACT_SIMPLE_UTIL.CALL_CONTEXT
 - **LOG_LEVEL**: The default log level for call contexts. Can be overriden when creating contexts.
 
 ### REACT_SIMPLE_UTIL.DI
 
-Dependency injection references which will be called by the appropriate methods. For example **tryParseDate()** will 
-call **REACT_SIMPLE_UTIL.DI.date.tryParseDate**, so it can be easily replaced with a custom implementation. 
+Dependency injection references which will be called by the appropriate methods. For example **compareDates()** will 
+call **REACT_SIMPLE_UTIL.DI.date.compareDates**, so it can be easily replaced with a custom implementation. 
 The custom callback will be called with all parameters and a callback to the default implementation in case it only acts as a wrapper.
 
 # Content
@@ -106,7 +96,6 @@ Order of priority: [error, warning, debug, info, trace]
 - **DatePart**: Date part specified for date handling functions (year/month/day/hour/minute/second/millisecond).
 - **Guid**: Type notation for GUID values (it's a string)
 - **StringCompareOptions**: String comparison supports trimming and case insensitive comparison
-- **NumberFormatOptions, DateFormatOptions, BooleanFormatOptions**: Parameters for formatting and parsing values.
 - **CompareReturn**: Return value for relational comparison (-1, 0, 1).
 - **ContentType, ContentTypeCategory**: Values of different HTML content types and extensions are defined in CONTENT_TYPE and in CONTENT_TYPES by category (documents, images etc.)
 - **StateSetter&lt;*State*&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
@@ -118,17 +107,6 @@ by providing the full qualified name of the member in the object tree ("name.nam
 Provides iteration details and get, set and delete accessors (callbacks) for the given member in the object tree.
 - **ArrayIterationNode&lt;*Item*&gt;**: Iteration object passed to callback functions when iterating object trees depth-first or breadth-first.
 - **ValueBinaryOperator, ValueUnaryOperator**: Supported operators for custom operator evaluation.
-
-#### CultureInfo (DateTimeFormat, NumberFormat, BooleanFormat)
-
-Formatting specifiers for localization and globalization.
-
-- **DATE_FORMATS, NUMBER_FORMATS, BOOLEAN_FORMATS** and **CULTURE_INFO** contains predefined formats (**ISO, EN-US, HU** atm.),
-but additional formats can be defined.
-- **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** can be set to the desired default culture (EN-US by default).
-- Formatting functions have *default*, *local* and *ISO* variants: *tryParseNumber*(), *tryParseNumberLocal*(), *tryParseNumberISO*()).
-- The local version uses the CURRENT culture and the default version requies a format/culture parameter.
-- For dates and booleans multiple formats can be specified simoultaneously and the matching one will be recognized automatically.
 
 ### Functions
 
@@ -159,20 +137,12 @@ or depth-first. Uses the provided **getChildren()** method for the iteration and
 
 - **compareArrays(), sameArrays()**: For all types we have comparison functions returning [-1, 0, 1] and equality checks. In case of arrays the comparison is shallow,
 items are compared by using *compareValues*() and not *compareObjects*() by default, but a custom comparer can be specified. 
-Custom callback, string processing options (*ignoreCase, trim*) and *cultureInfo* can be specified in **ObjectComparisonOptions**.
 
 #### Boolean
 
 ##### Boolean Comparison
 
 - **compareBoolean()**: Compares boolean values and returns [-1, 0, 1].
-
-##### Boolean Localization
-
-- **tryParseBoolean(), tryParseBooleanLocal(), tryParseBooleanISO()**: While *tryParseBoolean*() expects the format parameter (see CULTURE_INFO and BOOLEAN_FORMATS),
-*tryParseBooleanLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseBooleanISO*() is using **BOOLEAN_FORMATS.ISO**.
-- **formateBoolean(), formatBooleanLocal(), formatBooleanISO()**: Format boolean values using specific formats. *formatBoolean*() expects the format parameter,
-*formatBooleanLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatBooleanISO*() uses **BOOLEAN_FORMATS.ISO**.
 
 #### Call Context
 
@@ -194,15 +164,6 @@ the context will be closed automatically.
 ##### Date Comparison
 
 - **compareDates(), sameDates()**: Compare specified date values (*compareDates*() returns [-1, 0, 1], while *sameDates*() returns true/false)
-
-##### Date Localization
-
-- **tryParseDate(), tryParseDateLocal(), tryParseDateISO(), tryParseDateLocalOrISO()**: While *tryParseDate*() expects the format parameter (see CULTURE_INFO and DATE_FORMATS),
-*tryParseDateLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseDateISO*() is using **DATE_FORMATS.ISO**.
-Multiple formats can be used simoultaneously (regular expressions) and the recognized one will be used.
-- **formateDate(), formatDateLocal(), formatDateISO()**: Format dates without time portion using specific formats. *formatDate*() expects the format parameter,
-*formatDateLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatDateISO*() uses **DATE_FORMATS.ISO**.
-- **formateDateTime(), formatDateTimeLocal(), formatDateTimeISO()**: Same as *formatDate*() methods but supports the time portion.
 
 #### Dictionary (associative array)
 
@@ -229,13 +190,6 @@ but a custom comparer can be specified. Also supports **StringCompareOptions**.
 
 - **compareNumbers()**: Compares numbers and returns [-1, 0, 1]
 
-##### Number Localization
-
-- **tryParseNumber(), tryParseNumberLocal(), tryParseNumberISO()**: While *tryParseNumber*() expects the format parameter (see CULTURE_INFO and NUMBER_FORMATS),
-*tryParseNumberLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseNumberISO*() is using **NUMBER_FORMATS.ISO**.
-- **formateNumber(), formatNumberLocal(), formatNumberISO()**: Format numbers using specific formats. *formatNumber*() expects the format parameter,
-*formatNumberLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatNumberISO*() uses **NUMBER_FORMATS.ISO**.
-
 #### Object
 
 - **removeKeys(), mapObject(), deepCopyObject()**: Helper methods for objects
@@ -252,29 +206,13 @@ but a custom comparer can be specified. Also supports **StringCompareOptions**.
 - **compareObjects(), sameObjects()**: For all types we have comparison functions returning [-1, 0, 1] and equality checks.
 ***For objects the comparison is deep by default***, objects are compared by using *compareObjects*() and values are compared by using *compareValues*(),
 but custom comparers can be specified for both. 
-Custom callback, string processing options (*ignoreCase, trim*) and *cultureInfo* can be specified in **ObjectComparisonOptions**.
 
 #### Value (ValueType)
 
 ##### Value Comparison
 
 - **compareValues(), sameValues()**: Compare specified values (*compareValues*() returns [-1, 0, 1], while *sameValues*() returns true/false). 
-Supports ValueType types which are number, boolean, Date and string. Automatically tries to parse values if types are different using the default or 
-the passed CultureInfo.
-
-##### Value Localization
-
-- **tryParseValue(), tryParseValueLocal(), tryParseValueISO()**: While *tryParseValue*() expects the format parameter (see CULTURE_INFO),
-*tryParseValueLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseValueISO*() is using **CULTURE_INFO.ISO**.
-  - Multiple formats can be used simoultaneously (regular expressions) and the recognized one will be used. 
-  - Supports ValueType types which are number, boolean, Date and string.
-  - Automatically tries to detect the type or the format.
-  - If string was passed it tries to parse it as a Date, number or boolean using the current or the specified CultureInfo.
-  - Type can be forced in which case considers converting to that type only.
-  - See values.test.ts for examples.
-
-- **formateValue(), formatValueLocal(), formatValueISO()**: Format values using the appropriate *formatNumber(), formatDate()* or *formatBoolean()* methods.
-*formatValueLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatValueISO*() uses **CURRENT_FORMAT.ISO**.
+Supports ValueType types which are number, boolean, Date and string.
 
 # Links
 

@@ -1,4 +1,3 @@
-import { CULTURE_INFO } from "./utils/localization";
 import { ReactSimpleUtil } from "./types";
 
 // For depndency injection references. All stub references are set by the respective util files.
@@ -8,11 +7,6 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	LOGGING: {
 		LOG_LEVEL: "none",
 		log: stub // set by log/functions.ts
-	},
-
-	CULTURE_INFO: {
-		CURRENT: CULTURE_INFO["EN-US"],
-		DEFAULT: CULTURE_INFO["EN-US"]
 	},
 
 	CALL_CONTEXT: {
@@ -25,22 +19,9 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 			compareArrays: stub,
 			sameArrays: stub
 		},
-		boolean: {
-			tryParseBoolean: stub,
-			formatBoolean: stub
-		},
-		date: {
-			tryParseDate: stub,
-			formatDate: stub,
-			formatDateTime: stub
-		},
 		dictionary: {
 			compareDictionaries: stub,
 			sameDictionaries: stub
-		},
-		number: {
-			tryParseFloat: stub,
-			formatNumber: stub
 		},
 		object: {
 			compareObjects: stub,
@@ -55,8 +36,6 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 		value: {
 			compareValues: stub,
 			sameValues: stub,
-			formatValue: stub,
-			tryParseValue: stub,
 			evaluateValueBinaryOperator: stub,
 			evaluateValueUnaryOperator: stub
 		}

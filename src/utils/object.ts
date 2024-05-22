@@ -4,7 +4,6 @@ import {
 import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./common";
 import { compareValues, sameValues } from "./value";
 import { arrayRemoveAt, getDistinct, sortArray } from "./array";
-import { tryParseFloatISO } from "./number";
 import { REACT_SIMPLE_UTIL } from "data";
 import { stringAppend } from "./string";
 
@@ -364,7 +363,7 @@ function getObjectChildMember_default<ValueType = unknown, RootObj extends objec
 		// name[index], name.[index]
 		const name = memberName[i - 1] === "." ? memberName.substring(0, i - 1) : memberName.substring(0, i);
 		const index = memberName.substring(i + 1, memberName.length - 1);
-		const indexNum = tryParseFloatISO(index);
+		const indexNum = parseFloat(index);
 
 		let array = getValue(obj, name, options);
 
@@ -404,7 +403,7 @@ function getObjectChildMember_default<ValueType = unknown, RootObj extends objec
 	else {
 		// [index] only
 		const index = memberName.substring(1, memberName.length - 1);
-		const indexNum = tryParseFloatISO(index);
+		const indexNum = parseFloat(index);
 		const parentObj = parents[parents.length - 2]; // can be undefined
 		const parentArray = parents[parents.length - 1];
 

@@ -1,8 +1,8 @@
 import { Nullable, ValueType, ValueOrCallback, ValueOrCallbackWithArgs, ValueOrArray } from "./types";
 
-// Does not consider falsy values empty (zero, empty string)
+// Does not consider falsy values empty (zero, empty string). Considers NaN empty.
 export function isEmpty(value: unknown): value is undefined | null | '' {
-	return value === undefined || value === null || value === '';
+	return value === undefined || value === null || value === '' || (isNumber(value) && isNaN(value));
 }
 
 export function isNullOrUndefined(value: unknown): value is undefined | null {
