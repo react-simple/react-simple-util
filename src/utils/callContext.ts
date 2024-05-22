@@ -13,8 +13,8 @@ export interface CallContext<State = unknown> {
 };
 
 export interface CallContextReturn extends CallContext {
-  readonly completed: (error?: any) => void;
-  readonly run: <Result>(action: () => Result) => Result;
+  readonly complete: (error?: any) => void;
+  readonly run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
 };
 
 export let CALLCONTEXT_DATA: {
@@ -32,6 +32,7 @@ export function callContext<State = unknown>(
   logLevel?: LogLevel
 ): CallContextReturn {
   const contextId = newGuid();
+  let isCompleted = false;
     
   const context: CallContext<State> = {
     contextId,
@@ -46,7 +47,7 @@ export function callContext<State = unknown>(
     data: data as State
   };
 
-  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevelDefault;
+  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.LOG_LEVEL;
 
   if (logLevel) {
     logMessage(logLevel, `[CallContext] Started context '${contextKey}'`, { context, CALLCONTEXT_DATA });
@@ -60,8 +61,8 @@ export function callContext<State = unknown>(
     currentContext: context
   };
 
-  const completed: CallContextReturn["completed"] = (error?: any) => {
-    if (CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
+  const complete: CallContextReturn["complete"] = (error?: any) => {
+    if (!isCompleted && CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
       logWarning(
         `[CallContext]: Completed context${error ? " with error " : ""} '${contextKey}' ` +
         `while current context is another context '${CALLCONTEXT_DATA.currentContext?.contextKey}'.`,
@@ -76,22 +77,27 @@ export function callContext<State = unknown>(
       );
     }
 
-    CALLCONTEXT_DATA = {
-      allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
-      currentContext: context.parentContext
-    };
+    if (!isCompleted) {
+      CALLCONTEXT_DATA = {
+        allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
+        currentContext: context.parentContext
+      };
+    }
 
+    isCompleted = true;
     onCompleted?.(context, error);
   };
 
   const run: CallContextReturn["run"] = action => {
     try {
-      return action();
+      return action(err => complete(err));
     }
-    finally {
-      completed();
+    finally {     
+      if (!isCompleted) {
+        complete();
+      }
     }
   };
 
-  return { ...context, completed, run };
+  return { ...context, complete: complete, run };
 };

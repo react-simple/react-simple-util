@@ -4,8 +4,8 @@ import { ReactSimpleUtilDependencyInjection } from "types.di";
 
 export interface ReactSimpleUtil {
 	LOGGING: {
-		logLevel: LogLevel;
-		executeLog: LogImplementation; // set by log/functions.ts
+		LOG_LEVEL: LogLevel;
+		log: LogImplementation; // set by log/functions.ts
 	};
 
 	readonly CULTURE_INFO: {
@@ -14,7 +14,7 @@ export interface ReactSimpleUtil {
 	};
 
 	CALL_CONTEXT: {
-		logLevelDefault: LogLevel;
+		LOG_LEVEL: LogLevel;
 	},
 
 	// dependency injection; these methods are replacable with custom implementation

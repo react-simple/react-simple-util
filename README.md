@@ -1,5 +1,20 @@
 # React Simple! Utility Library
-Basic utility functions for React application development. This documentation is for version 0.4.0.
+Basic utility functions for React application development. This documentation is for version 0.5.0.
+Supports the following features:
+- Parsing and formatting number, date and boolean values using pre-defined (ISO, EN-US, HU) and custom cultures for localization and globalization. 
+Any format can be specified using templates and regular expressions. 
+Support for min/max decimal places, min digits, thousand separators, date/time formats in ISO or local format.
+- Equality and relational comparers for value types, arrays and dictionaries/objects; deep comparison with custom callbacks.
+- Iteration and deep copy helpers for arrays and dictionaries/objects with custom callbacks.
+- Guid support
+- Depth-first and breadth-first iteration helper
+- Child member accessor for objects using full qualified paths for getting, setting and deleting members supporting nested objects, arrays, 
+named references (@name) and root references (/).
+- Evaluation of unary and binary operators dynamically over values.
+- Content types and formats
+- Logging with different log levels
+- Call context support for embedding context objects (for logging or other purposes)
+- Dependency injection for pluggable architecture. All the important methods can be replaced with custom implementation by setting REACT_SIMPLE_UTIL.DI members.
 
 # Usage
 
@@ -22,7 +37,7 @@ Members in the REACT_SIMPLE_UTIL object can be set to update the behavior of the
 
 ### REACT_SIMPLE_UTIL.LOGGING
 - **LOG_LEVEL**: The current level of logging, can be set to 'error', 'warning', 'debug', 'info', or 'trace', see Log chapter below.
-- **LOG_IMPLEMENTATION**: Callback function which is used for logging. By default *logDefaultImplementation*() is set.
+- **log**: Callback function which is used for logging. By default *logDefaultImplementation*() is set.
 
 ### REACT_SIMPLE_UTIL.CULTURE_INFO
 
@@ -31,6 +46,15 @@ Members in the REACT_SIMPLE_UTIL object can be set to update the behavior of the
 (For example: CULTURE_INFO.DATE_FORMATS.ISO is the same object as CULTURE_INFO.ISO.DATE_FORMAT.)
 - Contains the **CURRENT** and the **DEFAULT** cultures. The **CURRENT** culture can be set and it is used by all
 *parse\*Local*() and *format\*Local*() functions for dates, numbers and booleans (see later).
+
+### REACT_SIMPLE_UTIL.CALL_CONTEXT
+- **LOG_LEVEL**: The default log level for call contexts. Can be overriden when creating contexts by calling **callContext()**.
+
+### REACT_SIMPLE_UTIL.DI
+
+Dependency injection references which will be called by the appropriate methods. For example **tryParseDate()** will 
+call **REACT_SIMPLE_UTIL.DI.date.tryParseDate**, so it can be easily replaced with a custom implementation. 
+The custom callback will be called with all parameters and a callback to the default implementation in case it only acts as a wrapper.
 
 # Content
 
@@ -69,25 +93,32 @@ Order of priority: [error, warning, debug, info, trace]
 ## Utils
 
 ### Types
-- **Writable&lt;T&gt;**: Returns new writable type to get rid of readonly specifiers
-- **Nullable&lt;T&gt;**: Returns new nullable type which can be undefined and null too
+- **Writable&lt;*T*&gt;**: Returns new writable type to get rid of readonly specifiers
+- **Nullable&lt;*T*&gt;**: Returns new nullable type which can be undefined and null too
 - **ObjectKey**: Returns type which can be used as a key for indexing objects (string, number, symbol)
 - **ValueType**: Returns type which covers all primitive/scalar types (string, number, boolean, Date)
-- **ValueOrCallback&lt;Value&gt;**: Generic type which corresponds to a concrete value or a parameterless callback function returning the value. See *getResolvedCallbackValue*().
-- **ValueOrCallbackWithArg&lt;Arg, Value&gt;**: Generic type which corresponds to a concrete value or a callback function with a single argument returning the value. See *getResolvedCallbackValueWithArg*().
-- **ValueOrArray&lt;Value&gt;** Generic type to express a value or an array of such values. See *getResolvedArray*().
+- **ValueOrCallback&lt;*Value*&gt;**: Generic type which corresponds to a concrete value or a parameterless callback function returning the value. See *getResolvedCallbackValue*().
+- **ValueOrCallbackWithArg&lt;*Arg, Value*&gt;**: Generic type which corresponds to a concrete value or a callback function with a single argument returning the value. See *getResolvedCallbackValueWithArg*().
+- **ValueOrArray&lt;*Value*&gt;** Generic type to express a value or an array of such values. See *getResolvedArray*().
 - **DatePart**: Date part specified for date handling functions (year/month/day/hour/minute/second/millisecond).
 - **Guid**: Type notation for GUID values (it's a string)
-- **StorybookComponent&lt;P&gt;**: Type for Storybook components with typed properties
 - **StringCompareOptions**: String comparison supports trimming and case insensitive comparison
+- **NumberFormatOptions, DateFormatOptions, BooleanFormatOptions**: Parameters for formatting and parsing values.
+- **CompareReturn**: Return value for relational comparison (-1, 0, 1).
+- **ContentType, ContentTypeCategory**: Values of different HTML content types and extensions are defined in CONTENT_TYPE and in CONTENT_TYPES by category (documents, images etc.)
+- **StateSetter&lt;*State*&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
+- **StateReturn&lt;*State*&gt;**: Return type for state management hooks ([*State*, *StateSetter*])
+- **StorybookComponent&lt;*P*&gt;**: Type for Storybook components with typed properties
+- **GetObjectChildMemberOptions&lt;*ValueType*&gt;**: Parameters for getting accessors for child members of objects hierarchially 
+by providing the full qualified name of the member in the object tree ("name.name[0].name" etc.) Named value (@name) and root (/) references are supported, also the hierarchical iteration can be customized by providing custom callbacks.
+- **GetObjectChildMemberReturn&lt;*ValueType, RootObj*&gt;, ObjectWithFullQualifiedName**: Return type for getting accessors for child members. 
+Provides iteration details and get, set and delete accessors (callbacks) for the given member in the object tree.
+- **ArrayIterationNode&lt;*Item*&gt;**: Iteration object passed to callback functions when iterating object trees depth-first or breadth-first.
+- **ValueBinaryOperator, ValueUnaryOperator**: Supported operators for custom operator evaluation.
 
-#### ContentType, ContentTypeCategory
+#### CultureInfo (DateTimeFormat, NumberFormat, BooleanFormat)
 
-Values of different HTML content types and extensions are defined in CONTENT_TYPE and in CONTENT_TYPES by category (documents, images etc.)
-
-#### CultureInfo (~DateTimeFormat, ~NumberFormat, ~BooleanFormat)
-
-Formatting specifiers for localization.
+Formatting specifiers for localization and globalization.
 
 - **DATE_FORMATS, NUMBER_FORMATS, BOOLEAN_FORMATS** and **CULTURE_INFO** contains predefined formats (**ISO, EN-US, HU** atm.),
 but additional formats can be defined.
@@ -96,11 +127,17 @@ but additional formats can be defined.
 - The local version uses the CURRENT culture and the default version requies a format/culture parameter.
 - For dates and booleans multiple formats can be specified simoultaneously and the matching one will be recognized automatically.
 
-### State
-- **StateSetter&lt;State&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
-- **StateReturn&lt;State&gt;**: Return type for state management hooks ([State, StateSetter])
-
 ### Functions
+
+#### Common
+- **isEmpty**: Returns wheter the passed value is null, undefined or empty string. Does not consider zero and false empty (different from 'falsy')
+- **resolveEmpty**: Substitutes empty values with replacement values. The replacement value can be a direct value or a callback function which will be called.
+- **isString, isNumber, isBoolean, isDate, isArray, isFunction, isValueType, isFile**: Type guards
+- **isEmptyObject**: Returns whether the passed object is an object with no keys (!Object.keys())
+- **getResolvedCallbackValue**: From values of type *ValueOrCallback*&lt;*Value*&gt; returns the resolved value (unchanged value or result of the callback function)
+- **getResolvedCallbackWithArgsValue**: From values of type *ValueOrCallbackWithArg*&lt;*Arg, Value*&gt; returns the resolved value (unchanged value or result of the callback function when called with *args*)
+- **getResolvedArray**: From values of type *ValueOrArray*&lt;*Value*&gt; returns the resolved array or array with a single value;
+supports custom *splitValue*() callback to split the parameter if it's a single value only and not an array already.
 
 #### Array
 - **range, rangeFromTo**: Functions to return range of numbers in an array
@@ -110,6 +147,10 @@ but additional formats can be defined.
 objects based on their specified member value (first occurent of an object with that member value is returned only).
 - **sortArray, sortArrayBy**: Sort arrays and return new arrays. Supports proper (shallow) comparison of all types by using *compareValues*() by default, but a
 custom comparer can be specified; for deep object comparison use *compareObjects*().
+- **recursiveIteration**: Iterates the array and the objects inside recursively. Processes the whole object tree either breadth-first (default), 
+or depth-first. Uses the provided **getChildren()** method for the iteration and will invoke the given **callback()** function for all items. 
+(Uses a queue so no recursive method calls will be made.)
+- **findMapped**: Finds the first matching item after mapping the items sequentially. Unlike the **filter(map())** construct it won't map all items first.
 
 ##### Array Comparison
 
@@ -129,6 +170,18 @@ items are compared by using *compareValues*() and not *compareObjects*() by defa
 - **formateBoolean, formatBooleanLocal, formatBooleanISO**: Format boolean values using specific formats. *formatBoolean*() expects the format parameter,
 *formatBooleanLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatBooleanISO*() uses **BOOLEAN_FORMATS.ISO**.
 
+#### Call Context
+
+Call context can be used to run code inside a context which contexts can be recursivelly embedded into each other and at every moment the 
+executed code can access the current context and also the custom data associated with the context. 
+Contexts must have a key and will have a generated guid ID assigned.
+
+- **CALLCONTEXT_DATA**: Contains all opened contexts and the current context. The current context contains all its parent contextes and 
+can contain custom data.
+- **callContext**: Creates a new context. The context must be closed by either calling the returned **complete(*error?*)** method 
+(usually in a try-catch-finally block) or the returned **run(*action*)** method can be used to execute code inside the context after which 
+the context will be closed automatically.
+
 #### Date
 
 - **getDate, getToday, getFirstDayOfMonth, getLastDayOfMonth, getDaysInMonth**: Various date query functions (*getDate*() and *getToday*() cuts of the time portion).
@@ -142,7 +195,7 @@ items are compared by using *compareValues*() and not *compareObjects*() by defa
 
 - **tryParseDate, tryParseDateLocal, tryParseDateISO, tryParseDateLocalOrISO**: While *tryParseDate*() expects the format parameter (see CULTURE_INFO and DATE_FORMATS),
 *tryParseDateLocal*() will automatically use **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *tryParseDateISO*() is using **DATE_FORMATS.ISO**.
-Multiple formats can be used simoultaneously (which are RegExps) and the recognized one will be used.
+Multiple formats can be used simoultaneously (regular expressions) and the recognized one will be used.
 - **formateDate, formatDateLocal, formatDateISO**: Format dates without time portion using specific formats. *formatDate*() expects the format parameter,
 *formatDateLocal*() uses **REACT_SIMPLE_UTIL.CULTURE_INFO.CURRENT** and *formatDateISO*() uses **DATE_FORMATS.ISO**.
 - **formateDateTime, formatDateTimeLocal, formatDateTimeISO**: Same as *formatDate*() methods but supports the time portion.
@@ -152,6 +205,7 @@ Multiple formats can be used simoultaneously (which are RegExps) and the recogni
 - **convertArrayToDictionary**: Converts the given array to a string dictionary (Record<string, T>) by using the given callback to get the keys and values of array items
 - **convertArrayToDictionary2**: Converts the given array to a two-level multi-keyyed string dictionary (Record<string, Record<string, T>>) by using the given callback to get the keys and values of array items
 - **iterateDictionary, filterDictionary, mapDictionary, copyDictionary**: Various helper methods to work with associative array
+- **mergeDictionaries, appendDictionary**: Merges (creates new) and appends (in-place) dictionaries.
 
 ##### Dictionary Comparison
 
@@ -160,7 +214,7 @@ In case of associative arrays the comparison is shallow, values are compared by 
 but a custom comparer can be specified. Also supports **StringCompareOptions**.
  
 #### Guid
-- **Constants**: EMPTY_GUID, GUID_LENGTH
+- **CONSTANTS**: EMPTY_GUID, GUID_LENGTH
 - **newGuid**: Returns new GUID value
 
 #### Number
@@ -181,23 +235,19 @@ but a custom comparer can be specified. Also supports **StringCompareOptions**.
 #### Object
 
 - **removeKeys, mapObject, deepCopyObject**: Helper methods for objects
-- **getObjectChildMemberValue, setObjectChildMemberValue, removeObjectChildMemberValue**:                                             
+- **mapObject, deepCopyObject**: Shallow maps an object or deep copies the entire object tree with custom callbacks.
+- **getObjectChildMember**: Returns accessors for a nested object member by parsing the provided full qualified name.
+  - Understands nested object (.), array ([n]), named (@name) or root object (/) references.
+  - Returns the details of the member with all its parents from the object tree and also the **getValue(), setValue()** and **deleteMember()** callbacks to update the member.
+  - In *options* custom **getValue, setValue** and **deleteMember** callbacks can be specified to navigate the object tree. For example, by default 
+  nested objects are accessed using the **parent[*childName*]** format, but it can be overriden by specifying a custom **options.getValue()** callback to 
+  return **parent.childNodes[*childName*]** for example, depending on the object model traversed.
 
 ##### Object Comparison
 
 - **compareObjects, sameObjects**: For all types we have comparison functions returning [-1, 0, 1] and equality checks.
 ***For objects the comparison is deep by default***, objects are compared by using *compareObjects*() and values are compared by using *compareValues*(),
 but custom comparers can be specified for both. Also supports **StringCompareOptions**.
-
-#### Typing
-- **isEmpty**: Returns wheter the passed value is null, undefined or empty string. Does not consider zero and false empty (different from 'falsy')
-- **resolveEmpty**: Substitutes empty values with replacement values. The replacement value can be a direct value or a callback function which will be called.
-- **isString, isNumber, isBoolean, isDate, isArray, isFunction, isValueType, isFile**: Type guards
-- **isEmptyObject**: Returns whether the passed object is an object with no keys (!Object.keys())
-- **getResolvedCallbackValue**: From values of type *ValueOrCallback*&lt;Value&gt; returns the resolved value (unchanged value or result of the callback function)
-- **getResolvedCallbackWithArgsValue**: From values of type *ValueOrCallbackWithArg*&lt;Arg, Value&gt; returns the resolved value (unchanged value or result of the callback function when called with *args*)
-- **getResolvedArray**: From values of type *ValueOrArray*&lt;Value&gt; returns the resolved array or array with a single value;
-supports custom *splitValue*() callback to split the parameter if it's a single value only and not an array already.
 
 # Links
 

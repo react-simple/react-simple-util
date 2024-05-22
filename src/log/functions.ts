@@ -2,41 +2,41 @@ import { REACT_SIMPLE_UTIL } from "data";
 import { LogLevel } from "./types";
 
 export const logTrace = (message: string, ...args: unknown[]) => {
-	if (REACT_SIMPLE_UTIL.LOGGING.logLevel === "trace") {
-		REACT_SIMPLE_UTIL.LOGGING.executeLog("trace", message, args);
+	if (REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "trace") {
+		REACT_SIMPLE_UTIL.LOGGING.log("trace", message, args);
 	}
 };
 
 export const logDebug = (message: string, ...args: unknown[]) => {
-	if (REACT_SIMPLE_UTIL.LOGGING.logLevel === "debug" || REACT_SIMPLE_UTIL.LOGGING.logLevel === "trace") {
-		REACT_SIMPLE_UTIL.LOGGING.executeLog("debug", message, args);
+	if (REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "debug" || REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "trace") {
+		REACT_SIMPLE_UTIL.LOGGING.log("debug", message, args);
 	}
 };
 
 export const logInfo = (message: string, ...args: unknown[]) => {
 	if (
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "info" ||
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "debug" ||
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "trace"
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "info" ||
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "debug" ||
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "trace"
 	) {
-		REACT_SIMPLE_UTIL.LOGGING.executeLog("info", message, args);
+		REACT_SIMPLE_UTIL.LOGGING.log("info", message, args);
 	}
 };
 
 export const logWarning = (message: string, ...args: unknown[]) => {
 	if (
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "info" ||
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "debug" ||
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "trace" ||
-		REACT_SIMPLE_UTIL.LOGGING.logLevel === "warning"
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "info" ||
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "debug" ||
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "trace" ||
+		REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL === "warning"
 	) {
-		REACT_SIMPLE_UTIL.LOGGING.executeLog("warning", message, args);
+		REACT_SIMPLE_UTIL.LOGGING.log("warning", message, args);
 	}
 };
 
 export const logError = (message: string, ...args: unknown[]) => {
-	if (REACT_SIMPLE_UTIL.LOGGING.logLevel !== "none") {
-		REACT_SIMPLE_UTIL.LOGGING.executeLog("error", message, args);
+	if (REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL !== "none") {
+		REACT_SIMPLE_UTIL.LOGGING.log("error", message, args);
 	}
 };
 
@@ -65,7 +65,7 @@ export const logMessage = (logLevel: LogLevel, message: string, ...args: unknown
 };
 
 // Init dependency injection
-REACT_SIMPLE_UTIL.LOGGING.executeLog = (logLevel, message, args) => {
+REACT_SIMPLE_UTIL.LOGGING.log = (logLevel, message, args) => {
 	switch (logLevel) {
 		case "info":
 			console.info(message, ...args);

@@ -21,7 +21,7 @@ it('callContext', () => {
 		expect(sameArrays([10, 20, 30], [])).toBe(true);
 	}
 	finally {
-		context.completed();
+		context.complete();
 	}
 });
 

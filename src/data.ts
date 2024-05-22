@@ -6,8 +6,8 @@ const stub: any = () => { };
 
 export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	LOGGING: {
-		logLevel: "none",
-		executeLog: stub // set by log/functions.ts
+		LOG_LEVEL: "none",
+		log: stub // set by log/functions.ts
 	},
 
 	CULTURE_INFO: {
@@ -16,7 +16,7 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	},
 
 	CALL_CONTEXT: {
-		logLevelDefault: "none"
+		LOG_LEVEL: "none"
 	},
 		
 	DI: {
