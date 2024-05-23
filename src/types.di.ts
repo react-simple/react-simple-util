@@ -1,12 +1,7 @@
-import { DeleteObjectChildMemberReturn } from "utils";
 import {
-	CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, ValueOrArray, Nullable, EvaluateValueBinaryOperatorOptions,
+	CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, Nullable, EvaluateValueBinaryOperatorOptions,
 	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions,
 } from "utils/types";
-import {
-	DeleteObjectChildMemberOptions, GetObjectChildMemberOptions, GetObjectChildMemberReturn, GetObjectChildValueOptions, GetObjectChildValueReturn,
-	SetObjectChildValueOptions, SetObjectChildValueReturn
- } from "utils/objectModel/types"
 
 export interface ReactSimpleUtilDependencyInjection {
 	// set by utils/array.ts
@@ -62,38 +57,6 @@ export interface ReactSimpleUtilDependencyInjection {
 			transformValue: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deepCopyObject"]
 		) => Obj;
-	};
-
-	objectModel: {
-		getObjectChildMember: <ValueType = unknown, RootObj extends object = any>(
-			rootObj: RootObj,
-			fullQualifiedName: ValueOrArray<string>,
-			createMissingObjects: boolean,
-			options: GetObjectChildMemberOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["objectModel"]["getObjectChildMember"]
-		) => GetObjectChildMemberReturn<ValueType, RootObj> | undefined;
-
-		getObjectChildValue: <RootObj extends object = any>(
-			rootObj: RootObj,
-			fullQualifiedName: ValueOrArray<string>,
-			options: GetObjectChildValueOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["objectModel"]["getObjectChildValue"]
-		) => GetObjectChildValueReturn;
-
-		setObjectChildValue: <RootObj extends object = any>(
-			rootObj: RootObj,
-			fullQualifiedName: ValueOrArray<string>,
-			value: unknown,
-			options: SetObjectChildValueOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["objectModel"]["setObjectChildValue"]
-		) => SetObjectChildValueReturn;
-
-		deleteObjectChildMember: <RootObj extends object = any>(
-			rootObj: RootObj,
-			fullQualifiedName: ValueOrArray<string>,
-			options: DeleteObjectChildMemberOptions,
-			defaultImpl: ReactSimpleUtilDependencyInjection["objectModel"]["deleteObjectChildMember"]
-		) =>DeleteObjectChildMemberReturn;
 	};
 
 	string: {

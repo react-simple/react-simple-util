@@ -6,8 +6,6 @@ Supports the following features:
 - Iteration and deep copy helpers for arrays and dictionaries/objects with custom callbacks.
 - Guid support
 - Depth-first and breadth-first iteration helper
-- Child member accessor for objects using full qualified paths for getting, setting and deleting members supporting nested objects (.), arrays ([n]), 
-named references (@name) and root references (/).
 - Evaluation of unary and binary operators dynamically over values
 - Content types and formats
 - Logging with different log levels (by default to the console, but injectable)
@@ -101,10 +99,6 @@ Order of priority: [error, warning, debug, info, trace]
 - **StateSetter&lt;*State*&gt;**: State setter callback for state management hooks (partial state can be set with a direct value or with the usage of a callback function)
 - **StateReturn&lt;*State*&gt;**: Return type for state management hooks ([*State*, *StateSetter*])
 - **StorybookComponent&lt;*P*&gt;**: Type for Storybook components with typed properties
-- **GetObjectChildMemberOptions&lt;*ValueType*&gt;**: Parameters for getting accessors for child members of objects hierarchially 
-by providing the full qualified name of the member in the object tree ("name.name[0].name" etc.) Named value (@name) and root (/) references are supported, also the hierarchical iteration can be customized by providing custom callbacks.
-- **GetObjectChildMemberReturn&lt;*ValueType, RootObj*&gt;, ObjectWithFullQualifiedName**: Return type for getting accessors for child members. 
-Provides iteration details and get, set and delete accessors (callbacks) for the given member in the object tree.
 - **ArrayIterationNode&lt;*Item*&gt;**: Iteration object passed to callback functions when iterating object trees depth-first or breadth-first.
 - **ValueBinaryOperator, ValueUnaryOperator**: Supported operators for custom operator evaluation.
 
@@ -194,12 +188,6 @@ but a custom comparer can be specified. Also supports **StringCompareOptions**.
 
 - **removeKeys(), mapObject(), deepCopyObject()**: Helper methods for objects
 - **mapObject(), deepCopyObject()**: Shallow maps an object or deep copies the entire object tree with custom callbacks.
-- **getObjectChildMember()**: Returns accessors for a nested object member by parsing the provided full qualified name.
-  - Understands nested object (.), array ([n]), named (@name) or root object (/) references.
-  - Returns the details of the member with all its parents from the object tree and also the **getValue(), setValue()** and **deleteMember()** callbacks to update the member.
-  - In *options* custom **getValue(), setValue()** and **deleteMember()** callbacks can be specified to navigate the object tree. For example, by default 
-  nested objects are accessed using the **parent[*childName*]** format, but it can be overriden by specifying a custom **options.getValue()** callback to 
-  return **parent.childNodes[*childName*]** for example, depending on the object model traversed.
 
 ##### Object Comparison
 

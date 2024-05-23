@@ -9,7 +9,6 @@ export * from "./function";
 export * from "./guid";
 export * from "./number";
 export * from "./object";
-export * from "./objectModel";
 export * from "./string";
 export * from "./types";
 export * from "./value";
