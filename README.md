@@ -1,5 +1,8 @@
 # React Simple! Utility Library
-Basic utility functions for React application development. This documentation is for version 0.5.0.
+Basic utility functions for React application development. 
+
+This documentation is for version 0.5.0.
+
 Supports the following features:
 - Supports min/max decimal places, min digits, thousand separators, date/time formats in ISO or local format.
 - Equality and relational comparers for value types, arrays and dictionaries/objects; deep comparison with custom callbacks.
