@@ -56,30 +56,27 @@ The custom callback will be called with all parameters and the default implement
 
 The **useForceUpdate()** hook returns a callback function to update the calling parent hook or component. It sets its internal state to trigger the forced update.
 
-This hook can also be used to selectively other components subscribed using the **useUpdateTarget(*targetId*)** hook by specifying one or more *targetId*-s.
-When updating components based on *targetId* also a notification message can be sent which is returned by the useUpdateTarget() hook when the subscribed component is updated.
+This hook can also be used to selectively update other components subscribed using the **useUpdateTarget(*targetId*)** hook by specifying one or more *targetId*-s. When updating components using *targetId* a notification message can be sent which is returned by the useUpdateTarget() hook when the subscribed component gets updated.
 
 ### useUniqueId()
 The **useUniqueId()** hook can be used to generate global unique identifiers. By default it returns a new GUID value, but it also supports appending prefix and suffix to it with the default '_' separator or using a custom separator. The generated ID value is stored in state.
 
 ## Log
 
-Depending on the **REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL** value the below functions will log to the console by default or use whatever logging callback is set in **REACT_SIMPLE_UTIL.LOGGING.log()**. When **LogLevel.error** is set only errors are logged, when **LogLevel.warning** is set errors and warnings are logged etc.
-
-Order of priority: error, warning, debug, info, trace
+Depending on the **REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL** value the below functions will log to the console by default or use whatever logging callback is set in **REACT_SIMPLE_UTIL.LOGGING.log()**. When **LogLevel.error** is set only errors are logged, when **LogLevel.warning** is set errors and warnings are logged etc. Order of priority: *error, warning, debug, info, trace*
 
 ### Types
 
-- **LogLevel**: The current level of logging, can be set in REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL to error, warning, debug, info, or trace.
+- **LogLevel**: The current level of logging, can be set in REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL to *error, warning, debug, info* or *trace*.
 
 ### Functions
 
-- **logError(*message, args*)**: Logs errors to the console if LOG_LEVEL is set to error, warning, debug, info or trace
-- **logWarning(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to warning, debug, info or trace
-- **logDebug(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to debug, info or trace
-- **logInfo(*message, args*)**: Logs information to the console if LOG_LEVEL is set to info or trace
-- **logTrace(*message, args*)**: Logs trace information to the console if LOG_LEVEL is set to trace
-- **logMessage(*logLevel, message, args*)**: Expects the *logLevel* argument to specify which above method should be called
+- **logError(*message, args*)**: Logs errors to the console if LOG_LEVEL is set to *error, warning, debug, info* or *trace*
+- **logWarning(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to *warning, debug, info* or *trace*
+- **logDebug(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to *debug, info* or *trace*
+- **logInfo(*message, args*)**: Logs information to the console if LOG_LEVEL is set to *info* or *trace*
+- **logTrace(*message, args*)**: Logs trace information to the console if LOG_LEVEL is set to *trace*
+- **logMessage(*logLevel, message, args*)**: Calls one of the above methods based on the *logLevel* argument
 
 ## Utils
 
