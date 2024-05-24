@@ -14,7 +14,7 @@ Supports the following features:
 - **Call context** support for hierarchically embedding code blocks and accessing current context and context history from embedded code
 - Forced **update of subscribed components** from other components which allows fine tuning React updates and provides a way for inter-component communication. For flux-like global state check the **useGlobalState()** hook in the **react-simple-state** package which along with React context provides a great alternative to the boilerplate heavy Redux.
 - **Dependency injection** for pluggable architecture. All the important methods can be replaced with custom implementation by setting **REACT_SIMPLE_UTIL.DI** members.
-- **Unit tests** for all fetaures
+- **Unit tests** for all features
 
 # Usage
 
