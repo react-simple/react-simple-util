@@ -15,6 +15,7 @@ export interface CallContext<State = unknown> {
 export interface CallContextReturn extends CallContext {
   readonly complete: (error?: any) => void;
   readonly run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
+  readonly runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
 };
 
 export let CALLCONTEXT_DATA: {
@@ -99,5 +100,16 @@ export function callContext<State = unknown>(
     }
   };
 
-  return { ...context, complete: complete, run };
+  const runAsync: CallContextReturn["runAsync"] = async action => {
+    try {
+      return await action(err => complete(err));
+    }
+    finally {
+      if (!isCompleted) {
+        complete();
+      }
+    }
+  };
+
+  return { ...context, complete: complete, run, runAsync };
 };
