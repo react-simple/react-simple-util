@@ -1,7 +1,7 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { compareObjects, sameObjects } from "./object";
 import { CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueOrArray } from "./types";
-import { getResolvedArray, isArray } from "./common";
+import { getResolvedArray, isArray, isEmpty } from "./common";
 
 export function convertArrayToDictionary<Item, Value>(
 	array: Item[],
@@ -79,8 +79,8 @@ export function mapDictionaryEntries<In, Out>(
 	const result: Record<string, Out> = {};
 
 	iterateDictionary(dict, entry => {
-		const newEntry = map(entry);
-		result[newEntry[0]] = newEntry[1];
+		const [key, value] = map(entry);
+		result[key] = value;
 	});
 
 	return result;
@@ -155,24 +155,28 @@ export function appendDictionary<Value>(
 	options: {
 		filter?: (value: Value, key: string) => boolean,
 		mapValue?: (value: Value, key: string) => Value,
-		mapEntry?: (entry: [string, Value]) => [string, Value]
+		mapEntry?: (entry: [string, Value]) => [string, Value],
+		mergeEntry?: (entry: [string, Value], oldValue: Value) => [string, Value],
 	} = {}
 ) {
-	const { filter, mapEntry, mapValue } = options;
+	const { filter, mapEntry, mapValue, mergeEntry } = options;
 
 	for (const dict of getResolvedArray(source)) {
 		for (const [key, value] of Object.entries(dict)) {
 			if (!filter || filter(value, key)) {
-				if (mapEntry) {
-					const newEntry = mapEntry([key, value]);
-					target[newEntry[0]] = newEntry[1];
+				let newEntry: [string, Value] = mapEntry
+					? mapEntry([key, value])
+					: [key, mapValue ? mapValue(value, key) : value];
+				
+				if (mergeEntry) {
+					const oldValue = target[key];
+
+					if (oldValue !== undefined) {
+						newEntry = mergeEntry(newEntry, oldValue);
+					}
 				}
-				else if (mapValue) {
-					target[key] = mapValue(value, key);
-				}
-				else {
-					target[key] = value;
-				}
+
+				target[newEntry[0]] = newEntry[1];
 			}
 		}
 	}
@@ -183,7 +187,8 @@ export function mergeDictionaries<Value>(
 	options: {
 		filter?: (value: Value, key: string) => boolean,
 		mapValue?: (value: Value, key: string) => Value,
-		mapEntry?: (entry: [string, Value]) => [string, Value]
+		mapEntry?: (entry: [string, Value]) => [string, Value],
+		mergeEntry?: (entry: [string, Value], oldValue: Value) => [string, Value],
 	} = {}
 ): Record<string, Value> {
 	const result: Record<string, Value> = {};
