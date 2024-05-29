@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { Meta } from '@storybook/react';
 import { useForceUpdate, useUpdateTarget } from './useForceUpdate';
 import { StorybookComponent, newGuid } from 'utils';

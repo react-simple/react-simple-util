@@ -84,4 +84,4 @@ export function getResolvedArray <T>(valueOrArray: Nullable<T> | T[], splitValue
 				splitValue ? splitValue(valueOrArray) :
 					[valueOrArray]
 	);
-};
+}

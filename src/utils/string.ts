@@ -83,7 +83,7 @@ export const trimStart = (s: string, remove: ValueOrArray<string>, options: Stri
 	while (i > last) {
 		last = i;
 
-		for (let r of rarr) {
+		for (const r of rarr) {
 			while (i < s.length && s.startsWith(r, i)) {
 				i += r.length;
 			}
@@ -118,7 +118,7 @@ export const trimEnd = (s: string, remove: ValueOrArray<string>, options: String
 	while (i < last) {
 		last = i;
 
-		for (let r of rarr) {
+		for (const r of rarr) {
 			while (i >= 0 && s.endsWith(r, i)) {
 				i -= r.length;
 			}

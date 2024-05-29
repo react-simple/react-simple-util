@@ -10,13 +10,13 @@ export interface CallContext<State = unknown> {
   readonly parentContext: CallContext | undefined;
   readonly parentContexts: CallContext[];
   readonly data: State;
-};
+}
 
 export interface CallContextReturn extends CallContext {
   readonly complete: (error?: any) => void;
   readonly run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
   readonly runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
-};
+}
 
 export let CALLCONTEXT_DATA: {
   readonly allContexts: { [contextId: string]: CallContext };
@@ -112,4 +112,4 @@ export function callContext<State = unknown>(
   };
 
   return { ...context, complete: complete, run, runAsync };
-};
+}

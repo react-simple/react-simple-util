@@ -24,7 +24,7 @@ export const useForceUpdate = () => {
 				setTick(tick => (tick + 1) & 0x7fffffff);
 			}
 		},
-		[tick]);
+		[]);
 
 	return forceUpdate;
 };
@@ -58,6 +58,7 @@ export const useUpdateTarget = <NotificationMessage = unknown>(
 				delete UPDATE_TARGETS[targetId][uniqueId];
 			};
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]);
 
 	return state.message;
