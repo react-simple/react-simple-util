@@ -5,15 +5,18 @@ const stub: any = () => { };
 
 export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	LOGGING: {
-		LOG_LEVEL: "none",
-		log: stub // set by log/functions.ts
+		logLevel: "none",
 	},
 
 	CALL_CONTEXT: {
-		LOG_LEVEL: "none"
+		logLevel: "none"
 	},
 		
 	DI: {
+		logging: {
+			logMessage: stub,
+		},
+
 		// set by utils/array.ts
 		array: {
 			compareArrays: stub,

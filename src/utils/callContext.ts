@@ -48,7 +48,7 @@ export function callContext<State = unknown>(
     data: data as State
   };
 
-  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.LOG_LEVEL;
+  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevel;
 
   if (logLevel) {
     logMessage(logLevel, `[CallContext] Started context '${contextKey}'`, { context, CALLCONTEXT_DATA });

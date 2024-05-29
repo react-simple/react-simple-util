@@ -1,9 +1,19 @@
+import { LogLevel } from "log/types";
 import {
 	CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, Nullable, EvaluateValueBinaryOperatorOptions,
-	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions,
+	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions, ValueOrCallback
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
+	logging: {
+		logMessage: (
+			logLevel: LogLevel,
+			message: ValueOrCallback<string>,
+			args: ValueOrCallback<unknown>[],
+			defaultImpl: ReactSimpleUtilDependencyInjection["logging"]["logMessage"]
+		) => void; 
+	};
+
 	// set by utils/array.ts
 	array: {
 		compareArrays: <T>(
