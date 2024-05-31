@@ -69,13 +69,6 @@ export interface ContentType {
 	readonly categories: ContentTypeCategory[];
 }
 
-export type StateSetter<State> = (
-	state: ValueOrCallbackWithArgs<State, Partial<State>>,
-	customMerge?: (oldState: State, newState: Partial<State>) => State
-) => State;
-
-export type StateReturn<State> = [State, StateSetter<State>];
-
 // just to have some typing here for args
 export interface StorybookComponent<P = never> {
 	(args: P): JSX.Element;

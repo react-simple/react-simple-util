@@ -1,7 +1,6 @@
 import { REACT_SIMPLE_UTIL } from "data";
 import { LogLevel } from "./types";
-import { ValueOrCallback } from "utils/types";
-import { getResolvedCallbackValue } from "utils/common";
+import { isFunction, isString } from "utils/common";
 
 // currentLogLevel default value is REACT_SIMPLE_LOG.LOG_LEVEL
 export const logMessageFilter = (messageLogLevel: LogLevel, currentLogLevel?: LogLevel) => {
@@ -25,30 +24,27 @@ export const logMessageFilter = (messageLogLevel: LogLevel, currentLogLevel?: Lo
 	}
 };
 
-const logMessage_default = (logLevel: LogLevel, message:ValueOrCallback<string>, ...args: ValueOrCallback<unknown>[]) => {
+const logMessage_default = (logLevel: LogLevel, message: string, ...args: unknown[]) => {
 	if (logMessageFilter(logLevel)) {
-		const messageResolved = getResolvedCallbackValue(message);
-		const argsResolved = args.map(t => getResolvedCallbackValue(t));
-		
 		switch (logLevel) {
 			case "trace":
-				logTrace(messageResolved, ...argsResolved);
+				console.trace(message, ...args);
 				break;
 
 			case "debug":
-				logDebug(messageResolved, ...argsResolved);
+				console.log(message, ...args);
 				break;
 
 			case "info":
-				logInfo(messageResolved, ...argsResolved);
+				console.info(message, ...args);
 				break;
 
 			case "warning":
-				logWarning(messageResolved, ...argsResolved);
+				console.warn(message, ...args);
 				break;
 
 			case "error":
-				logError(messageResolved, ...argsResolved);
+				console.error(message, ...args);
 				break;
 		}
 	}
@@ -56,26 +52,60 @@ const logMessage_default = (logLevel: LogLevel, message:ValueOrCallback<string>,
 
 REACT_SIMPLE_UTIL.DI.logging.logMessage = logMessage_default;
 
-export const logMessage = (logLevel: LogLevel, message: ValueOrCallback<string>, ...args: ValueOrCallback<unknown>[]) => {
-	REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, message, args, logMessage_default);
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logMessage = (
+	logLevel: LogLevel,
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
+	if (isString(message)) {
+		REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, message, args, logMessage_default);
+	}
+	else if (isFunction(message) && logMessageFilter(logLevel)) {
+		const result = message((t1, ...t2) => REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, t1, t2, logMessage_default));
+
+		if (isString(result)) {
+			REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, result, args, logMessage_default);
+		}
+	}
 };
 
-export const logTrace = (message: string, ...args: unknown[]) => {
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logTrace = (
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
 	logMessage("trace", message, ...args);
 };
 
-export const logDebug = (message: string, ...args: unknown[]) => {
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logDebug = (
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
 	logMessage("debug", message, ...args);
 };
 
-export const logInfo = (message: string, ...args: unknown[]) => {
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logInfo = (
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
 	logMessage("info", message, ...args);
 };
 
-export const logWarning = (message: string, ...args: unknown[]) => {
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logWarning = (
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
 	logMessage("warning", message, ...args);
 };
 
-export const logError = (message: string, ...args: unknown[]) => {
+// message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
+export const logError = (
+	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
+	...args: unknown[]
+) => {
 	logMessage("error", message, ...args);
 };
