@@ -3,7 +3,8 @@ import { ReactSimpleUtilDependencyInjection } from "types.di";
 
 export interface ReactSimpleUtil {
 	LOGGING: {
-		logLevel: LogLevel;
+		logLevel: LogLevel; // for functions in react-simple-util
+		defaultLogLevel: LogLevel; // for log() calls which do not specify currentLogLevel (for your app)
 	};
 
 	CALL_CONTEXT: {

@@ -51,7 +51,12 @@ export function callContext<State = unknown>(
   logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevel;
 
   if (logLevel) {
-    logMessage(logLevel, `[CallContext] Started context '${contextKey}'`, { context, CALLCONTEXT_DATA });
+    logMessage(
+      logLevel,
+      `[CallContext] Started context '${contextKey}'`,
+      { context, CALLCONTEXT_DATA },
+      REACT_SIMPLE_UTIL.LOGGING.logLevel
+    );
   }
 
   CALLCONTEXT_DATA = {
@@ -67,14 +72,16 @@ export function callContext<State = unknown>(
       logWarning(
         `[CallContext]: Completed context${error ? " with error " : ""} '${contextKey}' ` +
         `while current context is another context '${CALLCONTEXT_DATA.currentContext?.contextKey}'.`,
-        { context, CALLCONTEXT_DATA }
+        { context, CALLCONTEXT_DATA },
+        REACT_SIMPLE_UTIL.LOGGING.logLevel
       );
     }
     else if (logLevel) {
       logMessage(
         logLevel,
         `[CallContext]: Completed context${error ? " with error" : ""} '${contextKey}'`,
-        { context, CALLCONTEXT_DATA }
+        { context, CALLCONTEXT_DATA },
+        REACT_SIMPLE_UTIL.LOGGING.logLevel
       );
     }
 

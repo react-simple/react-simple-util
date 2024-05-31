@@ -7,9 +7,10 @@ import {
 export interface ReactSimpleUtilDependencyInjection {
 	logging: {
 		logMessage: (
-			logLevel: LogLevel,
+			level: LogLevel,
 			message: string,
-			args: unknown[],
+			args: unknown,
+			currentLogLevel: LogLevel | undefined, // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 			defaultImpl: ReactSimpleUtilDependencyInjection["logging"]["logMessage"]
 		) => void; 
 	};

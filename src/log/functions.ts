@@ -3,10 +3,13 @@ import { LogLevel } from "./types";
 import { isFunction, isString } from "utils/common";
 
 // currentLogLevel default value is REACT_SIMPLE_LOG.LOG_LEVEL
-export const logMessageFilter = (messageLogLevel: LogLevel, currentLogLevel?: LogLevel) => {
-	const current = currentLogLevel || REACT_SIMPLE_UTIL.LOGGING.logLevel;
+export const logMessageFilter = (
+	logLevel: LogLevel,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
+) => {
+	const current = currentLogLevel || REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel;
 
-	switch (messageLogLevel) {
+	switch (logLevel) {
 		case "trace":
 			return current === "trace";
 
@@ -24,27 +27,32 @@ export const logMessageFilter = (messageLogLevel: LogLevel, currentLogLevel?: Lo
 	}
 };
 
-const logMessage_default = (logLevel: LogLevel, message: string, ...args: unknown[]) => {
-	if (logMessageFilter(logLevel)) {
-		switch (logLevel) {
+const logMessage_default = (
+	level: LogLevel,
+	message: string,
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
+) => {
+	if (logMessageFilter(level, currentLogLevel)) {
+		switch (level) {
 			case "trace":
-				console.trace(message, ...args);
+				console.trace(message, args);
 				break;
 
 			case "debug":
-				console.log(message, ...args);
+				console.log(message, args);
 				break;
 
 			case "info":
-				console.info(message, ...args);
+				console.info(message, args);
 				break;
 
 			case "warning":
-				console.warn(message, ...args);
+				console.warn(message, args);
 				break;
 
 			case "error":
-				console.error(message, ...args);
+				console.error(message, args);
 				break;
 		}
 	}
@@ -55,57 +63,63 @@ REACT_SIMPLE_UTIL.DI.logging.logMessage = logMessage_default;
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logMessage = (
 	logLevel: LogLevel,
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
 	if (isString(message)) {
-		REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, message, args, logMessage_default);
+		REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, message, args, currentLogLevel, logMessage_default);
 	}
 	else if (isFunction(message) && logMessageFilter(logLevel)) {
-		const result = message((t1, ...t2) => REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, t1, t2, logMessage_default));
+		const result = message((t1, t2, t3) => REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, t1, t2, t3 || currentLogLevel, logMessage_default));
 
 		if (isString(result)) {
-			REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, result, args, logMessage_default);
+			REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, result, args, currentLogLevel, logMessage_default);
 		}
 	}
 };
 
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logTrace = (
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
-	logMessage("trace", message, ...args);
+	logMessage("trace", message, args, currentLogLevel);
 };
 
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logDebug = (
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
-	logMessage("debug", message, ...args);
+	logMessage("debug", message, args, currentLogLevel);
 };
 
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logInfo = (
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
-	logMessage("info", message, ...args);
+	logMessage("info", message, args, currentLogLevel);
 };
 
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logWarning = (
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
-	logMessage("warning", message, ...args);
+	logMessage("warning", message, args, currentLogLevel);
 };
 
 // message can be a string or a callback function to return the message dynamically or to make arbitrary log calls
 export const logError = (
-	message: string | ((log: (message: string, ...args: unknown[]) => void) => string | void),
-	...args: unknown[]
+	message: string | ((log: (message: string, args?: unknown, currentLogLevel?: LogLevel) => void) => string | void),
+	args?: unknown,
+	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
-	logMessage("error", message, ...args);
+	logMessage("error", message, args, currentLogLevel);
 };
