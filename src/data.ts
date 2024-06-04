@@ -9,8 +9,10 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 		defaultLogLevel: "error" // for log() calls which do not specify currentLogLevel (for your app)
 	},
 
-	CALL_CONTEXT: {
-		logLevel: "error"
+	CALLCONTEXT: {
+		logLevel: "trace",
+		allContexts: {},
+		currentContext: undefined
 	},
 		
 	DI: {

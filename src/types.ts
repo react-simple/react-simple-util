@@ -1,5 +1,6 @@
 import { LogLevel } from "log/types";
 import { ReactSimpleUtilDependencyInjection } from "types.di";
+import { CallContext } from "utils/types";
 
 export interface ReactSimpleUtil {
 	LOGGING: {
@@ -7,8 +8,10 @@ export interface ReactSimpleUtil {
 		defaultLogLevel: LogLevel; // for log() calls which do not specify currentLogLevel (for your app)
 	};
 
-	CALL_CONTEXT: {
+	CALLCONTEXT: {
 		logLevel: LogLevel;
+		allContexts: { [contextId: string]: CallContext };
+		currentContext: CallContext | undefined;
 	},
 
 	// dependency injection; these methods are replacable with custom implementation

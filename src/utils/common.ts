@@ -73,7 +73,7 @@ export function getResolvedCallbackValue<Value>(valueOrFn: ValueOrCallback<Value
 	return isFunction(valueOrFn) ? valueOrFn() : valueOrFn;
 }
 
-export function getResolvedCallbackValueWithArgs<Value, Args>(valueOrFn: ValueOrCallbackWithArgs<Value, Args>, args: Args): Value {
+export function getResolvedCallbackValueWithArgs<Args, Value>(valueOrFn: ValueOrCallbackWithArgs<Args, Value>, args: Args): Value {
 	return (isFunction(valueOrFn) ? valueOrFn(args) : valueOrFn) as Value;
 }
 

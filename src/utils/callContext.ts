@@ -2,29 +2,7 @@ import { REACT_SIMPLE_UTIL } from "data";
 import { LogLevel, logMessage, logWarning } from "log";
 import { newGuid } from "./guid";
 import { removeKeys } from "./object";
-
-export interface CallContext<State = unknown> {
-  readonly contextId: string;
-  readonly contextKey: string;
-  readonly contextDepth: number;
-  readonly parentContext: CallContext | undefined;
-  readonly parentContexts: CallContext[];
-  readonly data: State;
-}
-
-export interface CallContextReturn extends CallContext {
-  readonly complete: (error?: any) => void;
-  readonly run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
-  readonly runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
-}
-
-export let CALLCONTEXT_DATA: {
-  readonly allContexts: { [contextId: string]: CallContext };
-  readonly currentContext: CallContext | undefined;
-} = {
-  allContexts: {},
-  currentContext: undefined
-};
+import { CallContext, CallContextReturn } from "./types";
 
 export function callContext<State = unknown>(
   contextKey: string,
@@ -34,45 +12,49 @@ export function callContext<State = unknown>(
 ): CallContextReturn {
   const contextId = newGuid();
   let isCompleted = false;
+  const { logLevel: callContextLogLevel, currentContext, allContexts } = REACT_SIMPLE_UTIL.CALLCONTEXT;
     
   const context: CallContext<State> = {
     contextId,
     contextKey,
-    parentContext: CALLCONTEXT_DATA.currentContext,
-    parentContexts: CALLCONTEXT_DATA.currentContext
-      ? [...CALLCONTEXT_DATA.currentContext.parentContexts, CALLCONTEXT_DATA.currentContext]
+    parentContext: currentContext,
+    parentContexts: currentContext
+      ? [...currentContext.parentContexts, currentContext]
       : [],
-    contextDepth: CALLCONTEXT_DATA.currentContext ?
-      CALLCONTEXT_DATA.currentContext.contextDepth + 1 :
+    contextDepth: currentContext ?
+      currentContext.contextDepth + 1 :
       0,
     data: data as State
   };
 
-  logLevel ||= REACT_SIMPLE_UTIL.CALL_CONTEXT.logLevel;
+  logLevel ||= callContextLogLevel;
 
   if (logLevel) {
     logMessage(
       logLevel,
       `[CallContext] Started context '${contextKey}'`,
-      { context, CALLCONTEXT_DATA },
+      { context, currentContext, allContexts },
       REACT_SIMPLE_UTIL.LOGGING.logLevel
     );
   }
 
-  CALLCONTEXT_DATA = {
+  REACT_SIMPLE_UTIL.CALLCONTEXT = {
+    ...REACT_SIMPLE_UTIL.CALLCONTEXT,
     allContexts: {
-      ...CALLCONTEXT_DATA.allContexts,
+      ...allContexts,
       [contextId]: context
     },
     currentContext: context
   };
 
-  const complete: CallContextReturn["complete"] = (error?: any) => {
-    if (!isCompleted && CALLCONTEXT_DATA.currentContext?.contextId !== contextId) {
+  const complete: CallContextReturn["complete"] = (error?: any) => {    
+    const { currentContext, allContexts } = REACT_SIMPLE_UTIL.CALLCONTEXT;
+
+    if (!isCompleted && currentContext?.contextId !== contextId) {
       logWarning(
         `[CallContext]: Completed context${error ? " with error " : ""} '${contextKey}' ` +
-        `while current context is another context '${CALLCONTEXT_DATA.currentContext?.contextKey}'.`,
-        { context, CALLCONTEXT_DATA },
+        `while current context is another context '${REACT_SIMPLE_UTIL.CALLCONTEXT.currentContext?.contextKey}'.`,
+        { context, currentContext, allContexts },
         REACT_SIMPLE_UTIL.LOGGING.logLevel
       );
     }
@@ -80,14 +62,15 @@ export function callContext<State = unknown>(
       logMessage(
         logLevel,
         `[CallContext]: Completed context${error ? " with error" : ""} '${contextKey}'`,
-        { context, CALLCONTEXT_DATA },
+        { context, currentContext, allContexts },
         REACT_SIMPLE_UTIL.LOGGING.logLevel
       );
     }
 
     if (!isCompleted) {
-      CALLCONTEXT_DATA = {
-        allContexts: removeKeys(CALLCONTEXT_DATA.allContexts, [contextId]),
+      REACT_SIMPLE_UTIL.CALLCONTEXT = {
+        ...REACT_SIMPLE_UTIL.CALLCONTEXT,
+        allContexts: removeKeys(allContexts, [contextId]),
         currentContext: context.parentContext
       };
     }

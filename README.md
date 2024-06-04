@@ -1,18 +1,17 @@
 # React Simple! Utility Library
 Basic utility functions for React application development. 
-
-This documentation is for version 0.5.0.
+This documentation is for version **0.6.3**.
 
 Supports the following features:
-- Equality and relational **comparers** for value types, arrays, dictionaries and objects; deep comparison customizable with callbacks.
+- Equality and relational **comparers** for value types (string, number, Date, boolean or any **ValueType**), arrays, dictionaries and objects; deep comparison customizable with callbacks.
 - **Iteration** and **deep copy** helpers for arrays, dictionaries and objects fully customizable with callbacks
 - Guid support
 - Depth-first and breadth-first **recursive iteration** helper
 - Unary and binary **operator evaluation** dynamically over values
 - **Content types** and formats
-- **Logging** with different log levels; by default to the console, but customizable with dependency injection
+- **Logging** with different log levels; by default to the console, but customizable with dependency injection. 
 - **Call context** support for hierarchically embedding code blocks and accessing current context and context history from embedded code
-- Forced **update of subscribed components** from other components which allows fine tuning React updates and provides a way for inter-component communication. For flux-like global state check the **useGlobalState()** hook in the **react-simple-state** package which along with React context provides a great alternative to the boilerplate heavy Redux.
+- **Forced update of subscribed components** from other components which allows fine tuning React updates and provides a way for inter-component communication. For flux-like global state check the **useGlobalState()** hook in the **react-simple-state** package which along with React context provides a great alternative to the boilerplate heavy Redux.
 - **Dependency injection** for pluggable architecture. All the important methods can be replaced with custom implementation by setting **REACT_SIMPLE_UTIL.DI** members.
 - See **Unit tests** for samples for all features
 
@@ -36,17 +35,23 @@ import { ... } from "@react-simple/react-simple-util";
 Members in the REACT_SIMPLE_UTIL object can be set to change the internal functions globally.
 
 ### REACT_SIMPLE_UTIL.LOGGING
-- **LOG_LEVEL**: The current level of logging, can be set to **error, warning, debug, info** or **trace** to filter log messages.
-- **log()**: Injectable callback function which is used for logging. By default console logging is used.
+- **logLevel**: The current level of logging, can be set to **error, warning, debug, info** or **trace** to filter log messages. 
+This values is used for all logging in this package. 
+- **defaultLogLevel**: The default log level for *log...*() calls without specifying the log level. The level of the logged message is compared against this value to decide if logging should occur or not.
 
-### REACT_SIMPLE_UTIL.CALL_CONTEXT
-- **LOG_LEVEL**: The default log level for call contexts. Can be overriden when creating contexts.
+By default logging is directed to the developer console, but it can be replaced by injecting a custom implementation into ***REACT_SIMPLE_UTIL.DI.logging.logMessage()**.
+
+### REACT_SIMPLE_UTIL.CALLCONTEXT
+
+- Contains all opened contexts and the current context. 
+- The current context contains all its parent contextes and their associated custom data. 
+- The log level controls the level of callcontext informative logging. By default it's **trace**.
 
 ### REACT_SIMPLE_UTIL.DI
 
 Dependency injection references which will be called by the appropriate methods.
 
-For example the **compareDates()** function will call the **REACT_SIMPLE_UTIL.DI.date.compareDates()** function, so it can be easily replaced with a custom implementation. 
+For example the **compareDates()** function will call the **REACT_SIMPLE_UTIL.DI.date.compareDates()** callback, so it can be easily replaced with a custom implementation. 
 The custom callback will be called with all parameters and the default implementation - **compareDates_default()** -, which makes wrapping the default behavior easier.
 
 # Content
@@ -63,20 +68,34 @@ The **useUniqueId()** hook can be used to generate global unique identifiers. By
 
 ## Log
 
-Depending on the **REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL** value the below functions will log to the console by default or use whatever logging callback is set in **REACT_SIMPLE_UTIL.LOGGING.log()**. When **LogLevel.error** is set only errors are logged, when **LogLevel.warning** is set errors and warnings are logged etc. Order of priority: *error, warning, debug, info, trace*
+Depending on the **REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel** value the below functions will log to the console by default or use whatever logging callback is set in **REACT_SIMPLE_UTIL.LOGGING.logMessage()**. When log level **error** is set only errors are logged, when log level **warning** is set errors and warnings are logged. Order of priority: **error, warning, debug, info, trace**.
 
-### Types
+- It's possible to specify the intended log level to *log...*() methods, to compare the level of the message against that log level instead of the configured one. 
+- Each of the *react-simple* packages has their own logLevel configuration value, so logging in packages can be enabled/disabled selectively. 
+- Any *log...*() calls without specifying the log level will use **REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel**.
+- Any methods in this package will call *log...*(..., *REACT_SIMPLE_UTIL.LOGGING.logLevel*) and any methods in the *react-simple-state* package for 
+will call *log...*(..., *REACT_SIMPLE_STATE.LOGGING.logLevel*)
 
-- **LogLevel**: The current level of logging, can be set in REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL to *error, warning, debug, info* or *trace*.
+### Configuration
+
+**REACT_SIMPLE_UTIL.LOGGING** has the following writable values:
+
+- **logLevel**: The current level of logging for this package.
+- **defaultLogLevel**: The default log level for *log...*() calls without speciyfing the log level. Intended for client/app code calls.
+
+
+### Dependency Injection
+
+Set the **REACT_SIMPLE_UTIL.DI.logging.logMessage()** callback to a custom implementation to replace the default implementation logging to the developer console.
 
 ### Functions
 
-- **logError(*message, args*)**: Logs errors to the console if LOG_LEVEL is set to *error, warning, debug, info* or *trace*
-- **logWarning(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to *warning, debug, info* or *trace*
-- **logDebug(*message, args*)**: Logs warnings to the console if LOG_LEVEL is set to *debug, info* or *trace*
-- **logInfo(*message, args*)**: Logs information to the console if LOG_LEVEL is set to *info* or *trace*
-- **logTrace(*message, args*)**: Logs trace information to the console if LOG_LEVEL is set to *trace*
-- **logMessage(*logLevel, message, args*)**: Calls one of the above methods based on the *logLevel* argument
+- **logError(*message, args, *currentLogLevel?*)**: Logs errors to the console if LOG_LEVEL is set to *error, warning, debug, info* or *trace*
+- **logWarning(*message, args, *currentLogLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *warning, debug, info* or *trace*
+- **logDebug(*message, args, *currentLogLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *debug, info* or *trace*
+- **logInfo(*message, args, *currentLogLevel?*)**: Logs information to the console if LOG_LEVEL is set to *info* or *trace*
+- **logTrace(*message, args, *currentLogLevel?*)**: Logs trace information to the console if LOG_LEVEL is set to *trace*
+- **logMessage(*logLevel, message, args, *currentLogLevel?*)**: Calls one of the above methods based on the *logLevel* argument
 
 ## Utils
 
@@ -118,12 +137,15 @@ Depending on the **REACT_SIMPLE_UTIL.LOGGING.LOG_LEVEL** value the below functio
 custom comparer can be specified; for deep object comparison use *compareObjects*().
 - **recursiveIteration()**: Iterates arrays and objects recursively. Processes the whole object tree either *breadth-first* (default) or *depth-first*. Uses the provided **getChildren()** method for the iteration and will invoke the given **callback()** function for all items. (Uses a queue and makes no recursive calls to avoid stack overflow errors.)
 - **findMapped()**: Finds the first matching item after mapping the items sequentially. Unlike the **filter(map())** construct it won't map all items first.
+- **forEachReverse()**: Reverse direction iteration 
+- **coalesce()**: Returns the first non-empty value, calls **isEmpty()**
 
 ##### Array Comparison
 
 - **compareArrays(), sameArrays()**: For all types we have comparison functions and equality checks. In case of arrays the comparison is shallow, items are compared by using **compareValues()** and not **compareObjects()** by default, but custom comparers can be used.  Supports **StringCompareOptions**.
 
 #### Boolean
+- **resolveBoolean()**: Converts a nullable boolean value to any other value
 
 ##### Boolean Comparison
 
@@ -135,7 +157,7 @@ Call context can be used to run code blocks inside hierarchically embedded conte
 the embedded code can access the current context, the data associated with the context, it's metadata (*level* for example), context history (all parents) and all open contexts.
 Contexts must have a key and will have a generated guid ID assigned.
 
-- **CALLCONTEXT_DATA**: Contains all opened contexts and the current context. The current context contains all its parent contextes and it's associated custom data.
+- **REACT_SIMPLE_UTIL.CALLCONTEXT**: Contains all opened contexts and the current context. The current context contains all its parent contextes and it's associated custom data. The log level controls the level of callcontext informative logging (by default it's "trace").
 - **callContext()**: Creates a new context. The context must be closed by either calling the returned **complete(*error?*)** method 
 (usually in a *try-catch-finally* block) or the returned **run(*action*)** or **runAsync(*action*)** methods can be used to execute code inside the context after which 
 the context will be closed automatically.
@@ -154,7 +176,7 @@ the context will be closed automatically.
 - **convertArrayToDictionary&lt;*T*&gt;()**: Converts the given array to a string dictionary (Record<string, *T*>) by using the given callback to get the keys and values from array items
 - **convertArrayToDictionary2()&lt;*T*&gt;**: Converts the given array to a two-level multi-keyyed string dictionary (Record<*string*, Record<*string, T*>>) by using the given callback to get the keys and values from array items
 - **iterateDictionary(), filterDictionary(), mapDictionary(), copyDictionary()**: Helper methods to work with associative arrays
-- **mergeDictionaries(), appendDictionary()**: Merge and append dictionaries (in-place or into a new dictionary)
+- **appendDictionary(), mergeDictionaries()**: Merge and append dictionaries in-place or into a new dictionary. Customizable with many callbacks.
 
 ##### Dictionary Comparison
 
