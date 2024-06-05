@@ -13,12 +13,12 @@ export type ValueOrArray<Value> = Value | Value[];
 export type Guid = string;
 
 export interface StringCompareOptions {
-	readonly ignoreCase?: boolean;
-	readonly trim?: boolean;
+	ignoreCase?: boolean;
+	trim?: boolean;
 }
 
 export interface ValueCompareOptions<Value = unknown, Result = CompareReturn> extends StringCompareOptions {
-	readonly compareValues?: (
+	compareValues?: (
 		value1: Value,
 		value2: Value,
 		options: Omit<ValueCompareOptions<Value, Result>, "compareValues"> | undefined
@@ -26,7 +26,7 @@ export interface ValueCompareOptions<Value = unknown, Result = CompareReturn> ex
 }
 
 export interface ObjectCompareOptions<Result = CompareReturn> extends ValueCompareOptions<unknown, Result> {
-	readonly compareObjects?: (
+	compareObjects?: (
 		value1: unknown,
 		value2: unknown,
 		options: Omit<ObjectCompareOptions<Result> | undefined, "compareObjects"> | undefined
@@ -34,7 +34,7 @@ export interface ObjectCompareOptions<Result = CompareReturn> extends ValueCompa
 }
 
 export interface EvaluateValueBinaryOperatorOptions<Value = unknown> extends StringCompareOptions {
-	readonly evaluate?: (
+	evaluate?: (
 		value1: Value,
 		value2: Value,
 		operator: ValueBinaryOperator,
@@ -43,7 +43,7 @@ export interface EvaluateValueBinaryOperatorOptions<Value = unknown> extends Str
 }
 
 export interface EvaluateValueUnaryOperatorOptions<Value = unknown> extends StringCompareOptions {
-	readonly evaluate?: (
+	evaluate?: (
 		value: Value,
 		operator: ValueUnaryOperator,
 		options: Omit<EvaluateValueUnaryOperatorOptions<Value>, "evaluate"> | undefined
@@ -76,8 +76,10 @@ export interface StorybookComponent<P = never> {
 	parameters?: object;
 }
 
-export interface ArrayIterationNode<Item> {
+export interface RecursiveIterationNode<Item> {
 	readonly item: Item;
+	readonly parents: RecursiveIterationNode<Item>[];
+	
 	readonly level: number; // zero for root level
 	readonly globalIndex: number; // sequential number for all nodes, never repeats
 	readonly indexInParent: number; // the index of this node in the children of its parent (but not on the level among siblings)
@@ -107,7 +109,7 @@ export interface CallContext<State = unknown> {
 }
 
 export interface CallContextReturn extends CallContext {
-	readonly complete: (error?: any) => void;
-	readonly run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
-	readonly runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
+	complete: (error?: any) => void;
+	run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
+	runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
 }

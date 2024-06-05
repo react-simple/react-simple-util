@@ -1,7 +1,7 @@
 import { LogLevel } from "log/types";
 import {
 	CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, Nullable, EvaluateValueBinaryOperatorOptions,
-	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions
+	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions, RecursiveIterationNode, ValueOrArray
 } from "utils/types";
 
 export interface ReactSimpleUtilDependencyInjection {
@@ -68,6 +68,14 @@ export interface ReactSimpleUtilDependencyInjection {
 			transformValue: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined,
 			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["deepCopyObject"]
 		) => Obj;
+
+		recursiveIteration: <Item>(
+			rootItem: Item,
+			getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects and arrays will be processed from the result
+			callback: ((node: RecursiveIterationNode<Item>) => void) | undefined,
+			depthFirst: boolean, // by deafult it's breadth-first
+			defaultImpl: ReactSimpleUtilDependencyInjection["object"]["recursiveIteration"]
+		) => void;
 	};
 
 	string: {

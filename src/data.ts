@@ -33,6 +33,7 @@ export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 			compareObjects: stub,
 			sameObjects: stub,
 			deepCopyObject: stub,
+			recursiveIteration: stub
 		},
 		string: {
 			compareStrings: stub,

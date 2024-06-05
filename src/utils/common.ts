@@ -47,6 +47,10 @@ export function isValueType(obj: unknown): obj is ValueType {
 	return isString(obj) || isNumber(obj) || isBoolean(obj) || isDate(obj);
 }
 
+export function isObject(obj: unknown): obj is object {
+	return !isValueType(obj) && !isArray(obj);
+}
+
 // Checks if the object has any keys set.
 // If checkMemberValues is specified it also check the values of the members to be empty. By default it uses isEmpty().
 export const isEmptyObject = (
@@ -85,3 +89,7 @@ export function getResolvedArray <T>(valueOrArray: Nullable<T> | T[], splitValue
 					[valueOrArray]
 	);
 }
+
+export const getResolvedObjectEntries = <Value>(entries: Record<string, Value> | [string, Value][]) => {
+	return isArray(entries) ? entries : Object.entries(entries);
+};

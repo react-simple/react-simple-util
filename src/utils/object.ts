@@ -1,5 +1,5 @@
-import { CompareReturn, ObjectCompareOptions  } from "./types";
-import { isArray, isEmpty, isNullOrUndefined, isValueType } from "./common";
+import { RecursiveIterationNode, CompareReturn, Nullable, ObjectCompareOptions, ValueOrArray  } from "./types";
+import { getResolvedArray, isArray, isEmpty, isNullOrUndefined, isValueType } from "./common";
 import { compareValues, sameValues } from "./value";
 import { getDistinct, sortArray } from "./array";
 import { REACT_SIMPLE_UTIL } from "data";
@@ -211,3 +211,68 @@ export function deepCopyObject<Obj extends object>(
 ): Obj {
 	return REACT_SIMPLE_UTIL.DI.object.deepCopyObject(obj, transformValue, deepCopyObject_default);
 }
+
+const recursiveIteration_default = <Item>(
+	rootItem: ValueOrArray<Item>,	
+	getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects will be processed from the result
+	callback?: (node: RecursiveIterationNode<Item>) => void,
+	depthFirst?: boolean // by deafult it's breadth-first
+) => {
+	if (!rootItem) {
+		return;
+	}
+
+	const rootItems = getResolvedArray(rootItem);
+
+	if (!rootItems.length) {
+		return;
+	}
+
+	let globalIndex = 0;
+
+	const queue: RecursiveIterationNode<Item>[] = (depthFirst ? rootItems.reverse() : rootItems).map((item, index) => ({
+		item,
+		parents: [],
+		level: 0,
+		indexInParent: index,
+		indexOnLevel: index,
+		globalIndex: globalIndex++
+	}));
+
+	const indexOnLevelByLevel: { [level: number]: number } = {};
+
+	while (queue.length) {
+		const parent = depthFirst ? queue.pop()! : queue.shift()!;
+		callback?.(parent);
+		
+		const children: Item[] = getResolvedArray(getChildren(parent));
+
+		if (children.length) {
+			const level = parent.level + 1;
+			const indexOnLevel = indexOnLevelByLevel[level] || 0;
+			indexOnLevelByLevel[level] = indexOnLevel + children.length;
+			const parents = [...parent.parents, parent];
+
+			queue.push(...(depthFirst ? children.reverse() : children).map((item, index) => ({
+				item,
+				parents,
+				level,
+				indexInParent: index,
+				indexOnLevel: indexOnLevel + index,
+				globalIndex: globalIndex++,
+			})));
+		}
+	}
+};
+
+REACT_SIMPLE_UTIL.DI.object.recursiveIteration = recursiveIteration_default;
+
+export const recursiveIteration = <Item>(
+	rootObj: Item,
+	getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects and arrays will be processed from the result
+	callback?: (node: RecursiveIterationNode<Item>) => void,	
+	depthFirst?: boolean // by deafult it's breadth-first
+) => {
+	return REACT_SIMPLE_UTIL.DI.object.recursiveIteration(rootObj, getChildren, callback, !!depthFirst, recursiveIteration_default);
+};
+

@@ -1,6 +1,6 @@
 import { compareValues, sameValues } from "./value";
-import { ArrayIterationNode, CompareReturn, Nullable, ValueCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
-import { getResolvedArray, isArray, isEmpty, isFunction } from "./common";
+import { CompareReturn, Nullable, ValueCompareOptions, ValueOrArray, ValueOrCallbackWithArgs, ValueType } from "./types";
+import { isArray, isEmpty, isFunction } from "./common";
 import { REACT_SIMPLE_UTIL } from "data";
 import { compareNumbers } from "./number";
 
@@ -307,48 +307,6 @@ export function sortArrayBy<Item, Value extends ValueType>(
 
 	return result;
 }
-
-export const recursiveIteration = <Item>(
-	rootNodes: Item | Item[],
-	getChildren: (node: ArrayIterationNode<Item>) => Nullable<ValueOrArray<Item>>,
-	callback: (node: ArrayIterationNode<Item>) => void,
-	depthFirst = false // by deafult it's breadth-first
-) => {
-	let globalIndex = 0;
-
-	const root = getResolvedArray(rootNodes);
-
-	const queue: ArrayIterationNode<Item>[] = (depthFirst ? root.reverse() : root).map((item, index) => ({
-		item,
-		level: 0,
-		indexInParent: index,
-		indexOnLevel: index,
-		globalIndex: globalIndex++
-	}));
-
-	const indexOnLevelByLevel: { [level: number]: number } = {};
-
-	while (queue.length) {
-		const args = depthFirst ? queue.pop()! : queue.shift()!;
-		callback(args);
-
-		const children = getResolvedArray(getChildren(args));
-
-		if (children.length) {
-			const level = args.level + 1;
-			const indexOnLevel = indexOnLevelByLevel[level] || 0;
-			indexOnLevelByLevel[level] = indexOnLevel + children.length;
-
-			queue.push(...(depthFirst ? children.reverse() : children).map((item, index) => ({
-				item,
-				level,
-				indexInParent: index,
-				indexOnLevel: indexOnLevel + index,
-				globalIndex: globalIndex++
-			})));
-		}
-	}
-};
 
 export function findMapped<In, Out>(
 	arr: In[],

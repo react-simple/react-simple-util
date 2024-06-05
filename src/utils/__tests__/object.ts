@@ -1,4 +1,6 @@
-import { compareNumbers, compareObjects, deepCopyObject, isNumber, mapObject, removeKeys, sameObjects } from "utils";
+import {
+	compareNumbers, compareObjects, deepCopyObject, isNumber, mapObject, range, recursiveIteration, removeKeys, sameArrays, sameObjects,	isArray,
+ } from "utils";
 
 // compareObjects
 
@@ -105,4 +107,85 @@ it('deepCopyObject.transform', () => {
 	expect(original.a.b.c).toBe(1);
 	expect(copy.a.b.c).toBe(10);
 	expect(copy).not.toBe(original);
+});
+
+it('deepIterateObject.brethFirst', () => {
+	const arr = [
+		{ value: 1 },
+		{ value: 2 },
+		{
+			value: 3,
+			children: [
+				{ value: 5 },
+				{
+					value: 6,
+					children: [
+						{ value: 9 },
+						{ value: 10 }
+					]
+				},
+				{
+					value: 7,
+					children: []
+				}
+			]
+		},
+		{
+			value: 4,
+			children: { value: 8 }
+		}
+	];
+
+	const result: number[] = [];
+	
+	// deepIterateChildObjects automatically iterates all object and array children, 
+	// but callback() is only called for objects
+	recursiveIteration(
+		arr,
+		t => (t.item as any).children,
+		t => result.push((t.item as any).value)
+		);
+	
+	expect(sameArrays(result, range(1, 10))).toBe(true);
+});
+
+it('deepIterateObject.depthFirst', () => {
+	const arr = [
+		{ value: 1 },
+		{ value: 2 },
+		{
+			value: 3,
+			children: [
+				{ value: 4 },
+				{
+					value: 5,
+					children: [
+						{ value: 6 },
+						{ value: 7 }
+					]
+				},
+				{
+					value: 8,
+					children: []
+				}
+			]
+		},
+		{
+			value: 9,
+			children: { value: 10 }
+		}
+	];
+
+	const result: number[] = [];
+
+	// deepIterateChildObjects automatically iterates all object and array children, 
+	// but it's possible to define custom getChildren() iterator
+	recursiveIteration(
+		arr,
+		t => (t.item as any).children,
+		t => result.push((t.item as any).value),
+		true
+	);
+
+	expect(sameArrays(result, range(1, 10))).toBe(true);
 });
