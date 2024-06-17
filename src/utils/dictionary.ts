@@ -113,7 +113,7 @@ export function copyDictionary<In, Out>(
 function compareDictionaries_default<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options: ObjectCompareOptions = {}
+	options: ObjectCompareOptions
 ): CompareReturn {
 	return compareObjects(dict1, dict2, options);
 }
@@ -133,7 +133,7 @@ export function compareDictionaries<Value>(
 function sameDictionaries_default<Value>(
 	dict1: Record<string, Value>,
 	dict2: Record<string, Value>,
-	options: ObjectCompareOptions<boolean> = {}
+	options: ObjectCompareOptions<boolean>
 ): boolean {
 	return sameObjects(dict1, dict2, options);
 }

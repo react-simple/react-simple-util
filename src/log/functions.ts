@@ -30,8 +30,8 @@ export const logMessageFilter = (
 const logMessage_default = (
 	level: LogLevel,
 	message: string,
-	args?: unknown,
-	currentLogLevel?: LogLevel // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
+	args: unknown,
+	currentLogLevel: LogLevel | undefined // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
 ) => {
 	if (logMessageFilter(level, currentLogLevel)) {
 		switch (level) {
@@ -70,8 +70,10 @@ export const logMessage = (
 	if (isString(message)) {
 		REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, message, args, currentLogLevel, logMessage_default);
 	}
-	else if (isFunction(message) && logMessageFilter(logLevel)) {
-		const result = message((t1, t2, t3) => REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, t1, t2, t3 || currentLogLevel, logMessage_default));
+	else if (isFunction(message) && logMessageFilter(logLevel, currentLogLevel)) {
+		const result = message((tmessage, targs, tcurrentloglevel) => {
+			return REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, tmessage, targs, tcurrentloglevel || currentLogLevel, logMessage_default);
+		});
 
 		if (isString(result)) {
 			REACT_SIMPLE_UTIL.DI.logging.logMessage(logLevel, result, args, currentLogLevel, logMessage_default);

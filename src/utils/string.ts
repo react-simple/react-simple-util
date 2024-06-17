@@ -1,6 +1,6 @@
 import { MAX_INT } from "consts";
 import { CompareReturn, StringCompareOptions, ValueOrArray } from "./types";
-import { getResolvedArray, isArray } from "./common";
+import { getResolvedArray, isArray, isObject } from "./common";
 import { REACT_SIMPLE_UTIL } from "data";
 
 export const getComparableString = (s: string, options: StringCompareOptions = {}) => {
@@ -15,7 +15,7 @@ export const getComparableString = (s: string, options: StringCompareOptions = {
 	return s;
 };
 
-function compareStrings_default(s1: string, s2: string, options: StringCompareOptions = {}): CompareReturn {
+function compareStrings_default(s1: string, s2: string, options: StringCompareOptions): CompareReturn {
 	s1 = getComparableString(s1, options);
 	s2 = getComparableString(s2, options);
 
@@ -28,7 +28,7 @@ export function compareStrings(s1: string, s2: string, options: StringCompareOpt
 	return REACT_SIMPLE_UTIL.DI.string.compareStrings(s1, s2, options, compareStrings);
 }
 
-const sameStrings_default = (s1: string, s2: string, options: StringCompareOptions = {}) => {
+const sameStrings_default = (s1: string, s2: string, options: StringCompareOptions) => {
 	return compareStrings(s1, s2, options) === 0;
 };
 
@@ -203,4 +203,24 @@ export const stringIndexOfAny = (
 
 export const stringAppend = (s: string, append: string, separator = "") => {
 	return !s ? append : !append ? s : `${s}${separator}${append}`;
+};
+
+// returns first index found
+export const indexOf = (
+	s: string,
+	search: string | string[],
+	options: StringCompareOptions & { startIndex?: number } = {}
+) => {
+	let min = -1;
+	s = getComparableString(s, options);
+
+	for (const k of getResolvedArray(search)) {
+		const i = s.indexOf(getComparableString(k, options), options.startIndex);
+
+		if (i >= 0 && (min === -1 || i < min)) {
+			min = i;
+		}
+	}
+
+	return min;
 };

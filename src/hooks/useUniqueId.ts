@@ -8,7 +8,7 @@ export const useUniqueId = (options?: {
 	separator?: string; // default is '_'
 }) => {
 	const [uniqueId] = useState(() => options
-		? joinNonEmptyValues([options.prefix, newGuid(), options.suffix], options.separator)
+		? joinNonEmptyValues([options.prefix, newGuid(), options.suffix], options.separator || "_")
 		: newGuid()
 	);
 

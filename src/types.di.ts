@@ -70,7 +70,7 @@ export interface ReactSimpleUtilDependencyInjection {
 		) => Obj;
 
 		recursiveIteration: <Item>(
-			rootItem: Item,
+			rootItem: ValueOrArray<Item>,
 			getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects and arrays will be processed from the result
 			callback: ((node: RecursiveIterationNode<Item>) => void) | undefined,
 			depthFirst: boolean, // by deafult it's breadth-first

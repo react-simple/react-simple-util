@@ -65,7 +65,7 @@ export function removeKeysUnsafe<Obj extends object>(
 }
 
 // member names always compared case-sensitive. members are compared in alphabetical order (by name).
-function compareObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions = {}): CompareReturn {
+function compareObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions): CompareReturn {
 	if (options.compareObjects) {
 		return options.compareObjects(obj1, obj2, options);
 	}
@@ -110,7 +110,7 @@ export function compareObjects(obj1: any, obj2: any, options: ObjectCompareOptio
 }
 
 // member names always compared case-sensitive
-function sameObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions<boolean> = {}): boolean {
+function sameObjects_default(obj1: any, obj2: any, options: ObjectCompareOptions<boolean>): boolean {
 	if (obj1 === obj2) {
 		return true;
 	}
@@ -179,7 +179,7 @@ export function mapObject<T>(obj: T, map: (value: unknown, key: string | number)
 // Transform is called for all children not value types (leaves) only, but not for the root.
 function deepCopyObject_default<Obj extends object>(
 	obj: Obj,
-	transformValue?: (value: unknown, key: string | number, obj: unknown) => unknown
+	transformValue: ((value: unknown, key: string | number, obj: unknown) => unknown) | undefined
 ): Obj {
 	if (!obj || isValueType(obj)) {
 		return obj;
@@ -213,24 +213,24 @@ export function deepCopyObject<Obj extends object>(
 }
 
 const recursiveIteration_default = <Item>(
-	rootItem: ValueOrArray<Item>,	
+	rootItems: ValueOrArray<Item>,	
 	getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects will be processed from the result
-	callback?: (node: RecursiveIterationNode<Item>) => void,
-	depthFirst?: boolean // by deafult it's breadth-first
+	callback: ((node: RecursiveIterationNode<Item>) => void) | undefined,
+	depthFirst: boolean // by deafult it's breadth-first
 ) => {
-	if (!rootItem) {
+	if (!rootItems) {
 		return;
 	}
 
-	const rootItems = getResolvedArray(rootItem);
+	const rootItemsArray = getResolvedArray(rootItems);
 
-	if (!rootItems.length) {
+	if (!rootItemsArray.length) {
 		return;
 	}
 
 	let globalIndex = 0;
 
-	const queue: RecursiveIterationNode<Item>[] = (depthFirst ? rootItems.reverse() : rootItems).map((item, index) => ({
+	const queue: RecursiveIterationNode<Item>[] = (depthFirst ? rootItemsArray.reverse() : rootItemsArray).map((item, index) => ({
 		item,
 		parents: [],
 		level: 0,
@@ -268,7 +268,7 @@ const recursiveIteration_default = <Item>(
 REACT_SIMPLE_UTIL.DI.object.recursiveIteration = recursiveIteration_default;
 
 export const recursiveIteration = <Item>(
-	rootObj: Item,
+	rootObj: ValueOrArray<Item>,
 	getChildren: (node: RecursiveIterationNode<Item>) => Nullable<ValueOrArray<Item>>, // only objects and arrays will be processed from the result
 	callback?: (node: RecursiveIterationNode<Item>) => void,	
 	depthFirst?: boolean // by deafult it's breadth-first
