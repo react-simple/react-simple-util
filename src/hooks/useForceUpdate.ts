@@ -40,18 +40,19 @@ export const useUpdateTarget = <NotificationMessage = unknown>(
 	useEffect(
 		() => {
 			// Initialize
-			UPDATE_TARGETS[targetId] = {
-				...UPDATE_TARGETS[targetId],
-				[uniqueId]: message => {
-					// update this
-					setState({
-						tick: (state.tick + 1) & 0x7fffffff,
-						message: message as NotificationMessage
-					});
+			const targets = UPDATE_TARGETS[targetId] || {};
 
-					onUpdated?.(message as NotificationMessage);
-				}
+			targets[uniqueId] = message => {
+				// update this
+				setState({
+					tick: (state.tick + 1) & 0x7fffffff,
+					message: message as NotificationMessage
+				});
+
+				onUpdated?.(message as NotificationMessage);
 			};
+
+			UPDATE_TARGETS[targetId] = targets;
 
 			return () => {
 				// Finalize
