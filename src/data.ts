@@ -6,7 +6,7 @@ const stub: any = () => { };
 export const REACT_SIMPLE_UTIL: ReactSimpleUtil = {
 	LOGGING: {
 		logLevel: "error", // for functions in react-simple-util
-		defaultLogLevel: "error" // for log() calls which do not specify currentLogLevel (for your app)
+		defaultLogLevel: "error" // for log() calls which do not specify logLevel (for your app)
 	},
 
 	CALLCONTEXT: {

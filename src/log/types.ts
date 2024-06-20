@@ -10,3 +10,8 @@ export const LOG_LEVELS = {
 export type LogLevel = keyof typeof LOG_LEVELS;
 
 export type LogImplementation = (logLevel: LogLevel, message: string, args: unknown[]) => void;
+
+export interface LogOptions {
+	args?: unknown;
+	logLevel?: LogLevel;
+}

@@ -5,7 +5,7 @@ import { CallContext } from "utils/types";
 export interface ReactSimpleUtil {
 	LOGGING: {
 		logLevel: LogLevel; // for functions in react-simple-util
-		defaultLogLevel: LogLevel; // for log() calls which do not specify currentLogLevel (for your app)
+		defaultLogLevel: LogLevel; // for log() calls which do not specify logLevel (for your app)
 	};
 
 	CALLCONTEXT: {

@@ -113,3 +113,13 @@ export interface CallContextReturn extends CallContext {
 	run: <Result>(action: (onError: (err: any) => void) => Result) => Result;
 	runAsync: <Result>(action: (onError: (err: any) => void) => Promise<Result>) => Promise<Result>;
 }
+
+// Used to indicate the absence of a value when the value can be undefined or null
+export interface ValueRef<Value> {
+	value: Value;
+}
+
+// Used to indicate the absence of a value when the value can be undefined or null
+export interface ReadOnlyValueRef<Value> {
+	readonly value: Value;
+}

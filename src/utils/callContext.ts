@@ -33,8 +33,10 @@ export function callContext<State = unknown>(
     logMessage(
       logLevel,
       `[CallContext] Started context '${contextKey}'`,
-      { context, currentContext, allContexts },
-      REACT_SIMPLE_UTIL.LOGGING.logLevel
+      {
+        args: { context, currentContext, allContexts },
+        logLevel: REACT_SIMPLE_UTIL.LOGGING.logLevel
+      }
     );
   }
 
@@ -47,23 +49,27 @@ export function callContext<State = unknown>(
     currentContext: context
   };
 
-  const complete: CallContextReturn["complete"] = (error?: any) => {    
+  const complete: CallContextReturn["complete"] = (error?: any) => {
     const { currentContext, allContexts } = REACT_SIMPLE_UTIL.CALLCONTEXT;
 
     if (!isCompleted && currentContext?.contextId !== contextId) {
       logWarning(
         `[CallContext]: Completed context${error ? " with error " : ""} '${contextKey}' ` +
         `while current context is another context '${REACT_SIMPLE_UTIL.CALLCONTEXT.currentContext?.contextKey}'.`,
-        { context, currentContext, allContexts },
-        REACT_SIMPLE_UTIL.LOGGING.logLevel
+        {
+          args: { context, currentContext, allContexts },
+          logLevel: REACT_SIMPLE_UTIL.LOGGING.logLevel
+        }
       );
     }
     else if (logLevel) {
       logMessage(
         logLevel,
         `[CallContext]: Completed context${error ? " with error" : ""} '${contextKey}'`,
-        { context, currentContext, allContexts },
-        REACT_SIMPLE_UTIL.LOGGING.logLevel
+        {
+          args: { context, currentContext, allContexts },
+          logLevel: REACT_SIMPLE_UTIL.LOGGING.logLevel
+        }
       );
     }
 
@@ -83,7 +89,7 @@ export function callContext<State = unknown>(
     try {
       return action(err => complete(err));
     }
-    finally {     
+    finally {
       if (!isCompleted) {
         complete();
       }

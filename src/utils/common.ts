@@ -81,7 +81,7 @@ export function getResolvedCallbackValueWithArgs<Args, Value>(valueOrFn: ValueOr
 	return (isFunction(valueOrFn) ? valueOrFn(args) : valueOrFn) as Value;
 }
 
-export function getResolvedArray <T>(valueOrArray: Nullable<T> | T[], splitValue?: (value: T) => T[]) : T[] {
+export function getResolvedArray<T>(valueOrArray: Nullable<T> | T[], splitValue?: (value: T) => T[]): T[] {
 	return (
 		!valueOrArray ? [] :
 			isArray(valueOrArray) ? valueOrArray :

@@ -1,4 +1,4 @@
-import { LogLevel } from "log/types";
+import { LogLevel, LogOptions } from "log/types";
 import {
 	CompareReturn, ObjectCompareOptions, StringCompareOptions, ValueCompareOptions, Nullable, EvaluateValueBinaryOperatorOptions,
 	ValueBinaryOperator, ValueUnaryOperator, EvaluateValueUnaryOperatorOptions, RecursiveIterationNode, ValueOrArray
@@ -9,8 +9,7 @@ export interface ReactSimpleUtilDependencyInjection {
 		logMessage: (
 			level: LogLevel,
 			message: string,
-			args: unknown,
-			currentLogLevel: LogLevel | undefined, // defult is REACT_SIMPLE_UTIL.LOGGING.defaultLogLevel
+			options: LogOptions,
 			defaultImpl: ReactSimpleUtilDependencyInjection["logging"]["logMessage"]
 		) => void; 
 	};

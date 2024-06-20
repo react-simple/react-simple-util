@@ -30,9 +30,10 @@ npm run test
 import { ... } from "@react-simple/react-simple-util";
 
 # Configuration
+
 ## REACT_SIMPLE_UTIL
 
-Members in the REACT_SIMPLE_UTIL object can be set to change the internal functions globally.
+Members in the **REACT_SIMPLE_UTIL** object can be set to change the internal functions globally.
 
 ### REACT_SIMPLE_UTIL.LOGGING
 - **logLevel**: The current level of logging, can be set to **error, warning, debug, info** or **trace** to filter log messages. 
@@ -90,12 +91,12 @@ Set the **REACT_SIMPLE_UTIL.DI.logging.logMessage()** callback to a custom imple
 
 ### Functions
 
-- **logError(*message, args, *currentLogLevel?*)**: Logs errors to the console if LOG_LEVEL is set to *error, warning, debug, info* or *trace*
-- **logWarning(*message, args, *currentLogLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *warning, debug, info* or *trace*
-- **logDebug(*message, args, *currentLogLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *debug, info* or *trace*
-- **logInfo(*message, args, *currentLogLevel?*)**: Logs information to the console if LOG_LEVEL is set to *info* or *trace*
-- **logTrace(*message, args, *currentLogLevel?*)**: Logs trace information to the console if LOG_LEVEL is set to *trace*
-- **logMessage(*logLevel, message, args, *currentLogLevel?*)**: Calls one of the above methods based on the *logLevel* argument
+- **logError(*message, args, *logLevel?*)**: Logs errors to the console if LOG_LEVEL is set to *error, warning, debug, info* or *trace*
+- **logWarning(*message, args, *logLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *warning, debug, info* or *trace*
+- **logDebug(*message, args, *logLevel?*)**: Logs warnings to the console if LOG_LEVEL is set to *debug, info* or *trace*
+- **logInfo(*message, args, *logLevel?*)**: Logs information to the console if LOG_LEVEL is set to *info* or *trace*
+- **logTrace(*message, args, *logLevel?*)**: Logs trace information to the console if LOG_LEVEL is set to *trace*
+- **logMessage(*logLevel, message, args, *logLevel?*)**: Calls one of the above methods based on the *logLevel* argument
 
 ## Utils
 
